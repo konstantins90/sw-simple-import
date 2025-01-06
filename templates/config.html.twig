@@ -1,0 +1,74 @@
+{% extends 'components/layout.html.twig' %}
+
+{% block content %}
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Konfiguration Liste</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section x-data="fileManager()" id="files" class="content mt-5">
+        <div class="container-fluid">
+            <h3>Konfigurationen</h3>
+            <button @click="createFile()">Neue Konfig</button>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="files">
+                    <template x-for="file in files" :key="file.id">
+                        <tr>
+                            <td x-text="file.id"></td>
+                            <td x-text="file.name"></td>
+                            <td>
+                                <button @click="editFile(file.id)">Ändern</button>
+                                <button @click="deleteFile(file.id)">Löschen</button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function fileManager() {
+            return {
+                files: [], // Initiale Dateien
+                init() {
+                    // Dateien aus der API laden
+                    fetch('/config-files/all')
+                        .then(response => response.json())
+                        .then(data => this.files = data);
+                },
+                createFile() {
+                    window.location.href = `/config-files/create`;
+                },
+                editFile(id) {
+                    window.location.href = `/config-files/edit/${id}`;
+                },
+                deleteFile(id) {
+                    if (confirm('Möchten Sie diese Datei wirklich löschen?')) {
+                        fetch(`/config-files/delete/${id}`, {
+                            method: 'DELETE'
+                        })
+                        .then(() => {
+                            // Datei aus der Liste entfernen
+                            this.files = this.files.filter(file => file.id !== id);
+                        })
+                        .catch(() => alert('Ein Fehler ist aufgetreten.'));
+                    }
+                }
+            };
+        }
+    </script>
+{% endblock %}

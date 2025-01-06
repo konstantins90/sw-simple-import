@@ -1,0 +1,45 @@
+<database name="default" defaultIdMethod="native" namespace="Propel">
+
+    <!-- Tabelle: files -->
+    <table name="files">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="filename" type="VARCHAR" size="255" required="true"/>
+        <column name="path" type="VARCHAR" size="255" required="true"/>
+        <column name="status" type="VARCHAR" size="50" required="true"/>
+        <column name="config_id" type="INTEGER" required="true"/>
+        <column name="created_at" type="DATETIME" required="true"/>
+        <column name="updated_at" type="DATETIME" required="true"/>
+
+        <foreign-key foreignTable="config" onDelete="cascade">
+            <reference local="config_id" foreign="id"/>
+        </foreign-key>
+    </table>
+
+    <!-- Tabelle: import_history -->
+    <table name="import_history">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="file_id" type="INTEGER" required="true"/>
+        <column name="imported_at" type="DATETIME" required="true"/>
+        <column name="status" type="VARCHAR" size="50" required="true"/> <!-- Status des Imports -->
+        <column name="count_imported_products" type="INTEGER" required="true" default="0"/> <!-- Anzahl der erfolgreich importierten Produkte -->
+        <column name="count_errors" type="INTEGER" required="true" default="0"/> <!-- Anzahl der Fehler während des Imports -->
+
+        <!-- Fremdschlüssel auf die Tabelle files -->
+        <foreign-key foreignTable="files" onDelete="cascade">
+            <reference local="file_id" foreign="id"/>
+        </foreign-key>
+    </table>
+
+    <!-- Tabelle: files -->
+    <table name="config">
+        <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
+        <column name="name" type="VARCHAR" size="255" required="true"/>
+        <column name="prefix" type="VARCHAR" size="255" required="false"/>
+        <column name="marge" type="float" default="1" required="true"/>
+        <column name="mapping" type="LONGVARCHAR" required="false"/>
+        <column name="mapping_properties" type="LONGVARCHAR" required="false"/>
+        <column name="created_at" type="DATETIME" required="true"/>
+        <column name="updated_at" type="DATETIME" required="true"/>
+    </table>
+
+</database>

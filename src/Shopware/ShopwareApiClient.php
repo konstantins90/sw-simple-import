@@ -1,0 +1,433 @@
+<?php
+
+namespace App\Shopware;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use App\Csv\FileProcessorInterface;
+
+class ShopwareApiClient
+{
+    private string $apiUrl;
+    private Client $client;
+    private string $accessToken;
+    private array $manufacturerList = [];
+
+    public function __construct(string $apiUrl, string $clientId, string $clientSecret)
+    {
+        $this->apiUrl = $apiUrl;
+        $this->client = new Client(['base_uri' => $this->apiUrl]);
+        $this->authenticate($clientId, $clientSecret);
+    }
+
+    private function authenticate(string $clientId, string $clientSecret): void
+    {
+        try {
+            $response = $this->client->post('/api/oauth/token', [
+                'form_params' => [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                ],
+            ]);
+
+            $data = json_decode($response->getBody()->getContents(), true);
+            $this->accessToken = $data['access_token'];
+        } catch (RequestException $e) {
+            throw new \Exception('Failed to authenticate with Shopware API: ' . $e->getMessage());
+        }
+    }
+
+    public function importProduct(array $productData): ?string
+    {
+        unset($productData['media']);
+        try {
+            $response = $this->client->post('/api/product?_response=basic', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+                'body' => json_encode($productData),
+            ]);
+
+            if ($response->getStatusCode() == 200) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? null; // Gib die productId zurück
+            } elseif ($response->getStatusCode() !== 200 && $response->getStatusCode() !== 204) {
+                throw new \Exception('Failed to import product, HTTP status: ' . $response->getStatusCode());
+            }
+    
+            return null;
+        } catch (RequestException $e) {
+            d('Error importing product: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateProduct(string $productId, array $productData): bool
+    {
+        unset($productData['media']);
+        try {
+            $this->client->patch('/api/product/' . $productId, [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($productData),
+            ]);
+            return true;
+        } catch (RequestException $e) {
+            d('Error updating product: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function productExists(string $productNumber): string|bool
+    {
+        try {
+            $response = $this->client->post('/api/search/product', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+                'body' => json_encode( [
+                    'filter' => [
+                        [
+                            'type'  => 'equals',
+                            'field' => 'productNumber',
+                            'value' => $productNumber,
+                        ]
+                    ]
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            // Wenn 'total' größer als 0 ist, wurde das Produkt gefunden
+            if (isset($responseData['meta']['total']) && $responseData['meta']['total'] > 0) {
+                // Gib die ID des ersten Produkts zurück (wenn gefunden)
+                return $responseData['data'][0]['id'];
+            }
+
+            return false; // Produkt nicht gefunden
+        } catch (RequestException $e) {
+            d('Error checking product existence: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function productHasMedia(string $productId): bool
+    {
+        try {
+            // API-URL zum Abrufen des Produkts
+            $response = $this->client->get('/api/product/' . $productId . '/media', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    // 'Content-Type'  => 'application/json',
+                ],
+            ]);
+
+            $productData = json_decode($response->getBody()->getContents(), true);
+
+            // Prüfen, ob das Produkt Medien zugeordnet hat
+            if (isset($productData['data']) && count($productData['data']) > 0) {
+                return true; // Produkt hat mindestens ein Media-Objekt zugeordnet
+            }
+
+            return false; // Produkt hat kein Media-Objekt zugeordnet
+        } catch (RequestException $e) {
+            d('Error checking product media: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function mediaExistsByUrl(string $mediaUrl): mixed
+    {
+        try {
+            // API-URL zum Durchsuchen von Media-Einträgen
+            $response = $this->client->post('/api/search/media', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type'  => 'application/json',
+                ],
+                // Suche nach einem Media-Eintrag, der den gleichen Dateinamen wie die URL hat
+                'body' => json_encode([
+                    'filter' => [
+                        [
+                            'type'  => 'equals',
+                            'field' => 'url',
+                            'value' => $mediaUrl,
+                        ]
+                    ]
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            // Wenn 'total' größer als 0 ist, wurde das Media-Objekt gefunden
+            if (isset($responseData['total']) && $responseData['total'] > 0) {
+                // Gib die ID des ersten Media-Objekts zurück
+                return $responseData['data'][0]['id'];
+            }
+
+            return false; // Media-Objekt nicht gefunden
+        } catch (RequestException $e) {
+            throw new \Exception('Error checking media existence: ' . $e->getMessage());
+        }
+    }
+
+    public function uploadMedia(string $mediaId, string $mediaUrl)
+    {
+        try {
+            // API-URL zum Hochladen von Media-Dateien
+            $response = $this->client->post('/api/_action/media/' . $mediaId . '/upload?_response=basic', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Content-Type' => 'application/json'
+                ],
+                'body' => json_encode([
+                    'url' => $mediaUrl,
+                ])
+            ]);
+
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+            } else {
+                d('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
+                return false;
+            }
+        } catch (RequestException $e) {
+            d('Error uploading media: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function productSetCover(string $productId, string $mediaId): bool
+    {
+        try {
+            // API-URL zum Aktualisieren des Produkts
+            $response = $this->client->patch('/api/product/' . $productId, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Content-Type'  => 'application/json',
+                ],
+                // Produkt-Update mit Medien-ID
+                'body' => json_encode([
+                    'coverId' => $mediaId
+                ])
+            ]);
+
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
+                return true;
+            } else {
+                throw new \Exception('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
+            }
+        } catch (RequestException $e) {
+            echo "Fehler beim Erstellen der Media-Entity: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function createMedia(string $mediaUrl): false|string
+    {
+        try {
+            // API-URL zum Aktualisieren des Produkts
+            $response = $this->client->post('/api/media?_response=basic', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Content-Type'  => 'application/json',
+                ],
+                // Produkt-Update mit Medien-ID
+                'body' => json_encode([
+                    'mediaFolderId' => FileProcessorInterface::MEDIA_FOLDER,
+                ])
+            ]);
+
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+            } else {
+                throw new \Exception('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
+            }
+        } catch (RequestException $e) {
+            echo "Fehler beim Erstellen der Media-Entity: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function addMediaToProduct(string $productId, string $mediaId): false|string
+    {
+        try {
+            // API-URL zum Aktualisieren des Produkts
+            $response = $this->client->post('/api/product-media?_response=detail', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Content-Type'  => 'application/json',
+                ],
+                // Produkt-Update mit Medien-ID
+                'body' => json_encode([
+                    'productId' => $productId,
+                    'mediaId' => $mediaId,
+                    'position' => 0
+
+                ])
+            ]);
+
+            if ($response->getStatusCode() === 200 || $response->getStatusCode() === 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+            } else {
+                throw new \Exception('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
+            }
+        } catch (RequestException $e) {
+            echo "Fehler beim Erstellen der Media-Entity: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getManufacturerList(bool $force = false): array
+    {
+        if (empty($this->manufacturerList) || $force == true) {
+            $this->manufacturerList = $this->getManufacturerFromApi();
+        }
+
+        return $this->manufacturerList;
+    }
+
+    public function findManufacturer(string $manufacturer): string|false
+    {
+        $key = array_search ($manufacturer, $this->manufacturerList);
+        if ($key !== false) {
+            return (string) $key;
+            // return (string) $this->manufacturerList[$key];
+        }
+
+        return false;
+    }
+
+    private function getManufacturerFromApi(): array
+    {
+        $result = [];
+        try {
+            $response = $this->client->get('/api/product-manufacturer', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
+
+            $productData = json_decode($response->getBody()->getContents(), true);
+
+            // Prüfen, ob das Produkt Medien zugeordnet hat
+            if (isset($productData['data']) && count($productData['data']) > 0) {
+                foreach ($productData['data'] as $item) {
+                    $result[$item['id']] = $item['attributes']['name'];
+                }
+            }
+
+            return $result;
+        } catch (RequestException $e) {
+            d('Error checking product media: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function createManufacturer(string $manufacturer): string|false
+    {
+        try {
+            $response = $this->client->post('/api/product-manufacturer?_response=basic', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'name' => $manufacturer,
+                ])
+            ]);
+
+            $this->getManufacturerList(true);
+
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+            }
+
+            return false;
+        } catch (RequestException $e) {
+            d('Error checking product media: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function findPropertyOptionId(string $propertyGroupId, string $optionName): ?string
+    {
+        $params = [
+            'filter' => [
+                'groupId' => $propertyGroupId,
+                'name' => $optionName,
+            ]
+        ];
+
+        try {
+            $response = $this->client->get('/api/property-group-option', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'query' => $params
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if (!empty($responseData['data'])) {
+                return $responseData['data'][0]['id']; // Вернуть id найденной опции
+            }
+
+            return null; // Если опция не найдена
+        } catch (RequestException $e) {
+            d('Error find property: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function createPropertyOption(string $propertyGroupId, string $optionName): string
+    {
+        d('createPropertyOption', $propertyGroupId, $optionName);
+        try {
+            $response = $this->client->post('/api/property-group-option?_response=basic', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode([
+                    'groupId' => $propertyGroupId,
+                    'name' => $optionName
+                ])
+            ]);
+
+            if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+            }
+
+            return false;
+        } catch (RequestException $e) {
+            d('Error checking property option: ' . $e->getMessage());
+            return false;
+        }
+    }
+}

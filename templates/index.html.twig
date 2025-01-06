@@ -1,0 +1,84 @@
+{% extends 'components/layout.html.twig' %}
+
+{% block content %}
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Shopware Simple Importer</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <form action="/upload" class="dropzone" id="file-dropzone">
+                <div class="dz-message">
+                    Ziehen Sie die Dateien hierher oder klicken Sie, um sie auszuwählen.
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section x-data="fileManager()" id="files" class="content mt-5">
+        <div class="container-fluid">
+            <h3>Dateien</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Dateiname</th>
+                        <th scope="col">Path</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Konfig Name</th>
+                        <th scope="col">Erstellt Am</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="files">
+                    <template x-for="file in files" :key="file.id">
+                        <tr>
+                            <td x-text="file.id"></td>
+                            <td x-text="file.name"></td>
+                            <td x-text="file.path"></td>
+                            <td x-text="file.status"></td>
+                            <td x-text="file.config_name"></td>
+                            <td x-text="file.created_at"></td>
+                            <td>
+                                <button @click="deleteFile(file.id)">Löschen</button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function fileManager() {
+            return {
+                files: [], // Initiale Dateien
+                init() {
+                    // Dateien aus der API laden
+                    fetch('/files')
+                        .then(response => response.json())
+                        .then(data => this.files = data);
+                },
+                deleteFile(id) {
+                    if (confirm('Möchten Sie diese Datei wirklich löschen?')) {
+                        fetch(`/files/delete/${id}`, {
+                            method: 'DELETE'
+                        })
+                        .then(() => {
+                            // Datei aus der Liste entfernen
+                            this.files = this.files.filter(file => file.id !== id);
+                        })
+                        .catch(() => alert('Ein Fehler ist aufgetreten.'));
+                    }
+                }
+            };
+        }
+    </script>
+{% endblock %}

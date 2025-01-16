@@ -28,6 +28,22 @@
           @change="handleCsvUpload" />
       </div>
 
+      <!-- TAKE DEFAULT MARGIN IF NONE -->
+      <div class="form-group">
+        <label for="marge">Marge</label>
+        <input type="number" id="marge" name="marge" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label for="prefix">SKU Prefix</label>
+        <input
+          type="text"
+          id="prefix"
+          name="prefix"
+          class="form-control"
+          placeholder="preorder-" />
+      </div>
+
       <div class="form-group mt-4">
         <h3>Felder</h3>
         <template x-for="(field, index) in fields" :key="index">

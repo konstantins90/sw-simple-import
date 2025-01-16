@@ -32,7 +32,7 @@
       </div>
 
       <div class="form-group">
-        <label for="name">Marge</label>
+        <label for="marge">Marge</label>
         <input
           type="number"
           id="marge"
@@ -43,7 +43,7 @@
       </div>
 
       <div class="form-group">
-        <label for="name">SKU Prefix</label>
+        <label for="prefix">SKU Prefix</label>
         <input
           type="text"
           id="prefix"
@@ -65,13 +65,13 @@
                 :value="key"
                 placeholder="key"
                 x-bind:value="key"
-                :name="'name[' + key + ']'" />
+                :name="'fields[' + key + '][name]'" />
             </div>
             <div class="col-2">
               <select
                 class="form-select"
                 x-model="field.type"
-                :name="'type[' + key + ']'">
+                :name="'fields[' + key + '][type]'">
                 <option value="default" selected>Standardwert</option>
                 <option value="csv">CSV Feld</option>
               </select>
@@ -79,7 +79,7 @@
             <div class="col-2">
               <input
                 type="text"
-                :name="'default[' + key + ']'"
+                :name="'fields[' + key + '][default]'"
                 class="form-control"
                 placeholder="Standardwert"
                 x-show="field.type === 'default'"
@@ -87,7 +87,7 @@
 
               <input
                 type="text"
-                :name="'csv[' + key + ']'"
+                :name="'fields[' + key + '][csvField]'"
                 class="form-control"
                 placeholder="CSV-Feld"
                 x-show="field.type === 'csv'"
@@ -97,7 +97,7 @@
               <button
                 type="button"
                 class="btn btn-danger"
-                @click="removeField(index)">
+                @click="removeField(key)">
                 Remove
               </button>
             </div>
@@ -149,15 +149,15 @@
           });
       },
       addField() {
-        this.fields.push({
-          name: "",
+        const newFieldName = `Field ${Object.keys(this.fields).length + 1}`;
+        this.fields[newFieldName] = {
           type: "default",
-          csvField: "",
-          isReadOnly: false,
-        });
+          csv: null,
+          default: "",
+        };
       },
-      removeField(index) {
-        this.fields.splice(index, 1);
+      removeField(fieldName) {
+        delete this.fields[fieldName];
       },
     };
   }

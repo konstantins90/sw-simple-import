@@ -141,10 +141,13 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
 
     // Daten aus dem POST-Request
     $name = $_POST['name'] ?? null;
+    $marge = $_POST['marge'] ?? null;
+    $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
 
-
     if ($name) {
+        //print_r($name);
+        //print_r($fields);
         $mapping = [];
         foreach ($fields as $field) {
             $fieldName = $field['name'] ?? '';
@@ -163,6 +166,8 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
 
         try {
             $configFile->setName($name);
+            $configFile->setMarge($marge);
+            $configFile->setPrefix($prefix);
             $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
             $configFile->setCreatedAt(new \DateTime());
             $configFile->setUpdatedAt(new \DateTime());
@@ -209,7 +214,10 @@ $router->map('GET', '/config-files/create', function () use ($twig) {
 
 $router->map('POST', '/config-files/create', function () {
     $name = $_POST['name'] ?? null;
+    $marge = $_POST['marge'] ?? null;
+    $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
+
 
     if ($name) {
         $mapping = [];
@@ -231,6 +239,12 @@ $router->map('POST', '/config-files/create', function () {
         try {
             $configFile = new Config();
             $configFile->setName($name);
+            if ($marge) {
+                $configFile->setmarge($marge);
+            }
+            if ($prefix) {
+                $configFile->setPrefix($prefix);
+            }
             $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
             $configFile->setCreatedAt(new \DateTime());
             $configFile->setUpdatedAt(new \DateTime());

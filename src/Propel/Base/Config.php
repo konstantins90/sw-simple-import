@@ -379,7 +379,7 @@ abstract class Config implements ActiveRecordInterface
         $propertyNames = [];
         $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
 
-        foreach($serializableProperties as $property) {
+        foreach ($serializableProperties as $property) {
             $propertyNames[] = $property->getName();
         }
 
@@ -559,7 +559,7 @@ abstract class Config implements ActiveRecordInterface
     public function setMarge($v)
     {
         if ($v !== null) {
-            $v = (double) $v;
+            $v = (float) $v;
         }
 
         if ($this->marge !== $v) {
@@ -660,9 +660,9 @@ abstract class Config implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues(): bool
     {
-            if ($this->marge !== 1.0) {
-                return false;
-            }
+        if ($this->marge !== 1.0) {
+            return false;
+        }
 
         // otherwise, everything was equal, so return TRUE
         return true;
@@ -700,7 +700,7 @@ abstract class Config implements ActiveRecordInterface
             $this->prefix = (null !== $col) ? (string) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ConfigTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->marge = (null !== $col) ? (double) $col : null;
+            $this->marge = (null !== $col) ? (float) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ConfigTableMap::translateFieldName('Mapping', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mapping = (null !== $col) ? (string) $col : null;
@@ -748,9 +748,7 @@ abstract class Config implements ActiveRecordInterface
      * @throws \Propel\Runtime\Exception\PropelException
      * @return void
      */
-    public function ensureConsistency(): void
-    {
-    }
+    public function ensureConsistency(): void {}
 
     /**
      * Reloads this object from datastore based on primary key and (optionally) resets all associated objects.
@@ -790,7 +788,6 @@ abstract class Config implements ActiveRecordInterface
         if ($deep) {  // also de-associate any related objects?
 
             $this->collFiless = null;
-
         } // if (deep)
     }
 
@@ -923,7 +920,6 @@ abstract class Config implements ActiveRecordInterface
             }
 
             $this->alreadyInSave = false;
-
         }
 
         return $affectedRows;
@@ -947,7 +943,7 @@ abstract class Config implements ActiveRecordInterface
             throw new PropelException('Cannot insert a value for auto-increment primary key (' . ConfigTableMap::COL_ID . ')');
         }
 
-         // check the columns in natural order for more readable SQL queries
+        // check the columns in natural order for more readable SQL queries
         if ($this->isColumnModified(ConfigTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
@@ -1281,7 +1277,7 @@ abstract class Config implements ActiveRecordInterface
         return $this;
     }
 
-     /**
+    /**
      * Populate the current object from a string, using a given parser format
      * <code>
      * $book = new Book();
@@ -1450,7 +1446,6 @@ abstract class Config implements ActiveRecordInterface
                     $copyObj->addFiles($relObj->copy($deepCopy));
                 }
             }
-
         } // if ($deepCopy)
 
         if ($makeNew) {
@@ -1713,7 +1708,7 @@ abstract class Config implements ActiveRecordInterface
      */
     protected function doAddFiles(ChildFiles $files): void
     {
-        $this->collFiless[]= $files;
+        $this->collFiless[] = $files;
         $files->setConfig($this);
     }
 
@@ -1730,7 +1725,7 @@ abstract class Config implements ActiveRecordInterface
                 $this->filessScheduledForDeletion = clone $this->collFiless;
                 $this->filessScheduledForDeletion->clear();
             }
-            $this->filessScheduledForDeletion[]= clone $files;
+            $this->filessScheduledForDeletion[] = clone $files;
             $files->setConfig(null);
         }
 
@@ -1804,7 +1799,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preSave(?ConnectionInterface $con = null): bool
     {
-                return true;
+        return true;
     }
 
     /**
@@ -1812,9 +1807,7 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postSave(?ConnectionInterface $con = null): void
-    {
-            }
+    public function postSave(?ConnectionInterface $con = null): void {}
 
     /**
      * Code to be run before inserting to database
@@ -1823,7 +1816,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preInsert(?ConnectionInterface $con = null): bool
     {
-                return true;
+        return true;
     }
 
     /**
@@ -1831,9 +1824,7 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postInsert(?ConnectionInterface $con = null): void
-    {
-            }
+    public function postInsert(?ConnectionInterface $con = null): void {}
 
     /**
      * Code to be run before updating the object in database
@@ -1842,7 +1833,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preUpdate(?ConnectionInterface $con = null): bool
     {
-                return true;
+        return true;
     }
 
     /**
@@ -1850,9 +1841,7 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postUpdate(?ConnectionInterface $con = null): void
-    {
-            }
+    public function postUpdate(?ConnectionInterface $con = null): void {}
 
     /**
      * Code to be run before deleting the object in database
@@ -1861,7 +1850,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preDelete(?ConnectionInterface $con = null): bool
     {
-                return true;
+        return true;
     }
 
     /**
@@ -1869,9 +1858,7 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postDelete(?ConnectionInterface $con = null): void
-    {
-            }
+    public function postDelete(?ConnectionInterface $con = null): void {}
 
 
     /**
@@ -1917,5 +1904,4 @@ abstract class Config implements ActiveRecordInterface
 
         throw new BadMethodCallException(sprintf('Call to undefined method: %s.', $name));
     }
-
 }

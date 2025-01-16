@@ -1,74 +1,97 @@
 {% extends 'components/layout.html.twig' %}
 
 {% block content %}
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Konfiguration Liste</h1>
-                </div>
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Konfiguration Liste</h1>
             </div>
         </div>
     </div>
+</div>
 
-    <section x-data="fileManager()" id="files" class="content mt-5">
-        <div class="container-fluid">
-            <h3>Konfigurationen</h3>
-            <button @click="createFile()">Neue Konfig</button>
-            <table class="table">
-                <thead>
+<section x-data="fileManager()" id="files" class="content mt-5">
+    <div class="container-fluid">
+        <h3>Konfigurationen</h3>
+        <button @click="createFile()">Neue Konfig</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody class="files">
+                <template x-for="file in files" :key="file.id">
                     <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Action</th>
+                        <td x-text="file.id"></td>
+                        <td x-text="file.name"></td>
+                        <td>
+                            <button @click="editFile(file.id)">Ändern</button>
+                            <button @click="deleteFile(file.id)">Löschen</button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody class="files">
-                    <template x-for="file in files" :key="file.id">
-                        <tr>
-                            <td x-text="file.id"></td>
-                            <td x-text="file.name"></td>
-                            <td>
-                                <button @click="editFile(file.id)">Ändern</button>
-                                <button @click="deleteFile(file.id)">Löschen</button>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-            </div>
-        </div>
-    </section>
+                </template>
+            </tbody>
+        </table>
+    </div>
+    </div>
+</section>
 
-    <script>
-        function fileManager() {
-            return {
-                files: [], // Initiale Dateien
-                init() {
-                    // Dateien aus der API laden
-                    fetch('/config-files/all')
-                        .then(response => response.json())
-                        .then(data => this.files = data);
-                },
-                createFile() {
-                    window.location.href = `/config-files/create`;
-                },
-                editFile(id) {
-                    window.location.href = `/config-files/edit/${id}`;
-                },
-                deleteFile(id) {
-                    if (confirm('Möchten Sie diese Datei wirklich löschen?')) {
-                        fetch(`/config-files/delete/${id}`, {
-                            method: 'DELETE'
-                        })
+<script>
+    function fileManager() {
+        return {
+            files: [], // Initiale Dateien
+            // init() {
+            //     // Dateien aus der API laden
+            //     fetch('/config-files/all')
+            //         .then(response => response.json())
+            //         .then(data => this.files = data);
+            // },
+            init() {
+                fetch('/config-files/all')
+                    .then(response => response.text()) // Fetch as plain text
+                    .then(data => {
+                        console.log('Raw Response:', data);
+
+                        // Extract JSON manually
+                        const jsonStart = data.indexOf('['); // Locate the start of JSON array
+                        const jsonEnd = data.lastIndexOf(']') + 1; // Locate the end of JSON array
+                        if (jsonStart !== -1 && jsonEnd !== -1) {
+                            const validJson = data.substring(jsonStart, jsonEnd);
+                            try {
+                                this.files = JSON.parse(validJson); // Parse the valid JSON
+                                //console.log('Parsed JSON:', this.files);
+                            } catch (e) {
+                                console.error('JSON Parsing Error:', e.message);
+                            }
+                        } else {
+                            console.error('Valid JSON not found in response');
+                        }
+                    })
+                    .catch(error => console.error('Fetch Error:', error));
+            },
+            createFile() {
+                window.location.href = `/config-files/create`;
+            },
+            editFile(id) {
+                window.location.href = `/config-files/edit/${id}`;
+            },
+            deleteFile(id) {
+                if (confirm('Möchten Sie diese Datei wirklich löschen?')) {
+                    fetch(`/config-files/delete/${id}`, {
+                        method: 'DELETE'
+                    })
                         .then(() => {
                             // Datei aus der Liste entfernen
                             this.files = this.files.filter(file => file.id !== id);
                         })
                         .catch(() => alert('Ein Fehler ist aufgetreten.'));
-                    }
                 }
-            };
-        }
-    </script>
+            }
+        };
+    }
+</script>
 {% endblock %}

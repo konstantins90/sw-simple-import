@@ -1,99 +1,129 @@
-{% extends 'components/layout.html.twig' %}
+{% extends 'components/layout.html.twig' %} {% block content%}
+<div class="content-header">
+  <div class="container-fluid">
+    <h1 class="m-0">Neue Konfiguration</h1>
+  </div>
+</div>
 
-{% block content %}
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Neue Konfiguration</h1>
-                </div>
+<section id="edit" class="content mt-5" x-data="configManager()">
+  <div class="container-fluid">
+    <form id="configForm" action="/config-files/create" method="POST">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="csvUpload">Upload CSV</label>
+        <input
+          type="file"
+          id="csvUpload"
+          name="csvUpload"
+          class="form-control"
+          @change="handleCsvUpload" />
+      </div>
+
+      <div class="form-group mt-4">
+        <h3>Felder</h3>
+        <template x-for="(field, index) in fields" :key="index">
+          <div class="field-group row mb-3">
+            <div class="col-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Field Name"
+                x-model="field.name"
+                :name="'fields[' + index + '][name]'" />
             </div>
-            {% if session.error %}
-                <div class="alert alert-danger mt-5">
-                    {{ session.error }}
-                </div>
-            {% endif %}
-        </div>
-    </div>
+            <div class="col-2">
+              <select
+                class="form-select"
+                x-model="field.type"
+                :name="'fields[' + index + '][type]'">
+                <option value="default">Standardwert</option>
+                <option value="csv" selected>CSV Feld</option>
+              </select>
+            </div>
+            <div class="col-3">
+              <input
+                type="text"
+                class="form-control"
+                x-model="field.csvField"
+                :name="'fields[' + index + '][csvField]'"
+                placeholder="CSV Feld"
+                x-show="field.type === 'csv'"
+                :readonly="field.isReadOnly" />
+              <input
+                type="text"
+                class="form-control"
+                x-model="field.defaultValue"
+                :name="'fields[' + index + '][default]'"
+                placeholder="Default Value"
+                x-show="field.type === 'default'"
+                :readonly="field.isReadOnly" />
+            </div>
+            <div class="col-2">
+              <button
+                type="button"
+                class="btn btn-danger"
+                @click="removeField(index)">
+                Remove
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
 
-    <section id="edit" class="content mt-5" x-data="configManager()">
-        <div class="container-fluid">
-            <form action="/config-files/create" method="POST">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" class="form-control" value="{{ configFile.getName() }}" required>
-                </div>
+      <div class="form-group">
+        <button type="button" class="btn btn-secondary" @click="addField">
+          Add New Field
+        </button>
+      </div>
 
-                <div class="form-group">
-                    <label for="name">Marge</label>
-                    <input type="number" id="marge" name="marge" class="form-control" value="{{ configFile.getMarge() }}" required>
-                </div>
+      <button type="submit" class="btn btn-primary">Speichern</button>
+    </form>
+  </div>
+</section>
 
-                <div class="form-group">
-                    <label for="name">SKU Prefix</label>
-                    <input type="text" id="prefix" name="prefix" class="form-control" value="{{ configFile.getPrefix() }}" placeholder="preorder-">
-                </div>
-
-                <div class="form-group mt-4">
-                    <h3>Felder</h3>
-                    <template x-for="field in fields" :key="field">
-                        <div class="field-group row mb-3">
-                            <label class="col-2" x-text="field"></label>
-                            <div class="col-2">
-                                <select class="form-select" x-model="selectedFields[field]" :name="'type[' + field + ']'">
-                                    <option value="default" selected>Standardwert</option>
-                                    <option value="csv">CSV Feld</option>
-                                </select>
-                            </div>
-                            <div class="col-2">
-                                <input 
-                                    type="text" 
-                                    :name="'default[' + field + ']'" 
-                                    class="form-control" 
-                                    placeholder="Standardwert" 
-                                    x-show="selectedFields[field] === 'default'">
-                                
-                                <input 
-                                    type="text" 
-                                    :name="'csv[' + field + ']'" 
-                                    class="form-control" 
-                                    placeholder="CSV-Feld" 
-                                    x-show="selectedFields[field] === 'csv'">
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <div class="form-group">
-                    <label for="mapping">Mapping</label>
-                    <textarea id="mapping" name="mapping" class="form-control" rows="10">{{ configFile.getMapping() }}</textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Speichern</button>
-                <a href="/config-files" class="btn btn-secondary">Abbrechen</a>
-            </form>
-        </div>
-    </section>
-    <script>
-        function configManager() {
-            return {
-                fields: [],
-                selectedFields: {},
-                init() {
-                    fetch('/config-files/fields')
-                        .then(response => response.json())
-                        .then(data => {
-                            this.fields = data;
-
-                            data.forEach(field => {
-                                this.selectedFields[field] = 'default'; // Standardmäßig auf "default" setzen
-                            });
-                        })
-                        .catch(() => {
-                            alert('Fehler beim Laden der Felder.');
-                        });
-                }
-            };
+<script>
+  function configManager() {
+    return {
+      fields: [],
+      handleCsvUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const csvContent = e.target.result;
+            const rows = csvContent.split("\n");
+            const headers = rows[0].split(";").map((header) => header.trim()); // Semicolon as delimiter
+            this.fields = headers.map((header) => ({
+              name: header,
+              type: "csv",
+              csvField: header,
+              isReadOnly: true,
+            }));
+          };
+          reader.readAsText(file);
         }
-    </script>
+      },
+      addField() {
+        this.fields.push({
+          name: "",
+          type: "default",
+          csvField: "",
+          isReadOnly: false,
+        });
+      },
+      removeField(index) {
+        this.fields.splice(index, 1);
+      },
+    };
+  }
+</script>
 {% endblock %}

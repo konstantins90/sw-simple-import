@@ -2,6 +2,7 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Propel\Runtime\Propel;
+
 Propel::init(__DIR__ . '/generated-conf/config.php');
 
 use App\Controller\UploadController;
@@ -16,16 +17,26 @@ use Propel\Runtime\ActiveQuery\Criteria;
 
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig = new Environment($loader);
-
+error_reporting(0);
 $router = new \AltoRouter();
 
-$router->map('GET', '/', function() use ($twig) {
+// try {
+//     $connection = Propel::getServiceContainer()->getConnection();
+//     $result = $connection->query('SELECT * FROM config');
+
+//     var_dump($result->fetchAll());
+//     echo "Соединение c базой данных успешно.";
+// } catch (\Exception $e) {
+//     echo "Ошибка соединения c базой данных: " . $e->getMessage();
+// }
+
+$router->map('GET', '/', function () use ($twig) {
     echo $twig->render('index.html.twig', [
         'title' => 'Админ Панель',
     ]);
 });
 
-$router->map('GET', '/files', function() use ($twig) {
+$router->map('GET', '/files', function () use ($twig) {
     $files = FilesQuery::create()
         ->orderByCreatedAt(Criteria::DESC)
         ->limit(5)
@@ -49,7 +60,7 @@ $router->map('GET', '/files', function() use ($twig) {
     echo json_encode($fileData);
 });
 
-$router->map('DELETE', '/files/delete/[i:id]', function($id) {
+$router->map('DELETE', '/files/delete/[i:id]', function ($id) {
     $file = FilesQuery::create()->findPk($id);
 
     if ($file) {
@@ -73,13 +84,13 @@ $router->map('DELETE', '/files/delete/[i:id]', function($id) {
     exit;
 });
 
-$router->map('GET', '/config-files', function() use ($twig) {
+$router->map('GET', '/config-files', function () use ($twig) {
     echo $twig->render('config.html.twig', [
         'title' => 'Конфиг Панель'
     ]);
 });
 
-$router->map('GET', '/config-files/all', function() use ($twig) {
+$router->map('GET', '/config-files/all', function () use ($twig) {
     $files = ConfigQuery::create()->find();
 
     $fileData = [];
@@ -102,19 +113,19 @@ $router->map('GET', '/config-files/edit/[i:id]', function ($id) use ($twig) {
         echo "Config not found";
         exit;
     }
+    //$fields = FileProcessorDefault::getDefaultFields();
 
-    $savedMapping = json_decode($configFile->getMapping(), true);
-    $fields = FileProcessorDefault::getDefaultFields();
+    // $combinedFields = [];
+    // foreach ($fields as $field) {
+    //     $combinedFields[$field] = $savedMapping[$field] ?? ['default' => '', 'csv' => ''];
+    // }
 
-    $combinedFields = [];
-    foreach ($fields as $field) {
-        $combinedFields[$field] = $savedMapping[$field] ?? ['default' => '', 'csv' => ''];
-    }
-
+    $savedMapping = json_decode($configFile->getMapping(), true) ?? [];
+    //print_r($savedMapping);
     echo $twig->render('config_edit.html.twig', [
         'configFile' => $configFile,
         'title' => 'Edit Konfiguration',
-        'fields' => json_encode($combinedFields, JSON_UNESCAPED_UNICODE)
+        'fields' => json_encode($savedMapping, JSON_UNESCAPED_UNICODE)
     ]);
 });
 
@@ -130,30 +141,42 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
 
     // Daten aus dem POST-Request
     $name = $_POST['name'] ?? null;
-    $fieldsDefaultValues = $_POST['default'] ?? [];
-    $dieldsCsv = $_POST['csv'] ?? [];
-    $fieldsType = $_POST['type'] ?? [];
+    $fields = $_POST['fields'] ?? [];
+
 
     if ($name) {
-        
         $mapping = [];
-        foreach ($fieldsType as $field => $type) {
-            $mapping[$field] = [
-                'type' => $type,
-                'default' => $fieldsDefaultValues[$field] ?? null,
-                'csv' => $dieldsCsv[$field] ?? null,
-            ];
+        foreach ($fields as $field) {
+            $fieldName = $field['name'] ?? '';
+            $fieldType = $field['type'] ?? '';
+            $fieldCsv = $field['csvField'] ?? '';
+            $fieldDefault = $field['default'] ?? '';
+
+            if (!empty($fieldName)) {
+                $mapping[$fieldName] = [
+                    'type' => $fieldType,
+                    'csv' => $fieldType === 'csv' ? $fieldCsv : null,
+                    'default' => $fieldType === 'default' ? $fieldDefault : null,
+                ];
+            }
         }
 
-        $configFile->setName($name);
-        $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
-        $configFile->setUpdatedAt(new \DateTime());
-        $configFile->save();
+        try {
+            $configFile->setName($name);
+            $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
+            $configFile->setCreatedAt(new \DateTime());
+            $configFile->setUpdatedAt(new \DateTime());
+            $configFile->save();
 
-        // Erfolgsnachricht und Weiterleitung
-        $_SESSION['message'] = 'Configuration updated successfully!';
-        header('Location: /config-files');
-        exit;
+            $_SESSION['message'] = 'Configuration updated successfully!';
+            header('Location: /config-files');
+            exit;
+        } catch (Exception $e) {
+            // Handle save errors
+            $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();
+            header('Location: /config-files/edit/{$id}');
+            exit;
+        }
     } else {
         $_SESSION['error'] = 'Please provide valid data.';
         header("Location: /config-files/edit/{$id}");
@@ -161,7 +184,7 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
     }
 });
 
-$router->map('DELETE', '/config-files/delete/[i:id]', function($id) {
+$router->map('DELETE', '/config-files/delete/[i:id]', function ($id) {
     $config = ConfigQuery::create()->findPk($id);
 
     if ($config) {
@@ -186,33 +209,42 @@ $router->map('GET', '/config-files/create', function () use ($twig) {
 
 $router->map('POST', '/config-files/create', function () {
     $name = $_POST['name'] ?? null;
-    $mapping = $_POST['mapping'] ?? null;
-
-    $name = $_POST['name'] ?? null;
-    $fieldsDefaultValues = $_POST['default'] ?? [];
-    $dieldsCsv = $_POST['csv'] ?? [];
-    $fieldsType = $_POST['type'] ?? [];
+    $fields = $_POST['fields'] ?? [];
 
     if ($name) {
         $mapping = [];
-        foreach ($fieldsType as $field => $type) {
-            $mapping[$field] = [
-                'type' => $type,
-                'default' => $fieldsDefaultValues[$field] ?? null,
-                'csv' => $dieldsCsv[$field] ?? null,
-            ];
+        foreach ($fields as $field) {
+            $fieldName = $field['name'] ?? '';
+            $fieldType = $field['type'] ?? '';
+            $fieldCsv = $field['csvField'] ?? '';
+            $fieldDefault = $field['default'] ?? '';
+
+            if (!empty($fieldName)) {
+                $mapping[$fieldName] = [
+                    'type' => $fieldType,
+                    'csv' => $fieldType === 'csv' ? $fieldCsv : null,
+                    'default' => $fieldType === 'default' ? $fieldDefault : null,
+                ];
+            }
         }
 
-        $configFile = new Config();
-        $configFile->setName($name);
-        $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
-        $configFile->setCreatedAt(new \DateTime());
-        $configFile->setUpdatedAt(new \DateTime());
-        $configFile->save();
+        try {
+            $configFile = new Config();
+            $configFile->setName($name);
+            $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
+            $configFile->setCreatedAt(new \DateTime());
+            $configFile->setUpdatedAt(new \DateTime());
+            $configFile->save();
 
-        $_SESSION['message'] = 'Configuration created successfully!';
-        header('Location: /config-files');
-        exit;
+            $_SESSION['message'] = 'Configuration created successfully!';
+            header('Location: /config-files');
+            exit;
+        } catch (Exception $e) {
+            // Handle save errors
+            $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();
+            header('Location: /config-files/create');
+            exit;
+        }
     } else {
         $_SESSION['error'] = 'Name is required.';
         header('Location: /config-files/create');
@@ -220,16 +252,18 @@ $router->map('POST', '/config-files/create', function () {
     }
 });
 
-$router->map('GET', '/config-files/fields', function () {
+$router->map('GET', '/config-files/fields/[i:id]', function ($id) {
     // Felder aus der Klasse abrufen
-    $fields = FileProcessorDefault::getDefaultFields();
+    $configFile = ConfigQuery::create()->findPk($id);
+
+    $fields = json_decode($configFile->getMapping(), true) ?? [];
 
     // JSON-Antwort zurückgeben
     header('Content-Type: application/json');
     echo json_encode($fields);
 });
 
-$router->map('POST', '/upload', function() {
+$router->map('POST', '/upload', function () {
     $controller = new UploadController();
     $controller->handleUpload();
 });

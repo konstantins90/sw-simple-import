@@ -15,7 +15,7 @@ class FileUploader
         $uploadDir,
         $maxFileSize = 5 * 1024 * 1024,
         $allowedTypes = ['application/vnd.ms-excel', 'text/csv', 'text/plain']
-    ){
+    ) {
         $this->uploadDir = rtrim($uploadDir, '/') . '/';
         $this->maxFileSize = $maxFileSize;
         $this->allowedTypes = $allowedTypes;

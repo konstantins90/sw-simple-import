@@ -3,7 +3,7 @@
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0">Konfiguration Liste</h1>
+        <h1 class="m-0">Konfiguration bearbeiten</h1>
       </div>
     </div>
     {% if session.error %}
@@ -55,15 +55,12 @@
 
       <div class="form-group mt-4">
         <h3>Felder</h3>
-        <template x-for="(field, key) in fields " :key="key">
+        <template x-for="(field, key) in fields" :key="key">
           <div class="field-group row mb-3">
-            <!-- <label class="col-3" x-text="key"></label> -->
             <div class="col-3">
               <input
                 type="text"
                 class="form-control"
-                :value="key"
-                placeholder="key"
                 x-bind:value="key"
                 :name="'fields[' + key + '][name]'" />
             </div>
@@ -72,8 +69,12 @@
                 class="form-select"
                 x-model="field.type"
                 :name="'fields[' + key + '][type]'">
-                <option value="default" selected>Standardwert</option>
-                <option value="csv">CSV Feld</option>
+                <option value="default" :selected="field.type === 'default'">
+                  Standardwert
+                </option>
+                <option value="csv" :selected="field.type === 'csv'">
+                  CSV Feld
+                </option>
               </select>
             </div>
             <div class="col-2">
@@ -84,21 +85,24 @@
                 placeholder="Standardwert"
                 x-show="field.type === 'default'"
                 x-bind:value="field.default" />
-
-              <input
-                type="text"
+              <select
+                class="form-select"
                 :name="'fields[' + key + '][csvField]'"
                 class="form-control"
-                placeholder="CSV-Feld"
                 x-show="field.type === 'csv'"
-                x-bind:value="field.csv" />
+                :required="field.type === 'csv'"
+                x-bind:value="field.csv">
+                <template x-for="header in csvHeaders" :key="header">
+                  <option :value="header" x-text="header"></option>
+                </template>
+              </select>
             </div>
             <div class="col-2">
               <button
                 type="button"
                 class="btn btn-danger"
                 @click="removeField(key)">
-                Remove
+                Löschen
               </button>
             </div>
           </div>
@@ -107,7 +111,7 @@
 
       <div class="form-group">
         <button type="button" class="btn btn-secondary" @click="addField">
-          Add New Field
+          Neues Feld hinzufügen
         </button>
       </div>
 
@@ -116,21 +120,90 @@
     </form>
   </div>
 </section>
+
 <script>
   function configManager(initialData) {
     return {
       fields: [],
+      mandatoryFields: [],
+      csvHeaders: [],
       id: initialData.id,
       init() {
         fetch(`/config-files/fields/${this.id}`)
           .then((response) => response.json())
           .then((data) => {
+            this.extractProperties(data);
             this.fields = data;
-            console.log(this.fields);
+            //console.log(this.fields);
+            for (const [key, value] of Object.entries(this.fields)) {
+              // Push the CSV field to csvHeaders array
+              if (value["type"] === "csv") {
+                console.log(value["type"]);
+                this.csvHeaders.push(value["csv"]);
+              }
+            }
+
+            this.$nextTick(() => {
+              this.assignCsvHeadersToFields();
+            });
           })
           .catch(() => {
             alert("Fehler beim Laden der Felder.");
           });
+        fetch(`/config-files/fields`)
+          .then((response) => response.json())
+          .then((data) => {
+            this.mandatoryFields = data;
+          })
+          .catch(() => {
+            alert("Fehler beim Laden der Felder.");
+          });
+      },
+      extractProperties(data) {
+        //console.log(data.properties);
+        if (data.properties) {
+          for (const propName in data.properties) {
+            if (data.properties.hasOwnProperty(propName)) {
+              const prop = data.properties[propName];
+              //console.log(propName);
+              if (propName) {
+                data[propName] = prop;
+              }
+            }
+          }
+
+          delete data.properties;
+        }
+        //console.log(data);
+      },
+      assignCsvHeadersToFields() {
+        //this.csvHeaders = []; // Clear previous csv headers
+        let index = 0;
+
+        // Iterate over the fields and assign csv headers
+        for (const [key, value] of Object.entries(this.fields)) {
+          // Push the CSV field to csvHeaders array
+          //this.csvHeaders.push(value["csv"]);
+
+          // Use $nextTick to ensure that the DOM is fully updated before we query the select element
+          this.$nextTick(() => {
+            const selectElement = document.querySelector(
+              `select[name='fields[${key}][csvField]']`
+            );
+
+            if (selectElement) {
+              selectElement.value = this.csvHeaders[index];
+              // console.log(selectElement.options.length);
+              // console.log("IADI" + this.csvHeaders[index]);
+              // console.log("Assigned value to select:", selectElement);
+              // console.log("value:", selectElement.value);
+            } else {
+              console.log(`Select element for field '${key}' not found.`);
+            }
+
+            index++;
+          });
+        }
       },
       addField() {
         const newFieldName = `Field ${Object.keys(this.fields).length + 1}`;

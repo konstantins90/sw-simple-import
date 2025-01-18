@@ -121,7 +121,7 @@ $router->map('GET', '/config-files/edit/[i:id]', function ($id) use ($twig) {
     // }
 
     $savedMapping = json_decode($configFile->getMapping(), true) ?? [];
-    //print_r($savedMapping);
+    // print_r($savedMapping);
     echo $twig->render('config_edit.html.twig', [
         'configFile' => $configFile,
         'title' => 'Edit Konfiguration',
@@ -130,7 +130,6 @@ $router->map('GET', '/config-files/edit/[i:id]', function ($id) use ($twig) {
 });
 
 $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
-    // Konfiguration abrufen
     $configFile = ConfigQuery::create()->findPk($id);
 
     if (!$configFile) {
@@ -139,30 +138,44 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
         exit;
     }
 
-    // Daten aus dem POST-Request
     $name = $_POST['name'] ?? null;
     $marge = $_POST['marge'] ?? null;
     $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
 
     if ($name) {
-        //print_r($name);
-        //print_r($fields);
-        $mapping = [];
-        foreach ($fields as $field) {
-            $fieldName = $field['name'] ?? '';
-            $fieldType = $field['type'] ?? '';
-            $fieldCsv = $field['csvField'] ?? '';
-            $fieldDefault = $field['default'] ?? '';
+        $mandatoryFields = FileProcessorDefault::getDefaultFields();
 
-            if (!empty($fieldName)) {
-                $mapping[$fieldName] = [
-                    'type' => $fieldType,
-                    'csv' => $fieldType === 'csv' ? $fieldCsv : null,
-                    'default' => $fieldType === 'default' ? $fieldDefault : null,
+        $mapping = [];
+        $properties = [];
+
+        foreach ($mandatoryFields as $mandatoryField) {
+            $fieldValue = null;
+            foreach ($fields as $field) {
+                if ($field['name'] === $mandatoryField) {
+                    $fieldValue = [
+                        'type' => $field['type'] ?? '',
+                        'csv' => $field['type'] === 'csv' ? $field['csvField'] : null,
+                        'default' => $field['type'] === 'default' ? $field['default'] : null,
+                    ];
+                    break;
+                }
+            }
+
+            $mapping[$mandatoryField] = $fieldValue ?? null;
+        }
+
+        foreach ($fields as $field) {
+            if (!in_array($field['name'], $mandatoryFields)) {
+                $properties[$field['name']] = [
+                    'type' => $field['type'] ?? '',
+                    'csv' => $field['type'] === 'csv' ? $field['csvField'] : null,
+                    'default' => $field['type'] === 'default' ? $field['default'] : null,
                 ];
             }
         }
+
+        $mapping['properties'] = $properties;
 
         try {
             $configFile->setName($name);
@@ -173,18 +186,18 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
             $configFile->setUpdatedAt(new \DateTime());
             $configFile->save();
 
-            $_SESSION['message'] = 'Configuration updated successfully!';
+            $_SESSION['message'] = 'Configuration created successfully!';
             header('Location: /config-files');
             exit;
         } catch (Exception $e) {
             // Handle save errors
             $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();
-            header('Location: /config-files/edit/{$id}');
+            header('Location: /config-files/create');
             exit;
         }
     } else {
-        $_SESSION['error'] = 'Please provide valid data.';
-        header("Location: /config-files/edit/{$id}");
+        $_SESSION['error'] = 'Name is required.';
+        header('Location: /config-files/create');
         exit;
     }
 });

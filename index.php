@@ -218,33 +218,45 @@ $router->map('POST', '/config-files/create', function () {
     $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
 
-
     if ($name) {
-        $mapping = [];
-        foreach ($fields as $field) {
-            $fieldName = $field['name'] ?? '';
-            $fieldType = $field['type'] ?? '';
-            $fieldCsv = $field['csvField'] ?? '';
-            $fieldDefault = $field['default'] ?? '';
+        $mandatoryFields = FileProcessorDefault::getDefaultFields();
 
-            if (!empty($fieldName)) {
-                $mapping[$fieldName] = [
-                    'type' => $fieldType,
-                    'csv' => $fieldType === 'csv' ? $fieldCsv : null,
-                    'default' => $fieldType === 'default' ? $fieldDefault : null,
+        $mapping = [];
+        $properties = [];
+
+        foreach ($mandatoryFields as $mandatoryField) {
+            $fieldValue = null;
+            foreach ($fields as $field) {
+                if ($field['name'] === $mandatoryField) {
+                    $fieldValue = [
+                        'type' => $field['type'] ?? '',
+                        'csv' => $field['type'] === 'csv' ? $field['csvField'] : null,
+                        'default' => $field['type'] === 'default' ? $field['default'] : null,
+                    ];
+                    break;
+                }
+            }
+
+            $mapping[$mandatoryField] = $fieldValue ?? null;
+        }
+
+        foreach ($fields as $field) {
+            if (!in_array($field['name'], $mandatoryFields)) {
+                $properties[$field['name']] = [
+                    'type' => $field['type'] ?? '',
+                    'csv' => $field['type'] === 'csv' ? $field['csvField'] : null,
+                    'default' => $field['type'] === 'default' ? $field['default'] : null,
                 ];
             }
         }
 
+        $mapping['properties'] = $properties;
+
         try {
             $configFile = new Config();
             $configFile->setName($name);
-            if ($marge) {
-                $configFile->setmarge($marge);
-            }
-            if ($prefix) {
-                $configFile->setPrefix($prefix);
-            }
+            $configFile->setMarge($marge);
+            $configFile->setPrefix($prefix);
             $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
             $configFile->setCreatedAt(new \DateTime());
             $configFile->setUpdatedAt(new \DateTime());
@@ -264,6 +276,15 @@ $router->map('POST', '/config-files/create', function () {
         header('Location: /config-files/create');
         exit;
     }
+});
+
+$router->map('GET', '/config-files/fields', function () {
+    // Felder aus der Klasse abrufen
+    $fields = FileProcessorDefault::getDefaultFields();
+
+    // JSON-Antwort zurückgeben
+    header('Content-Type: application/json');
+    echo json_encode($fields);
 });
 
 $router->map('GET', '/config-files/fields/[i:id]', function ($id) {

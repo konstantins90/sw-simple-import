@@ -66,22 +66,26 @@
               </select>
             </div>
             <div class="col-3">
-              <input
-                type="text"
-                class="form-control"
+              <select
+                class="form-select"
                 x-model="field.csvField"
+                id="q"
                 :name="'fields[' + index + '][csvField]'"
-                placeholder="CSV Feld"
                 x-show="field.type === 'csv'"
-                :readonly="field.isReadOnly" />
+                :required="field.type === 'csv'">
+                <template
+                  x-for="(header, headerIndex) in csvHeaders"
+                  :key="header">
+                  <option :value="header" x-text="header"></option>
+                </template>
+              </select>
               <input
                 type="text"
                 class="form-control"
                 x-model="field.defaultValue"
                 :name="'fields[' + index + '][default]'"
-                placeholder="Default Value"
-                x-show="field.type === 'default'"
-                :readonly="field.isReadOnly" />
+                placeholder="Standardwert"
+                x-show="field.type === 'default'" />
             </div>
             <div class="col-2">
               <button
@@ -110,6 +114,18 @@
   function configManager() {
     return {
       fields: [],
+      csvHeaders: [],
+      mandatoryHeaders: [],
+      init() {
+        fetch("/config-files/fields")
+          .then((response) => response.json())
+          .then((data) => {
+            this.mandatoryHeaders = data;
+          })
+          .catch(() => {
+            alert("Fehler beim Laden der Felder.");
+          });
+      },
       handleCsvUpload(event) {
         const file = event.target.files[0];
         if (file) {
@@ -117,13 +133,26 @@
           reader.onload = (e) => {
             const csvContent = e.target.result;
             const rows = csvContent.split("\n");
-            const headers = rows[0].split(";").map((header) => header.trim()); // Semicolon as delimiter
-            this.fields = headers.map((header) => ({
+            this.csvHeaders = rows[0].split(";");
+            this.fields = this.mandatoryHeaders.map((header, index) => ({
               name: header,
-              type: "csv",
-              csvField: header,
-              isReadOnly: true,
+              type: index < this.csvHeaders.length ? "csv" : "default",
+              csvField:
+                index < this.csvHeaders.length
+                  ? this.csvHeaders[index]
+                  : this.csvHeaders[index % this.csvHeaders.length],
+              isReadOnly: false,
             }));
+            this.$nextTick(() => {
+              this.fields.forEach((field, index) => {
+                const selectElement = document.querySelector(
+                  `select[name='fields[${index}][csvField]']`
+                );
+                if (selectElement && index < this.csvHeaders.length) {
+                  selectElement.value = this.csvHeaders[index];
+                }
+              });
+            });
           };
           reader.readAsText(file);
         }

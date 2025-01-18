@@ -111,28 +111,12 @@
         </button>
       </div>
 
-      <!-- <div class="form-group">
-        <label for="mapping">Mapping</label>
-        <textarea id="mapping" name="mapping" class="form-control" rows="10">{{
-          configFile.getMapping()
-        }}</textarea>
-      </div> -->
-
       <button type="submit" class="btn btn-primary">Speichern</button>
       <a href="/config-files" class="btn btn-secondary">Abbrechen</a>
     </form>
   </div>
 </section>
 <script>
-  // function configManager(initialFields) {
-  //     return {
-  //         fields: initialFields,
-  //         init() {
-  //             console.log('DEMO');
-  //             console.log(fields);
-  //         }
-  //     };
-  // }
   function configManager(initialData) {
     return {
       fields: [],

@@ -16,8 +16,7 @@ class FileProcessorDefault implements FileProcessorInterface
         protected ShopwareApiClient $shopwareClient,
         protected PropertyCollector $propertyCollector,
         protected PriceCalculator $priceCalculator
-    ){
-    }
+    ) {}
 
     static public function getDefaultFields(): array
     {
@@ -28,6 +27,7 @@ class FileProcessorDefault implements FileProcessorInterface
             'ean',
             'stock',
             'taxId',
+            'price',
             'manufacturer',
             'weight',
             'media',
@@ -48,23 +48,19 @@ class FileProcessorDefault implements FileProcessorInterface
 
     public function getPropertiesArray(): array
     {
-        foreach($this->getRecords() as $productData) {
+        foreach ($this->getRecords() as $productData) {
             $this->propertyCollector->collectProperties($productData);
         }
         $propertiesArray = $this->propertyCollector->getPropertiesArray();
         return $propertiesArray;
     }
 
-    public function mapProductProperties(): void
-    {
-
-    }
+    public function mapProductProperties(): void {}
 
     public function import(): void
     {
         $count = 0;
-        foreach($this->getRecords() as $productData)
-        {
+        foreach ($this->getRecords() as $productData) {
             $this->importProduct($productData);
             $count++;
         }
@@ -73,7 +69,7 @@ class FileProcessorDefault implements FileProcessorInterface
     public function importProduct(array $productData): void
     {
         $productNumber = $productData['productNumber'];
-        
+
         // Überprüfen, ob das Produkt bereits existiert
         $productId = $this->shopwareClient->productExists($productNumber);
         $this->logs[$productNumber] = [];

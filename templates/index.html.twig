@@ -1,113 +1,177 @@
-{% extends 'components/layout.html.twig' %}
-
-{% block content %}
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Shopware Simple Importer</h1>
-                </div>
-            </div>
-        </div>
+{% extends 'components/layout.html.twig' %} {% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Shopware Simple Importer</h1>
+      </div>
     </div>
+  </div>
+</div>
 
-    <section class="content">
-        <div class="container-fluid">
-            <form action="/upload" class="dropzone" id="file-dropzone">
-                <div class="dz-message">
-                    Ziehen Sie die Dateien hierher oder klicken Sie, um sie auszuwählen.
-                </div>
-            </form>
-        </div>
-    </section>
+<section class="content">
+  <div class="container-fluid">
+    <form action="/upload" class="dropzone" id="file-dropzone">
+      <div class="dz-message">
+        Ziehen Sie die Dateien hierher oder klicken Sie, um sie auszuwählen.
+      </div>
+    </form>
+  </div>
+</section>
 
-    <!-- <div x-show="isModalOpen" x-cloak class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="configModalLabel">Wählen Sie eine Konfiguration</h5>
-                    <button type="button" class="btn-close" @click="isModalOpen = false" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div>
-                        <label for="configSelect">Wählen Sie eine Konfiguration:</label>
-                        <select id="configSelect" x-model="selectedConfig" class="form-select">
-                            <option value="">Wählen Sie eine Konfiguration</option>
-                            <template x-for="config in configs" :key="config.id">
-                                <option :value="config.id" x-text="config.name"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div class="mt-3">
-                        <button type="button" class="btn btn-primary" @click="createConfig()">Neue Konfiguration erstellen</button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="isModalOpen = false">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" @click="submitFile">Datei Hochladen</button>
-                </div>
-            </div>
+<section x-data="fileManager()" id="files" class="content mt-5">
+  <div class="container-fluid">
+    <h3>Dateien</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Dateiname</th>
+          <th scope="col">Path</th>
+          <th scope="col">Status</th>
+          <th scope="col">Konfig Name</th>
+          <th scope="col">Erstellt Am</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody class="files">
+        <template x-for="file in files" :key="file.id">
+          <tr>
+            <td x-text="file.id"></td>
+            <td x-text="file.name"></td>
+            <td x-text="file.path"></td>
+            <td x-text="file.status"></td>
+            <td x-text="file.config_name"></td>
+            <td x-text="file.created_at"></td>
+            <td>
+              <button @click="deleteFile(file.id)">Löschen</button>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section x-data="fileManager()">
+  <div
+    x-show="isModalOpen"
+    x-cloak
+    class="modal fade"
+    id="modal-file"
+    tabindex="-1"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="margin: 20rem auto">
+        <div class="modal-header">
+          <h5 class="modal-title">Wählen Sie eine Konfiguration</h5>
+          <button
+            type="button"
+            class="btn-close"
+            @click="closeModal()"
+            aria-label="Close"></button>
         </div>
-    </div> -->
-    
-    <section x-data="fileManager()" id="files" class="content mt-5">
-        <div class="container-fluid">
-            <h3>Dateien</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Dateiname</th>
-                        <th scope="col">Path</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Konfig Name</th>
-                        <th scope="col">Erstellt Am</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="files">
-                    <template x-for="file in files" :key="file.id">
-                        <tr>
-                            <td x-text="file.id"></td>
-                            <td x-text="file.name"></td>
-                            <td x-text="file.path"></td>
-                            <td x-text="file.status"></td>
-                            <td x-text="file.config_name"></td>
-                            <td x-text="file.created_at"></td>
-                            <td>
-                                <button @click="deleteFile(file.id)">Löschen</button>
-                            </td>
-                        </tr>
-                    </template>
-                </tbody>
-            </table>
-            </div>
+        <div class="modal-body">
+          <label for="configSelect">Konfiguration:</label>
+          <select
+            id="configSelect"
+            x-model="selectedConfig"
+            class="form-select">
+            <template x-for="config in configs" :key="config.id">
+              <option :value="config.id" x-text="config.name"></option>
+            </template>
+          </select>
         </div>
-    </section>
-
-    <script>
-        function fileManager() {
-            return {
-                files: [], // Initiale Dateien
-                init() {
-                    // Dateien aus der API laden
-                    fetch('/files')
-                        .then(response => response.json())
-                        .then(data => this.files = data);
-                },
-                deleteFile(id) {
-                    if (confirm('Möchten Sie diese Datei wirklich löschen?')) {
-                        fetch(`/files/delete/${id}`, {
-                            method: 'DELETE'
-                        })
-                        .then(() => {
-                            // Datei aus der Liste entfernen
-                            this.files = this.files.filter(file => file.id !== id);
-                        })
-                        .catch(() => alert('Ein Fehler ist aufgetreten.'));
-                    }
-                }
-            };
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="closeModal()">
+            Abbrechen
+          </button>
+          <button type="button" class="btn btn-primary" @click="submitFile()">
+            Hochladen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function fileManager() {
+    return {
+      files: [],
+      configs: [],
+      selectedFile: null,
+      check: "qwe",
+      selectedConfig: "",
+      isModalOpen: false,
+      init() {
+        const fileManagerInstance = this;
+        fetch("/files")
+          .then((response) => response.json())
+          .then((data) => (this.files = data));
+        fetch("/config-files/all")
+          .then((response) => response.json())
+          .then((data) => {
+            this.configs = data;
+            if (data.length > 0) {
+              this.selectedConfig = data[0].id; // Set default to the first config
+            }
+          });
+        Dropzone.options.fileDropzone = {
+          autoProcessQueue: false,
+          init: function () {
+            //console.log("Dropzone initialized");
+            const dropzoneInstance = this;
+            this.on("addedfile", function (file) {
+              fileManagerInstance.selectedFile = file;
+              console.log(fileManagerInstance.selectedFile);
+              document.getElementById("modal-file").style.display = "block";
+              document.getElementById("modal-file").style.opacity = 1;
+              this.isModalOpen = true;
+            });
+          },
+        };
+      },
+      deleteFile(id) {
+        if (confirm("Möchten Sie diese Datei wirklich löschen?")) {
+          fetch(`/files/delete/${id}`, {method: "DELETE"})
+            .then(
+              () => (this.files = this.files.filter((file) => file.id !== id))
+            )
+            .catch(() => alert("Ein Fehler ist aufgetreten."));
         }
-    </script>
+      },
+      submitFile() {
+        if (!this.selectedFile || !this.selectedConfig) {
+          //   console.log(this.selectedFile);
+          //   console.log(this.selectedConfig);
+          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", this.selectedFile);
+        formData.append("config_id", this.selectedConfig);
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then(() => {
+            this.closeModal();
+            alert("Datei erfolgreich hochgeladen.");
+          })
+          .catch(() => alert("Fehler beim Hochladen der Datei."));
+      },
+      closeModal() {
+        this.isModalOpen = false;
+        this.selectedFile = null;
+
+        const dropzoneInstance = Dropzone.forElement("#file-dropzone");
+        dropzoneInstance.removeAllFiles(true); // Clears all files from Dropzone
+
+        document.getElementById("modal-file").style.display = "none";
+        document.getElementById("modal-file").style.opacity = 0;
+      },
+    };
+  }
+</script>
 {% endblock %}

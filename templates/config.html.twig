@@ -54,7 +54,7 @@
                 fetch('/config-files/all')
                     .then(response => response.text()) // Fetch as plain text
                     .then(data => {
-                        console.log('Raw Response:', data);
+                        //console.log('Raw Response:', data);
 
                         // Extract JSON manually
                         const jsonStart = data.indexOf('['); // Locate the start of JSON array

@@ -35,16 +35,46 @@
         </tr>
       </thead>
       <tbody class="files">
-        <template x-for="file in files" :key="file.id">
+        <template x-for="(file, index) in files" :key="file.id">
           <tr>
             <td x-text="file.id"></td>
             <td x-text="file.name"></td>
             <td x-text="file.path"></td>
             <td x-text="file.status"></td>
-            <td x-text="file.config_name"></td>
+            <td>
+              <select
+                x-show="file.status === 'idle'"
+                x-model="file.config_id"
+                class="form-select"
+                @change="updateFileConfig(file.id, file.config_id)">
+                <option value="" disabled selected>Konfig wählen</option>
+                <template x-for="config in configs" :key="config.id">
+                  <option :value="config.id" x-text="config.name"></option>
+                </template>
+              </select>
+              <span
+                x-show="file.status !== 'idle'"
+                x-text="file.config_name"></span>
+            </td>
             <td x-text="file.created_at"></td>
             <td>
-              <button @click="deleteFile(file.id)">Löschen</button>
+              <button @click="deleteFile(file.id)" class="btn btn-danger">
+                Löschen
+              </button>
+
+              <button
+                x-show="file.status === 'idle'"
+                @click="updateStatus(file.id, 'pending', index)"
+                class="btn btn-success">
+                Bestätigen
+              </button>
+
+              <button
+                x-show="file.status === 'pending'"
+                @click="updateStatus(file.id, 'idle', index)"
+                class="btn btn-warning">
+                Entladen
+              </button>
             </td>
           </tr>
         </template>
@@ -85,6 +115,13 @@
           <button type="button" class="btn btn-secondary" @click="closeModal()">
             Abbrechen
           </button>
+          <button
+            id="create-config-btn"
+            class="btn btn-primary"
+            @click="createConfigFromFile()">
+            Konfiguration für diesen File erstellen
+          </button>
+
           <button type="button" class="btn btn-primary" @click="submitFile()">
             Hochladen
           </button>
@@ -99,7 +136,6 @@
       files: [],
       configs: [],
       selectedFile: null,
-      check: "qwe",
       selectedConfig: "",
       isModalOpen: false,
       init() {
@@ -112,13 +148,12 @@
           .then((data) => {
             this.configs = data;
             if (data.length > 0) {
-              this.selectedConfig = data[0].id; // Set default to the first config
+              this.selectedConfig = data[0].id;
             }
           });
         Dropzone.options.fileDropzone = {
           autoProcessQueue: false,
           init: function () {
-            //console.log("Dropzone initialized");
             const dropzoneInstance = this;
             this.on("addedfile", function (file) {
               fileManagerInstance.selectedFile = file;
@@ -141,8 +176,6 @@
       },
       submitFile() {
         if (!this.selectedFile || !this.selectedConfig) {
-          //   console.log(this.selectedFile);
-          //   console.log(this.selectedConfig);
           alert("Bitte wählen Sie eine Datei und eine Konfiguration aus.");
           return;
         }
@@ -170,6 +203,82 @@
 
         document.getElementById("modal-file").style.display = "none";
         document.getElementById("modal-file").style.opacity = 0;
+      },
+      createConfigFromFile() {
+        if (!this.selectedFile) {
+          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", this.selectedFile);
+        formData.append("config_id", 1);
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              const {path, file_id} = data;
+              //   alert("Datei erfolgreich hochgeladen.");
+              console.log("Datei erfolgreich hochgeladen.");
+              window.location.href = `/config-files/create?filePath=${encodeURIComponent(
+                path
+              )}&fileId=${file_id}`;
+            } else {
+              alert(data.message || "File upload failed.");
+            }
+          })
+          .catch(() => alert("Fehler beim Hochladen der Datei."));
+      },
+      updateFileConfig(fileId, configId) {
+        fetch(`/files/update-config/${fileId}`, {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({config_id: configId}),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              console.log("Konfiguration erfolgreich aktualisiert.");
+            } else {
+              alert(
+                `Fehler beim Aktualisieren der Konfiguration: ${data.message}`
+              );
+            }
+          })
+          .catch(() => alert("Ein Fehler ist aufgetreten."));
+      },
+      updateStatus(fileId, newStatus, index) {
+        fetch(`/files/update-status/${fileId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({status: newStatus}),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              alert("Status erfolgreich aktualisiert.");
+              fetch("/files")
+                .then((response) => response.json())
+                .then((data) => (this.files = data));
+              fetch("/config-files/all")
+                .then((response) => response.json())
+                .then((data) => {
+                  this.configs = data;
+                  if (data.length > 0) {
+                    this.selectedConfig = data[0].id;
+                  }
+                });
+            } else {
+              alert(`Fehler: ${data.message}`);
+            }
+          })
+          .catch(() => alert("Ein Fehler ist aufgetreten."));
       },
     };
   }

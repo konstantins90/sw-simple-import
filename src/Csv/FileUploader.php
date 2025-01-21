@@ -47,7 +47,7 @@ class FileUploader
             $fileRecord = new Files();
             $fileRecord->setFilename($originalName);
             $fileRecord->setPath($subDir . '/' . $uniqueName);
-            $fileRecord->setStatus('pending');
+            $fileRecord->setStatus('idle');
             $fileRecord->setConfigId(1);
             $fileRecord->setCreatedAt(new \DateTime());
             $fileRecord->setUpdatedAt(new \DateTime());

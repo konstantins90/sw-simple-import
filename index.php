@@ -64,7 +64,7 @@ $router->map('DELETE', '/files/delete/[i:id]', function ($id) {
     $file = FilesQuery::create()->findPk($id);
 
     if ($file) {
-        $filePath = __DIR__ . '/../../uploads/' . $file->getPath(); // Datei-Pfad basierend auf der `path`-Spalte
+        $filePath = __DIR__ . '/csv/' . $file->getPath(); // Datei-Pfad basierend auf der `path`-Spalte
 
         // Datei vom Dateisystem löschen
         if (file_exists($filePath)) {
@@ -81,6 +81,29 @@ $router->map('DELETE', '/files/delete/[i:id]', function ($id) {
 
     // Zurück zur Dateiübersicht
     header('Location: /files');
+    exit;
+});
+
+$router->map('GET', '/files/[i:id]', function ($id) {
+    $file = FilesQuery::create()->findPk($id);
+
+    if ($file) {
+        $filePath = __DIR__ . '/csv/' . $file->getPath(); // Datei-Pfad basierend auf der `path`-Spalte
+
+        if (file_exists($filePath)) {
+            $csvContent = file_get_contents($filePath);
+
+            // Send the CSV content back as JSON
+            echo json_encode([
+                'status' => 'success',
+                'fileContent' => $csvContent
+            ]);
+        } else {
+            echo json_encode(['status' => 'errorR' . $filePath, 'message' => 'Datei nicht gefunden.']);
+        };
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Datei nicht gefunden.']);
+    }
     exit;
 });
 
@@ -218,11 +241,75 @@ $router->map('DELETE', '/config-files/delete/[i:id]', function ($id) {
     exit;
 });
 
+// $router->map('GET', '/config-files/create', function () use ($twig) {
+//     // Formular anzeigen
+//     echo $twig->render('config_create.html.twig', [
+//         'title' => 'Neue Konfiguration erstellen'
+//     ]);
+// });
+
 $router->map('GET', '/config-files/create', function () use ($twig) {
-    // Formular anzeigen
+    $filePath = $_GET['filePath'] ?? null;
+    $fileId = $_GET['fileId'] ?? null;
+
     echo $twig->render('config_create.html.twig', [
-        'title' => 'Neue Konfiguration erstellen'
+        'title' => 'Neue Konfiguration erstellen',
+        'filePath' => $filePath,
+        'fileId' => $fileId,
     ]);
+});
+
+$router->map('PUT', '/files/update-config/[i:id]', function ($id) {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (!isset($input['config_id'])) {
+        echo json_encode(['status' => 'error', 'message' => 'config_id fehlt']);
+        http_response_code(400);
+        exit;
+    }
+
+    $configId = $input['config_id'];
+
+    $file = FilesQuery::create()->findPk($id);
+    if ($file) {
+        // Update the config ID
+        $file->setConfigId($configId);
+        $file->save();
+
+        echo json_encode(['status' => 'success', 'message' => 'Konfiguration erfolgreich aktualisiert.']);
+        http_response_code(200);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Datei nicht gefunden.']);
+        http_response_code(404);
+    }
+
+    exit;
+});
+
+$router->map('PUT', '/files/update-status/[i:id]', function ($id) {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (!isset($input['status'])) {
+        echo json_encode(['status' => 'error', 'message' => 'Status fehlt']);
+        http_response_code(400);
+        exit;
+    }
+
+    $newStatus = $input['status'];
+
+    $file = FilesQuery::create()->findPk($id);
+    if ($file) {
+        $file->setStatus($newStatus);
+        $file->save();
+
+        echo json_encode(['status' => 'success', 'message' => 'Status erfolgreich aktualisiert.', 'newStatus' => $newStatus]);
+        http_response_code(200);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Datei nicht gefunden.']);
+        http_response_code(404);
+    }
+
+    exit;
 });
 
 $router->map('POST', '/config-files/create', function () {
@@ -230,6 +317,7 @@ $router->map('POST', '/config-files/create', function () {
     $marge = $_POST['marge'] ?? null;
     $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
+    $fileId = $_POST['fileId'] ?? [];
 
     if ($name) {
         $mandatoryFields = FileProcessorDefault::getDefaultFields();
@@ -275,9 +363,24 @@ $router->map('POST', '/config-files/create', function () {
             $configFile->setUpdatedAt(new \DateTime());
             $configFile->save();
 
-            $_SESSION['message'] = 'Configuration created successfully!';
-            header('Location: /config-files');
-            exit;
+            if ($fileId) {
+                $file = FilesQuery::create()->findPk($fileId);
+                if ($file) {
+                    $file->setConfigId($configFile->getId());
+                    $file->save();
+                    $_SESSION['message'] = 'Configuration created successfully!';
+                    header('Location: /');
+                    exit;
+                } else {
+                    $_SESSION['error'] = 'No such file in Database!';
+                    header('Location: /');
+                    exit;
+                }
+            } else {
+                $_SESSION['message'] = 'Configuration created successfully!';
+                header('Location: /config-files');
+                exit;
+            }
         } catch (Exception $e) {
             // Handle save errors
             $_SESSION['error'] = 'An error occurred: ' . $e->getMessage();

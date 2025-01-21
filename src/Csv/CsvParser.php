@@ -10,7 +10,7 @@ class CsvParser
 
     public function __construct(string $filePath)
     {
-        $formatter = fn (array $row): array => array_map(trim(...), $row);
+        $formatter = fn(array $row): array => array_map(trim(...), $row);
 
         $this->csv = Reader::createFromPath($filePath, 'r');
         $this->csv->setHeaderOffset(0);

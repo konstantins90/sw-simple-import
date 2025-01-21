@@ -92,7 +92,7 @@
                 x-show="field.type === 'csv'"
                 :required="field.type === 'csv'"
                 x-bind:value="field.csv">
-                <template x-for="header in csvHeaders" :key="header">
+                <template x-for="header in csvHeaders" :key="key + '-' + index">
                   <option :value="header" x-text="header"></option>
                 </template>
               </select>
@@ -140,6 +140,7 @@
               if (value["type"] === "csv") {
                 console.log(value["type"]);
                 this.csvHeaders.push(value["csv"]);
+                // this.csvHeaders.push("test");
               }
             }
 

@@ -134,13 +134,14 @@
           .then((data) => {
             this.extractProperties(data);
             this.fields = data;
-            //console.log(this.fields);
+            console.log(this.fields);
             for (const [key, value] of Object.entries(this.fields)) {
-              // Push the CSV field to csvHeaders array
-              if (value["type"] === "csv") {
+              if (
+                value["type"] === "csv" &&
+                !this.csvHeaders.includes(value["csv"])
+              ) {
                 console.log(value["type"]);
                 this.csvHeaders.push(value["csv"]);
-                // this.csvHeaders.push("test");
               }
             }
 
@@ -161,43 +162,36 @@
           });
       },
       extractProperties(data) {
-        //console.log(data.properties);
         if (data.properties) {
           for (const propName in data.properties) {
             if (data.properties.hasOwnProperty(propName)) {
               const prop = data.properties[propName];
-              //console.log(propName);
               if (propName) {
                 data[propName] = prop;
               }
             }
           }
-
           delete data.properties;
         }
-        //console.log(data);
       },
       assignCsvHeadersToFields() {
         //this.csvHeaders = []; // Clear previous csv headers
         let index = 0;
 
-        // Iterate over the fields and assign csv headers
         for (const [key, value] of Object.entries(this.fields)) {
-          // Push the CSV field to csvHeaders array
-          //this.csvHeaders.push(value["csv"]);
+          // if (value["type"] === "csv") {
+          //   this.csvHeaders.push(value["csv"]);
+          // }
 
-          // Use $nextTick to ensure that the DOM is fully updated before we query the select element
           this.$nextTick(() => {
             const selectElement = document.querySelector(
               `select[name='fields[${key}][csvField]']`
             );
 
             if (selectElement) {
-              selectElement.value = this.csvHeaders[index];
-              // console.log(selectElement.options.length);
-              // console.log("IADI" + this.csvHeaders[index]);
-              // console.log("Assigned value to select:", selectElement);
-              // console.log("value:", selectElement.value);
+              selectElement.value =
+                value["type"] === "csv" ? value["csv"] : this.csvHeaders[index];
+              console.log(selectElement.value);
             } else {
               console.log(`Select element for field '${key}' not found.`);
             }
@@ -205,6 +199,7 @@
             index++;
           });
         }
+        console.log(this.csvHeaders);
       },
       addField() {
         const newFieldName = `Field ${Object.keys(this.fields).length + 1}`;

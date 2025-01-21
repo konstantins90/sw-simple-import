@@ -241,13 +241,6 @@ $router->map('DELETE', '/config-files/delete/[i:id]', function ($id) {
     exit;
 });
 
-// $router->map('GET', '/config-files/create', function () use ($twig) {
-//     // Formular anzeigen
-//     echo $twig->render('config_create.html.twig', [
-//         'title' => 'Neue Konfiguration erstellen'
-//     ]);
-// });
-
 $router->map('GET', '/config-files/create', function () use ($twig) {
     $filePath = $_GET['filePath'] ?? null;
     $fileId = $_GET['fileId'] ?? null;

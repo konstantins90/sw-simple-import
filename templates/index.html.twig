@@ -46,6 +46,7 @@
                 x-show="file.status === 'idle'"
                 x-model="file.config_id"
                 class="form-select"
+                :name="'files[' + index + '][config_name]'"
                 @change="updateFileConfig(file.id, file.config_id)">
                 <option value="" disabled selected>Konfig wählen</option>
                 <template x-for="config in configs" :key="config.id">
@@ -140,24 +141,43 @@
       isModalOpen: false,
       init() {
         const fileManagerInstance = this;
-        fetch("/files")
-          .then((response) => response.json())
-          .then((data) => (this.files = data));
-        fetch("/config-files/all")
-          .then((response) => response.json())
-          .then((data) => {
-            this.configs = data;
-            if (data.length > 0) {
-              this.selectedConfig = data[0].id;
-            }
-          });
+
+        const fetchData = async () => {
+          try {
+            const filesResponse = await fetch("/files");
+            this.files = await filesResponse.json();
+
+            const configsResponse = await fetch("/config-files/all");
+            this.configs = await configsResponse.json();
+
+            this.$nextTick(() => {
+              this.files.forEach((file, index) => {
+                const selectedConfig = document.querySelector(
+                  `select[name='files[${index}][config_name]']`
+                );
+                if (selectedConfig) {
+                  //console.log(selectedConfig);
+                  //   console.log(file);
+                  selectedConfig.value = file.config_id;
+                } else {
+                  //console.log("qwe");
+                }
+              });
+            });
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+
+        fetchData();
+
         Dropzone.options.fileDropzone = {
           autoProcessQueue: false,
           init: function () {
             const dropzoneInstance = this;
             this.on("addedfile", function (file) {
               fileManagerInstance.selectedFile = file;
-              console.log(fileManagerInstance.selectedFile);
+              //   console.log(fileManagerInstance.selectedFile);
               document.getElementById("modal-file").style.display = "block";
               document.getElementById("modal-file").style.opacity = 1;
               this.isModalOpen = true;
@@ -270,9 +290,9 @@
                 .then((response) => response.json())
                 .then((data) => {
                   this.configs = data;
-                  if (data.length > 0) {
-                    this.selectedConfig = data[0].id;
-                  }
+                  //   if (data.length > 0) {
+                  //     this.selectedConfig = data[0].id;
+                  //   }
                 });
             } else {
               alert(`Fehler: ${data.message}`);

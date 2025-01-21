@@ -120,7 +120,7 @@
       <input
         type="hidden"
         name="fileId"
-        value="{{ fileId }}"
+        value="{{ fileId|default('') }}"
         :required="{{ fileId }}" />
       <button type="submit" class="btn btn-primary">Speichern</button>
     </form>
@@ -154,9 +154,7 @@
         fetch(`/files/${this.fileId}`)
           .then((response) => response.json())
           .then((data) => {
-            // console.log(data.status);
             if (data.status === "success") {
-              // console.log(data);
               const csvContent = data.fileContent;
               const rows = csvContent.split("\n");
               this.csvHeaders = rows[0].split(";");
@@ -179,8 +177,6 @@
                   }
                 });
               });
-
-              // console.log("CSV content processed:", this.csvHeaders);
             } else {
               console.error("Error fetching file:", data.message);
             }

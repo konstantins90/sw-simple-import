@@ -32,6 +32,16 @@
       </div>
 
       <div class="form-group">
+        <label for="csvUpload">CSV Hochladen</label>
+        <input
+          type="file"
+          id="csvUpload"
+          name="csvUpload"
+          class="form-control"
+          @change="handleCsvUpload" />
+      </div>
+
+      <div class="form-group">
         <label for="marge">Marge</label>
         <input
           type="number"
@@ -200,6 +210,38 @@
           });
         }
         console.log(this.csvHeaders);
+      },
+      handleCsvUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.csvHeaders = [];
+            const csvContent = e.target.result;
+            const rows = csvContent.split("\n");
+            this.csvHeaders = rows[0].split(";");
+            this.fields = this.mandatoryHeaders.map((header, index) => ({
+              name: header,
+              type: index < this.csvHeaders.length ? "csv" : "default",
+              csvField:
+                index < this.csvHeaders.length
+                  ? this.csvHeaders[index]
+                  : this.csvHeaders[index % this.csvHeaders.length],
+              isReadOnly: false,
+            }));
+            this.$nextTick(() => {
+              this.fields.forEach((field, index) => {
+                const selectElement = document.querySelector(
+                  `select[name='fields[${index}][csvField]']`
+                );
+                if (selectElement && index < this.csvHeaders.length) {
+                  selectElement.value = this.csvHeaders[index];
+                }
+              });
+            });
+          };
+          reader.readAsText(file);
+        }
       },
       addField() {
         const newFieldName = `Field ${Object.keys(this.fields).length + 1}`;

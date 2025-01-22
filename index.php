@@ -185,7 +185,11 @@ $router->map('POST', '/config-files/edit/[i:id]', function ($id) {
                 }
             }
 
-            $mapping[$mandatoryField] = $fieldValue ?? null;
+            $mapping[$mandatoryField] = $fieldValue ?? [
+                'type' => 'default',
+                'csv' => null,
+                'default' => null
+            ];
         }
 
         foreach ($fields as $field) {
@@ -331,7 +335,11 @@ $router->map('POST', '/config-files/create', function () {
                 }
             }
 
-            $mapping[$mandatoryField] = $fieldValue ?? null;
+            $mapping[$mandatoryField] = $fieldValue ?? [
+                'type' => 'default',
+                'csv' => null,
+                'default' => null
+            ];
         }
 
         foreach ($fields as $field) {

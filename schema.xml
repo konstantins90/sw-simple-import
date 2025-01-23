@@ -30,13 +30,14 @@
         </foreign-key>
     </table>
 
-    <!-- Tabelle: files -->
+    <!-- Tabelle: config -->
     <table name="config">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
         <column name="name" type="VARCHAR" size="255" required="true"/>
         <column name="prefix" type="VARCHAR" size="255" required="false"/>
         <column name="marge" type="float" default="1" required="true"/>
         <column name="mapping" type="LONGVARCHAR" required="false"/>
+        <column name="csv_headers" type="LONGVARCHAR" required="false"/>
         <column name="mapping_properties" type="LONGVARCHAR" required="false"/>
         <column name="created_at" type="DATETIME" required="true"/>
         <column name="updated_at" type="DATETIME" required="true"/>

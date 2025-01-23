@@ -315,6 +315,7 @@ $router->map('POST', '/config-files/create', function () {
     $prefix = $_POST['prefix'] ?? null;
     $fields = $_POST['fields'] ?? [];
     $fileId = $_POST['fileId'] ?? [];
+    $csvHeaders = json_decode($_POST['csv_headers'] ?? '[]', true);
 
     if ($name) {
         $mandatoryFields = FileProcessorDefault::getDefaultFields();
@@ -360,6 +361,7 @@ $router->map('POST', '/config-files/create', function () {
             $configFile->setMarge($marge);
             $configFile->setPrefix($prefix);
             $configFile->setMapping(json_encode($mapping, JSON_UNESCAPED_UNICODE));
+            $configFile->setCsvHeaders(json_encode($csvHeaders, JSON_UNESCAPED_UNICODE));
             $configFile->setCreatedAt(new \DateTime());
             $configFile->setUpdatedAt(new \DateTime());
             $configFile->save();
@@ -405,7 +407,7 @@ $router->map('GET', '/config-files/fields', function () {
 });
 
 $router->map('GET', '/config-files/fields/[i:id]', function ($id) {
-    // Felder aus der Klasse abrufen
+    // Config abrufen
     $configFile = ConfigQuery::create()->findPk($id);
 
     $fields = json_decode($configFile->getMapping(), true) ?? [];
@@ -413,6 +415,17 @@ $router->map('GET', '/config-files/fields/[i:id]', function ($id) {
     // JSON-Antwort zurückgeben
     header('Content-Type: application/json');
     echo json_encode($fields);
+});
+
+$router->map('GET', '/config-files/csv-headers/[i:id]', function ($id) {
+    // Config abrufen
+    $configFile = ConfigQuery::create()->findPk($id);
+
+    $csvHeaders = json_decode($configFile->getCsvHeaders(), true) ?? [];
+
+    // JSON-Antwort zurückgeben
+    header('Content-Type: application/json');
+    echo json_encode($csvHeaders);
 });
 
 $router->map('POST', '/upload', function () {

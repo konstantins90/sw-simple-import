@@ -105,6 +105,13 @@ abstract class Config implements ActiveRecordInterface
     protected $mapping;
 
     /**
+     * The value for the csv_headers field.
+     *
+     * @var        string|null
+     */
+    protected $csv_headers;
+
+    /**
      * The value for the mapping_properties field.
      *
      * @var        string|null
@@ -379,7 +386,7 @@ abstract class Config implements ActiveRecordInterface
         $propertyNames = [];
         $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
 
-        foreach ($serializableProperties as $property) {
+        foreach($serializableProperties as $property) {
             $propertyNames[] = $property->getName();
         }
 
@@ -434,6 +441,16 @@ abstract class Config implements ActiveRecordInterface
     public function getMapping()
     {
         return $this->mapping;
+    }
+
+    /**
+     * Get the [csv_headers] column value.
+     *
+     * @return string|null
+     */
+    public function getCsvHeaders()
+    {
+        return $this->csv_headers;
     }
 
     /**
@@ -559,7 +576,7 @@ abstract class Config implements ActiveRecordInterface
     public function setMarge($v)
     {
         if ($v !== null) {
-            $v = (float) $v;
+            $v = (double) $v;
         }
 
         if ($this->marge !== $v) {
@@ -585,6 +602,26 @@ abstract class Config implements ActiveRecordInterface
         if ($this->mapping !== $v) {
             $this->mapping = $v;
             $this->modifiedColumns[ConfigTableMap::COL_MAPPING] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [csv_headers] column.
+     *
+     * @param string|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setCsvHeaders($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->csv_headers !== $v) {
+            $this->csv_headers = $v;
+            $this->modifiedColumns[ConfigTableMap::COL_CSV_HEADERS] = true;
         }
 
         return $this;
@@ -660,9 +697,9 @@ abstract class Config implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues(): bool
     {
-        if ($this->marge !== 1.0) {
-            return false;
-        }
+            if ($this->marge !== 1.0) {
+                return false;
+            }
 
         // otherwise, everything was equal, so return TRUE
         return true;
@@ -700,21 +737,24 @@ abstract class Config implements ActiveRecordInterface
             $this->prefix = (null !== $col) ? (string) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ConfigTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->marge = (null !== $col) ? (float) $col : null;
+            $this->marge = (null !== $col) ? (double) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ConfigTableMap::translateFieldName('Mapping', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mapping = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ConfigTableMap::translateFieldName('MappingProperties', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ConfigTableMap::translateFieldName('CsvHeaders', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->csv_headers = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ConfigTableMap::translateFieldName('MappingProperties', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mapping_properties = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ConfigTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ConfigTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ConfigTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : ConfigTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -727,7 +767,7 @@ abstract class Config implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 8; // 8 = ConfigTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 9; // 9 = ConfigTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\Config'), 0, $e);
@@ -748,7 +788,9 @@ abstract class Config implements ActiveRecordInterface
      * @throws \Propel\Runtime\Exception\PropelException
      * @return void
      */
-    public function ensureConsistency(): void {}
+    public function ensureConsistency(): void
+    {
+    }
 
     /**
      * Reloads this object from datastore based on primary key and (optionally) resets all associated objects.
@@ -788,6 +830,7 @@ abstract class Config implements ActiveRecordInterface
         if ($deep) {  // also de-associate any related objects?
 
             $this->collFiless = null;
+
         } // if (deep)
     }
 
@@ -920,6 +963,7 @@ abstract class Config implements ActiveRecordInterface
             }
 
             $this->alreadyInSave = false;
+
         }
 
         return $affectedRows;
@@ -943,7 +987,7 @@ abstract class Config implements ActiveRecordInterface
             throw new PropelException('Cannot insert a value for auto-increment primary key (' . ConfigTableMap::COL_ID . ')');
         }
 
-        // check the columns in natural order for more readable SQL queries
+         // check the columns in natural order for more readable SQL queries
         if ($this->isColumnModified(ConfigTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
@@ -958,6 +1002,9 @@ abstract class Config implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING)) {
             $modifiedColumns[':p' . $index++]  = 'mapping';
+        }
+        if ($this->isColumnModified(ConfigTableMap::COL_CSV_HEADERS)) {
+            $modifiedColumns[':p' . $index++]  = 'csv_headers';
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING_PROPERTIES)) {
             $modifiedColumns[':p' . $index++]  = 'mapping_properties';
@@ -997,6 +1044,10 @@ abstract class Config implements ActiveRecordInterface
                         break;
                     case 'mapping':
                         $stmt->bindValue($identifier, $this->mapping, PDO::PARAM_STR);
+
+                        break;
+                    case 'csv_headers':
+                        $stmt->bindValue($identifier, $this->csv_headers, PDO::PARAM_STR);
 
                         break;
                     case 'mapping_properties':
@@ -1089,12 +1140,15 @@ abstract class Config implements ActiveRecordInterface
                 return $this->getMapping();
 
             case 5:
-                return $this->getMappingProperties();
+                return $this->getCsvHeaders();
 
             case 6:
-                return $this->getCreatedAt();
+                return $this->getMappingProperties();
 
             case 7:
+                return $this->getCreatedAt();
+
+            case 8:
                 return $this->getUpdatedAt();
 
             default:
@@ -1130,16 +1184,17 @@ abstract class Config implements ActiveRecordInterface
             $keys[2] => $this->getPrefix(),
             $keys[3] => $this->getMarge(),
             $keys[4] => $this->getMapping(),
-            $keys[5] => $this->getMappingProperties(),
-            $keys[6] => $this->getCreatedAt(),
-            $keys[7] => $this->getUpdatedAt(),
+            $keys[5] => $this->getCsvHeaders(),
+            $keys[6] => $this->getMappingProperties(),
+            $keys[7] => $this->getCreatedAt(),
+            $keys[8] => $this->getUpdatedAt(),
         ];
-        if ($result[$keys[6]] instanceof \DateTimeInterface) {
-            $result[$keys[6]] = $result[$keys[6]]->format('Y-m-d H:i:s.u');
-        }
-
         if ($result[$keys[7]] instanceof \DateTimeInterface) {
             $result[$keys[7]] = $result[$keys[7]]->format('Y-m-d H:i:s.u');
+        }
+
+        if ($result[$keys[8]] instanceof \DateTimeInterface) {
+            $result[$keys[8]] = $result[$keys[8]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1215,12 +1270,15 @@ abstract class Config implements ActiveRecordInterface
                 $this->setMapping($value);
                 break;
             case 5:
-                $this->setMappingProperties($value);
+                $this->setCsvHeaders($value);
                 break;
             case 6:
-                $this->setCreatedAt($value);
+                $this->setMappingProperties($value);
                 break;
             case 7:
+                $this->setCreatedAt($value);
+                break;
+            case 8:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1265,19 +1323,22 @@ abstract class Config implements ActiveRecordInterface
             $this->setMapping($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setMappingProperties($arr[$keys[5]]);
+            $this->setCsvHeaders($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setCreatedAt($arr[$keys[6]]);
+            $this->setMappingProperties($arr[$keys[6]]);
         }
         if (array_key_exists($keys[7], $arr)) {
-            $this->setUpdatedAt($arr[$keys[7]]);
+            $this->setCreatedAt($arr[$keys[7]]);
+        }
+        if (array_key_exists($keys[8], $arr)) {
+            $this->setUpdatedAt($arr[$keys[8]]);
         }
 
         return $this;
     }
 
-    /**
+     /**
      * Populate the current object from a string, using a given parser format
      * <code>
      * $book = new Book();
@@ -1330,6 +1391,9 @@ abstract class Config implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING)) {
             $criteria->add(ConfigTableMap::COL_MAPPING, $this->mapping);
+        }
+        if ($this->isColumnModified(ConfigTableMap::COL_CSV_HEADERS)) {
+            $criteria->add(ConfigTableMap::COL_CSV_HEADERS, $this->csv_headers);
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING_PROPERTIES)) {
             $criteria->add(ConfigTableMap::COL_MAPPING_PROPERTIES, $this->mapping_properties);
@@ -1432,6 +1496,7 @@ abstract class Config implements ActiveRecordInterface
         $copyObj->setPrefix($this->getPrefix());
         $copyObj->setMarge($this->getMarge());
         $copyObj->setMapping($this->getMapping());
+        $copyObj->setCsvHeaders($this->getCsvHeaders());
         $copyObj->setMappingProperties($this->getMappingProperties());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
@@ -1446,6 +1511,7 @@ abstract class Config implements ActiveRecordInterface
                     $copyObj->addFiles($relObj->copy($deepCopy));
                 }
             }
+
         } // if ($deepCopy)
 
         if ($makeNew) {
@@ -1708,7 +1774,7 @@ abstract class Config implements ActiveRecordInterface
      */
     protected function doAddFiles(ChildFiles $files): void
     {
-        $this->collFiless[] = $files;
+        $this->collFiless[]= $files;
         $files->setConfig($this);
     }
 
@@ -1725,7 +1791,7 @@ abstract class Config implements ActiveRecordInterface
                 $this->filessScheduledForDeletion = clone $this->collFiless;
                 $this->filessScheduledForDeletion->clear();
             }
-            $this->filessScheduledForDeletion[] = clone $files;
+            $this->filessScheduledForDeletion[]= clone $files;
             $files->setConfig(null);
         }
 
@@ -1746,6 +1812,7 @@ abstract class Config implements ActiveRecordInterface
         $this->prefix = null;
         $this->marge = null;
         $this->mapping = null;
+        $this->csv_headers = null;
         $this->mapping_properties = null;
         $this->created_at = null;
         $this->updated_at = null;
@@ -1799,7 +1866,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preSave(?ConnectionInterface $con = null): bool
     {
-        return true;
+                return true;
     }
 
     /**
@@ -1807,7 +1874,9 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postSave(?ConnectionInterface $con = null): void {}
+    public function postSave(?ConnectionInterface $con = null): void
+    {
+            }
 
     /**
      * Code to be run before inserting to database
@@ -1816,7 +1885,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preInsert(?ConnectionInterface $con = null): bool
     {
-        return true;
+                return true;
     }
 
     /**
@@ -1824,7 +1893,9 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postInsert(?ConnectionInterface $con = null): void {}
+    public function postInsert(?ConnectionInterface $con = null): void
+    {
+            }
 
     /**
      * Code to be run before updating the object in database
@@ -1833,7 +1904,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preUpdate(?ConnectionInterface $con = null): bool
     {
-        return true;
+                return true;
     }
 
     /**
@@ -1841,7 +1912,9 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postUpdate(?ConnectionInterface $con = null): void {}
+    public function postUpdate(?ConnectionInterface $con = null): void
+    {
+            }
 
     /**
      * Code to be run before deleting the object in database
@@ -1850,7 +1923,7 @@ abstract class Config implements ActiveRecordInterface
      */
     public function preDelete(?ConnectionInterface $con = null): bool
     {
-        return true;
+                return true;
     }
 
     /**
@@ -1858,7 +1931,9 @@ abstract class Config implements ActiveRecordInterface
      * @param ConnectionInterface|null $con
      * @return void
      */
-    public function postDelete(?ConnectionInterface $con = null): void {}
+    public function postDelete(?ConnectionInterface $con = null): void
+    {
+            }
 
 
     /**
@@ -1904,4 +1979,5 @@ abstract class Config implements ActiveRecordInterface
 
         throw new BadMethodCallException(sprintf('Call to undefined method: %s.', $name));
     }
+
 }

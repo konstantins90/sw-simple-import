@@ -119,6 +119,8 @@
         </template>
       </div>
 
+      <input type="hidden" id="csvHeaders" name="csv_headers" />
+
       <div class="form-group">
         <button type="button" class="btn btn-secondary" @click="addField">
           Neues Feld hinzufügen
@@ -170,6 +172,17 @@
           .catch(() => {
             alert("Fehler beim Laden der Felder.");
           });
+        fetch(`/config-files/csv-headers/${this.id}`)
+          .then((response) => response.json())
+          .then((data) => {
+            this.csvHeaders = data;
+            document.getElementById("csvHeaders").value = JSON.stringify(
+              this.csvHeaders
+            );
+          })
+          .catch(() => {
+            alert("Fehler beim Laden der CSV-Header.");
+          });
       },
       extractProperties(data) {
         if (data.properties) {
@@ -220,6 +233,9 @@
             const csvContent = e.target.result;
             const rows = csvContent.split("\n");
             this.csvHeaders = rows[0].split(";");
+            document.getElementById("csvHeaders").value = JSON.stringify(
+              this.csvHeaders
+            );
             this.fields = this.mandatoryHeaders.map((header, index) => ({
               name: header,
               type: index < this.csvHeaders.length ? "csv" : "default",

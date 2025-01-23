@@ -24,6 +24,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfigQuery orderByPrefix($order = Criteria::ASC) Order by the prefix column
  * @method     ChildConfigQuery orderByMarge($order = Criteria::ASC) Order by the marge column
  * @method     ChildConfigQuery orderByMapping($order = Criteria::ASC) Order by the mapping column
+ * @method     ChildConfigQuery orderByCsvHeaders($order = Criteria::ASC) Order by the csv_headers column
  * @method     ChildConfigQuery orderByMappingProperties($order = Criteria::ASC) Order by the mapping_properties column
  * @method     ChildConfigQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method     ChildConfigQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
@@ -33,6 +34,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfigQuery groupByPrefix() Group by the prefix column
  * @method     ChildConfigQuery groupByMarge() Group by the marge column
  * @method     ChildConfigQuery groupByMapping() Group by the mapping column
+ * @method     ChildConfigQuery groupByCsvHeaders() Group by the csv_headers column
  * @method     ChildConfigQuery groupByMappingProperties() Group by the mapping_properties column
  * @method     ChildConfigQuery groupByCreatedAt() Group by the created_at column
  * @method     ChildConfigQuery groupByUpdatedAt() Group by the updated_at column
@@ -65,6 +67,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfig|null findOneByPrefix(string $prefix) Return the first ChildConfig filtered by the prefix column
  * @method     ChildConfig|null findOneByMarge(double $marge) Return the first ChildConfig filtered by the marge column
  * @method     ChildConfig|null findOneByMapping(string $mapping) Return the first ChildConfig filtered by the mapping column
+ * @method     ChildConfig|null findOneByCsvHeaders(string $csv_headers) Return the first ChildConfig filtered by the csv_headers column
  * @method     ChildConfig|null findOneByMappingProperties(string $mapping_properties) Return the first ChildConfig filtered by the mapping_properties column
  * @method     ChildConfig|null findOneByCreatedAt(string $created_at) Return the first ChildConfig filtered by the created_at column
  * @method     ChildConfig|null findOneByUpdatedAt(string $updated_at) Return the first ChildConfig filtered by the updated_at column
@@ -77,6 +80,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfig requireOneByPrefix(string $prefix) Return the first ChildConfig filtered by the prefix column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMarge(double $marge) Return the first ChildConfig filtered by the marge column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMapping(string $mapping) Return the first ChildConfig filtered by the mapping column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildConfig requireOneByCsvHeaders(string $csv_headers) Return the first ChildConfig filtered by the csv_headers column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMappingProperties(string $mapping_properties) Return the first ChildConfig filtered by the mapping_properties column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByCreatedAt(string $created_at) Return the first ChildConfig filtered by the created_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByUpdatedAt(string $updated_at) Return the first ChildConfig filtered by the updated_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -94,6 +98,8 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildConfig> findByMarge(double|array<double> $marge) Return ChildConfig objects filtered by the marge column
  * @method     ChildConfig[]|Collection findByMapping(string|array<string> $mapping) Return ChildConfig objects filtered by the mapping column
  * @psalm-method Collection&\Traversable<ChildConfig> findByMapping(string|array<string> $mapping) Return ChildConfig objects filtered by the mapping column
+ * @method     ChildConfig[]|Collection findByCsvHeaders(string|array<string> $csv_headers) Return ChildConfig objects filtered by the csv_headers column
+ * @psalm-method Collection&\Traversable<ChildConfig> findByCsvHeaders(string|array<string> $csv_headers) Return ChildConfig objects filtered by the csv_headers column
  * @method     ChildConfig[]|Collection findByMappingProperties(string|array<string> $mapping_properties) Return ChildConfig objects filtered by the mapping_properties column
  * @psalm-method Collection&\Traversable<ChildConfig> findByMappingProperties(string|array<string> $mapping_properties) Return ChildConfig objects filtered by the mapping_properties column
  * @method     ChildConfig[]|Collection findByCreatedAt(string|array<string> $created_at) Return ChildConfig objects filtered by the created_at column
@@ -199,7 +205,7 @@ abstract class ConfigQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, prefix, marge, mapping, mapping_properties, created_at, updated_at FROM config WHERE id = :p0';
+        $sql = 'SELECT id, name, prefix, marge, mapping, csv_headers, mapping_properties, created_at, updated_at FROM config WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -459,6 +465,34 @@ abstract class ConfigQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(ConfigTableMap::COL_MAPPING, $mapping, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the csv_headers column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByCsvHeaders('fooValue');   // WHERE csv_headers = 'fooValue'
+     * $query->filterByCsvHeaders('%fooValue%', Criteria::LIKE); // WHERE csv_headers LIKE '%fooValue%'
+     * $query->filterByCsvHeaders(['foo', 'bar']); // WHERE csv_headers IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $csvHeaders The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByCsvHeaders($csvHeaders = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($csvHeaders)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(ConfigTableMap::COL_CSV_HEADERS, $csvHeaders, $comparison);
 
         return $this;
     }

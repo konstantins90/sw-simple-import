@@ -13,28 +13,16 @@ CREATE TABLE `files`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `filename` VARCHAR(255) NOT NULL,
-    `config_name` VARCHAR(255) NOT NULL,
-    `created_at` DATETIME NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-
--- ---------------------------------------------------------------------
--- file_status
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `file_status`;
-
-CREATE TABLE `file_status`
-(
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `file_id` INTEGER NOT NULL,
+    `path` VARCHAR(255) NOT NULL,
     `status` VARCHAR(50) NOT NULL,
+    `config_id` INTEGER NOT NULL,
+    `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `file_status_fi_568a7d` (`file_id`),
-    CONSTRAINT `file_status_fk_568a7d`
-        FOREIGN KEY (`file_id`)
-        REFERENCES `files` (`id`)
+    INDEX `files_fi_ecb45f` (`config_id`),
+    CONSTRAINT `files_fk_ecb45f`
+        FOREIGN KEY (`config_id`)
+        REFERENCES `config` (`id`)
         ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -58,6 +46,26 @@ CREATE TABLE `import_history`
         FOREIGN KEY (`file_id`)
         REFERENCES `files` (`id`)
         ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- config
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `config`;
+
+CREATE TABLE `config`
+(
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `prefix` VARCHAR(255),
+    `marge` FLOAT DEFAULT 1 NOT NULL,
+    `mapping` TEXT,
+    `csv_headers` TEXT,
+    `mapping_properties` TEXT,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
 # This restores the fkey checks, after having unset them earlier

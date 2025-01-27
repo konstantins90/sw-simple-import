@@ -9,10 +9,10 @@
 propel:
     paths:
         # The directory where Propel expects to find your `schema.xml` file.
-        schemaDir: /home/ksmetana/shopwareSimpleImport
+        schemaDir:  /home/ksmetana/shopwareSimpleImport
 
         # The directory where Propel should output generated object model classes.
-        phpDir: /home/ksmetana/shopwareSimpleImport/src/
+        phpDir:  /home/ksmetana/shopwareSimpleImport/src/
 
 #   database:
 #       connections:

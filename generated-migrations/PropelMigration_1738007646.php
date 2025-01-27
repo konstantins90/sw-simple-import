@@ -3,9 +3,9 @@ use Propel\Generator\Manager\MigrationManager;
 
 /**
  * Data object containing the SQL and PHP code to migrate the database
- * up to version 1734206838.
- * Generated on 2024-12-14 21:07:18 by ksmetana */
-class PropelMigration_1734206838{
+ * up to version 1738007646.
+ * Generated on 2025-01-27 19:54:06 by ksmetana */
+class PropelMigration_1738007646{
     /**
      * @var string
      */
@@ -65,13 +65,9 @@ class PropelMigration_1734206838{
 # It "suspends judgement" for fkey relationships until are tables are set.
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `file_status`;
+ALTER TABLE `config`
 
-ALTER TABLE `files`
-
-  ADD `status` VARCHAR(50) NOT NULL AFTER `path`,
-
-  ADD `updated_at` DATETIME NOT NULL AFTER `created_at`;
+  ADD `csv_headers` TEXT AFTER `mapping`;
 
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;
@@ -96,25 +92,9 @@ EOT;
 # It "suspends judgement" for fkey relationships until are tables are set.
 SET FOREIGN_KEY_CHECKS = 0;
 
-ALTER TABLE `files`
+ALTER TABLE `config`
 
-  DROP `status`,
-
-  DROP `updated_at`;
-
-CREATE TABLE `file_status`
-(
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `file_id` INTEGER NOT NULL,
-    `status` VARCHAR(50) NOT NULL,
-    `updated_at` DATETIME NOT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `file_status_fi_568a7d` (`file_id`),
-    CONSTRAINT `file_status_fk_568a7d`
-        FOREIGN KEY (`file_id`)
-        REFERENCES `files` (`id`)
-        ON DELETE CASCADE
-) ENGINE=InnoDB;
+  DROP `csv_headers`;
 
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;

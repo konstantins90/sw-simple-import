@@ -430,7 +430,10 @@ $router->map('GET', '/config-files/csv-headers/[i:id]', function ($id) {
 
 $router->map('POST', '/upload', function () {
     $controller = new UploadController();
-    $controller->handleUpload();
+    $result = $controller->handleUpload();
+
+    header('Content-Type: application/json');
+    echo json_encode($result);
 });
 
 

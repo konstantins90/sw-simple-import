@@ -9,7 +9,8 @@
         "vin-sw/shopware-sdk": "^2.0",
         "twig/twig": "^3.0",
         "altorouter/altorouter": "^2.0",
-        "propel/propel": "~2.0@beta"
+        "propel/propel": "~2.0@beta",
+        "monolog/monolog": "^3.8"
     },
     "autoload": {
         "psr-4": {

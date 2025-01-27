@@ -2,11 +2,41 @@
 
 namespace App\Utils;
 
+use Monolog\Logger as MonologLogger;
+use Monolog\Handler\StreamHandler;
+
 class Logger
 {
-    public static function log(string $message): void
+    private $logger;
+
+    public function __construct($logFile = 'app.log')
     {
-        // Einfache Logik zum Protokollieren von Nachrichten
-        file_put_contents('log.txt', $message . PHP_EOL, FILE_APPEND);
+        // Erstelle ein Logger-Objekt
+        $this->logger = new MonologLogger('app_logger');
+        
+        // StreamHandler: Log-Datei, Fehlerlevel
+        $this->logger->pushHandler(new StreamHandler(__DIR__ . '/../../logs/' . $logFile, MonologLogger::DEBUG));
+    }
+
+    // Logge eine Nachricht
+    public function log($level, $message)
+    {
+        $this->logger->log($level, $message);
+    }
+
+    // Zusätzliche Methoden für bestimmte Log-Level
+    public function info($message)
+    {
+        $this->logger->info($message);
+    }
+
+    public function warning($message)
+    {
+        $this->logger->warning($message);
+    }
+
+    public function error($message)
+    {
+        $this->logger->error($message);
     }
 }

@@ -3,21 +3,27 @@
 namespace App\Controller;
 
 use App\Csv\FileUploader;
+use App\Utils\Logger;
+use Kint;
 
 class UploadController
 {
-    public function handleUpload()
+    public function handleUpload(): array
     {
-        $uploadDir = __DIR__ . '/../../csv'; // Директория для загрузки файлов
-        $fileUploader = new FileUploader($uploadDir);
+        try {
+            $uploadDir = __DIR__ . '/../../csv';
+            $logger = new Logger();
+            $fileUploader = new FileUploader(uploadDir: $uploadDir, logger: $logger);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
-            $result = $fileUploader->upload($_FILES['file']);
-            header('Content-Type: application/json');
-            echo json_encode($result);
-        } else {
-            header($_SERVER["SERVER_PROTOCOL"] . ' 400 Bad Request');
-            echo json_encode(['status' => 'error', 'message' => 'Неверный запрос']);
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && isset($_POST['config_id'])) {
+                return $fileUploader->upload($_FILES['file'], $_POST['config_id']);
+            } else {
+                return ['status' => 'error', 'error' => 'ERROR', 'message' => 'Неверный запрос'];
+            }
+        } catch (\Throwable $th) {
+            return ['status' => 'error', 'error' => $th->getMessage(), 'message' => 'Неверный запрос'];
         }
+
+        
     }
 }

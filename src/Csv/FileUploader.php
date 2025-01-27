@@ -3,30 +3,24 @@
 namespace App\Csv;
 
 use Propel\Files;
-use Propel\FileStatus;
+use App\Utils\Logger;
 
 class FileUploader
 {
-    private $uploadDir;
-    private $maxFileSize;
-    private $allowedTypes;
-
     public function __construct(
-        $uploadDir,
-        $maxFileSize = 5 * 1024 * 1024,
-        $allowedTypes = ['application/vnd.ms-excel', 'text/csv', 'text/plain']
+        private $uploadDir,
+        private Logger $logger,
+        private $maxFileSize = 5 * 1024 * 1024,
+        private $allowedTypes = ['application/vnd.ms-excel', 'text/csv', 'text/plain']
     ) {
         $this->uploadDir = rtrim($uploadDir, '/') . '/';
-        $this->maxFileSize = $maxFileSize;
-        $this->allowedTypes = $allowedTypes;
-
         // Создание директории, если она не существует
         if (!is_dir($this->uploadDir)) {
             mkdir($this->uploadDir, 0777, true);
         }
     }
 
-    public function upload($file)
+    public function upload($file, $configId)
     {
         if (!$this->isValidFile($file)) {
             return ['status' => 'error', 'message' => 'Неверный файл'];
@@ -43,17 +37,25 @@ class FileUploader
 
         $targetFile = $targetDir . '/' . $uniqueName;
 
+        $this->logger->info("Dieses ist eine Info-Nachricht.");
+        $this->logger->info($originalName);
+        $this->logger->info($subDir . '/' . $uniqueName);
+        $this->logger->info('idle');
+        $this->logger->info('1');
+
         if (move_uploaded_file($file['tmp_name'], $targetFile)) {
             $fileRecord = new Files();
             $fileRecord->setFilename($originalName);
             $fileRecord->setPath($subDir . '/' . $uniqueName);
             $fileRecord->setStatus('idle');
-            $fileRecord->setConfigId(1);
+            $fileRecord->setConfigId($configId);
             $fileRecord->setCreatedAt(new \DateTime());
             $fileRecord->setUpdatedAt(new \DateTime());
+            $this->logger->info($fileRecord->__toString());
             $fileRecord->save();
 
             return [
+                'success' => true,
                 'status' => 'success',
                 'file' => $originalName,
                 'path' => $fileRecord->getPath(),

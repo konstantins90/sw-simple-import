@@ -196,7 +196,7 @@
       },
       submitFile() {
         if (!this.selectedFile || !this.selectedConfig) {
-          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus.");
+          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus. 1");
           return;
         }
 
@@ -204,15 +204,32 @@
         formData.append("file", this.selectedFile);
         formData.append("config_id", this.selectedConfig);
 
+        console.log(formData);
+
         fetch("/upload", {
           method: "POST",
           body: formData,
         })
-          .then(() => {
-            this.closeModal();
-            alert("Datei erfolgreich hochgeladen.");
+          .then((response) => {
+            console.log('response', response);
+            if (!response.ok) {
+              throw new Error(`Fehler: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
           })
-          .catch(() => alert("Fehler beim Hochladen der Datei."));
+          .then((data) => {
+            console.log('data',data);
+            if (data.success) {
+              alert("Datei erfolgreich hochgeladen.");
+              this.closeModal();
+            } else {
+              alert(`Fehler: ${data.error || "Unbekannter Fehler"}`);
+            }
+          })
+          .catch((error) => {
+            console.error("Upload failed:", error);
+            alert("Fehler beim Hochladen der Datei.");
+          });
       },
       closeModal() {
         this.isModalOpen = false;
@@ -226,7 +243,7 @@
       },
       createConfigFromFile() {
         if (!this.selectedFile) {
-          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus.");
+          alert("Bitte wählen Sie eine Datei und eine Konfiguration aus. 2");
           return;
         }
 

@@ -40,6 +40,8 @@ services:
       MYSQL_PASSWORD: password
     ports:
       - '3306:3306'
+    volumes:
+      - ./db_data:/var/lib/mysql
     networks:
       - app-network
 

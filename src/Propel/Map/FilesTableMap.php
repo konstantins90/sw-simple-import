@@ -63,7 +63,7 @@ class FilesTableMap extends TableMap
     /**
      * The total number of columns
      */
-    public const NUM_COLUMNS = 7;
+    public const NUM_COLUMNS = 10;
 
     /**
      * The number of lazy-loaded columns
@@ -73,7 +73,7 @@ class FilesTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    public const NUM_HYDRATE_COLUMNS = 7;
+    public const NUM_HYDRATE_COLUMNS = 10;
 
     /**
      * the column name for the id field
@@ -94,6 +94,21 @@ class FilesTableMap extends TableMap
      * the column name for the status field
      */
     public const COL_STATUS = 'files.status';
+
+    /**
+     * the column name for the product_status field
+     */
+    public const COL_PRODUCT_STATUS = 'files.product_status';
+
+    /**
+     * the column name for the prefix field
+     */
+    public const COL_PREFIX = 'files.prefix';
+
+    /**
+     * the column name for the marge field
+     */
+    public const COL_MARGE = 'files.marge';
 
     /**
      * the column name for the config_id field
@@ -124,11 +139,11 @@ class FilesTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldNames = [
-        self::TYPE_PHPNAME       => ['Id', 'Filename', 'Path', 'Status', 'ConfigId', 'CreatedAt', 'UpdatedAt', ],
-        self::TYPE_CAMELNAME     => ['id', 'filename', 'path', 'status', 'configId', 'createdAt', 'updatedAt', ],
-        self::TYPE_COLNAME       => [FilesTableMap::COL_ID, FilesTableMap::COL_FILENAME, FilesTableMap::COL_PATH, FilesTableMap::COL_STATUS, FilesTableMap::COL_CONFIG_ID, FilesTableMap::COL_CREATED_AT, FilesTableMap::COL_UPDATED_AT, ],
-        self::TYPE_FIELDNAME     => ['id', 'filename', 'path', 'status', 'config_id', 'created_at', 'updated_at', ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, ]
+        self::TYPE_PHPNAME       => ['Id', 'Filename', 'Path', 'Status', 'ProductStatus', 'Prefix', 'Marge', 'ConfigId', 'CreatedAt', 'UpdatedAt', ],
+        self::TYPE_CAMELNAME     => ['id', 'filename', 'path', 'status', 'productStatus', 'prefix', 'marge', 'configId', 'createdAt', 'updatedAt', ],
+        self::TYPE_COLNAME       => [FilesTableMap::COL_ID, FilesTableMap::COL_FILENAME, FilesTableMap::COL_PATH, FilesTableMap::COL_STATUS, FilesTableMap::COL_PRODUCT_STATUS, FilesTableMap::COL_PREFIX, FilesTableMap::COL_MARGE, FilesTableMap::COL_CONFIG_ID, FilesTableMap::COL_CREATED_AT, FilesTableMap::COL_UPDATED_AT, ],
+        self::TYPE_FIELDNAME     => ['id', 'filename', 'path', 'status', 'product_status', 'prefix', 'marge', 'config_id', 'created_at', 'updated_at', ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ]
     ];
 
     /**
@@ -140,11 +155,11 @@ class FilesTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldKeys = [
-        self::TYPE_PHPNAME       => ['Id' => 0, 'Filename' => 1, 'Path' => 2, 'Status' => 3, 'ConfigId' => 4, 'CreatedAt' => 5, 'UpdatedAt' => 6, ],
-        self::TYPE_CAMELNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'configId' => 4, 'createdAt' => 5, 'updatedAt' => 6, ],
-        self::TYPE_COLNAME       => [FilesTableMap::COL_ID => 0, FilesTableMap::COL_FILENAME => 1, FilesTableMap::COL_PATH => 2, FilesTableMap::COL_STATUS => 3, FilesTableMap::COL_CONFIG_ID => 4, FilesTableMap::COL_CREATED_AT => 5, FilesTableMap::COL_UPDATED_AT => 6, ],
-        self::TYPE_FIELDNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'config_id' => 4, 'created_at' => 5, 'updated_at' => 6, ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, ]
+        self::TYPE_PHPNAME       => ['Id' => 0, 'Filename' => 1, 'Path' => 2, 'Status' => 3, 'ProductStatus' => 4, 'Prefix' => 5, 'Marge' => 6, 'ConfigId' => 7, 'CreatedAt' => 8, 'UpdatedAt' => 9, ],
+        self::TYPE_CAMELNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'productStatus' => 4, 'prefix' => 5, 'marge' => 6, 'configId' => 7, 'createdAt' => 8, 'updatedAt' => 9, ],
+        self::TYPE_COLNAME       => [FilesTableMap::COL_ID => 0, FilesTableMap::COL_FILENAME => 1, FilesTableMap::COL_PATH => 2, FilesTableMap::COL_STATUS => 3, FilesTableMap::COL_PRODUCT_STATUS => 4, FilesTableMap::COL_PREFIX => 5, FilesTableMap::COL_MARGE => 6, FilesTableMap::COL_CONFIG_ID => 7, FilesTableMap::COL_CREATED_AT => 8, FilesTableMap::COL_UPDATED_AT => 9, ],
+        self::TYPE_FIELDNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'product_status' => 4, 'prefix' => 5, 'marge' => 6, 'config_id' => 7, 'created_at' => 8, 'updated_at' => 9, ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ]
     ];
 
     /**
@@ -177,6 +192,26 @@ class FilesTableMap extends TableMap
         'files.status' => 'STATUS',
         'FilesTableMap::COL_STATUS' => 'STATUS',
         'COL_STATUS' => 'STATUS',
+        'ProductStatus' => 'PRODUCT_STATUS',
+        'Files.ProductStatus' => 'PRODUCT_STATUS',
+        'productStatus' => 'PRODUCT_STATUS',
+        'files.productStatus' => 'PRODUCT_STATUS',
+        'FilesTableMap::COL_PRODUCT_STATUS' => 'PRODUCT_STATUS',
+        'COL_PRODUCT_STATUS' => 'PRODUCT_STATUS',
+        'product_status' => 'PRODUCT_STATUS',
+        'files.product_status' => 'PRODUCT_STATUS',
+        'Prefix' => 'PREFIX',
+        'Files.Prefix' => 'PREFIX',
+        'prefix' => 'PREFIX',
+        'files.prefix' => 'PREFIX',
+        'FilesTableMap::COL_PREFIX' => 'PREFIX',
+        'COL_PREFIX' => 'PREFIX',
+        'Marge' => 'MARGE',
+        'Files.Marge' => 'MARGE',
+        'marge' => 'MARGE',
+        'files.marge' => 'MARGE',
+        'FilesTableMap::COL_MARGE' => 'MARGE',
+        'COL_MARGE' => 'MARGE',
         'ConfigId' => 'CONFIG_ID',
         'Files.ConfigId' => 'CONFIG_ID',
         'configId' => 'CONFIG_ID',
@@ -224,6 +259,9 @@ class FilesTableMap extends TableMap
         $this->addColumn('filename', 'Filename', 'VARCHAR', true, 255, null);
         $this->addColumn('path', 'Path', 'VARCHAR', true, 255, null);
         $this->addColumn('status', 'Status', 'VARCHAR', true, 50, null);
+        $this->addColumn('product_status', 'ProductStatus', 'VARCHAR', false, 50, null);
+        $this->addColumn('prefix', 'Prefix', 'VARCHAR', false, 255, null);
+        $this->addColumn('marge', 'Marge', 'FLOAT', false, null, null);
         $this->addForeignKey('config_id', 'ConfigId', 'INTEGER', 'config', 'id', true, null, null);
         $this->addColumn('created_at', 'CreatedAt', 'DATETIME', true, null, null);
         $this->addColumn('updated_at', 'UpdatedAt', 'DATETIME', true, null, null);
@@ -408,6 +446,9 @@ class FilesTableMap extends TableMap
             $criteria->addSelectColumn(FilesTableMap::COL_FILENAME);
             $criteria->addSelectColumn(FilesTableMap::COL_PATH);
             $criteria->addSelectColumn(FilesTableMap::COL_STATUS);
+            $criteria->addSelectColumn(FilesTableMap::COL_PRODUCT_STATUS);
+            $criteria->addSelectColumn(FilesTableMap::COL_PREFIX);
+            $criteria->addSelectColumn(FilesTableMap::COL_MARGE);
             $criteria->addSelectColumn(FilesTableMap::COL_CONFIG_ID);
             $criteria->addSelectColumn(FilesTableMap::COL_CREATED_AT);
             $criteria->addSelectColumn(FilesTableMap::COL_UPDATED_AT);
@@ -416,6 +457,9 @@ class FilesTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.filename');
             $criteria->addSelectColumn($alias . '.path');
             $criteria->addSelectColumn($alias . '.status');
+            $criteria->addSelectColumn($alias . '.product_status');
+            $criteria->addSelectColumn($alias . '.prefix');
+            $criteria->addSelectColumn($alias . '.marge');
             $criteria->addSelectColumn($alias . '.config_id');
             $criteria->addSelectColumn($alias . '.created_at');
             $criteria->addSelectColumn($alias . '.updated_at');
@@ -441,6 +485,9 @@ class FilesTableMap extends TableMap
             $criteria->removeSelectColumn(FilesTableMap::COL_FILENAME);
             $criteria->removeSelectColumn(FilesTableMap::COL_PATH);
             $criteria->removeSelectColumn(FilesTableMap::COL_STATUS);
+            $criteria->removeSelectColumn(FilesTableMap::COL_PRODUCT_STATUS);
+            $criteria->removeSelectColumn(FilesTableMap::COL_PREFIX);
+            $criteria->removeSelectColumn(FilesTableMap::COL_MARGE);
             $criteria->removeSelectColumn(FilesTableMap::COL_CONFIG_ID);
             $criteria->removeSelectColumn(FilesTableMap::COL_CREATED_AT);
             $criteria->removeSelectColumn(FilesTableMap::COL_UPDATED_AT);
@@ -449,6 +496,9 @@ class FilesTableMap extends TableMap
             $criteria->removeSelectColumn($alias . '.filename');
             $criteria->removeSelectColumn($alias . '.path');
             $criteria->removeSelectColumn($alias . '.status');
+            $criteria->removeSelectColumn($alias . '.product_status');
+            $criteria->removeSelectColumn($alias . '.prefix');
+            $criteria->removeSelectColumn($alias . '.marge');
             $criteria->removeSelectColumn($alias . '.config_id');
             $criteria->removeSelectColumn($alias . '.created_at');
             $criteria->removeSelectColumn($alias . '.updated_at');

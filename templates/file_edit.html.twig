@@ -1,0 +1,82 @@
+{% extends 'components/layout.html.twig' %} {% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Datei bearbeiten</h1>
+      </div>
+    </div>
+    {% if session.error %}
+    <div class="alert alert-danger mt-5">
+      {{ session.error }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<section
+  id="edit"
+  class="content mt-5">
+  <div class="container-fluid">
+    <form action="/files/edit/{{ file.getId() }}" method="POST">
+      <div class="form-group">
+        <label for="filename">Filename</label>
+        <input
+          type="text"
+          id="filename"
+          name="filename"
+          class="form-control"
+          value="{{ file.getFilename() }}"
+          readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="path">Path</label>
+        <input
+          type="text"
+          id="path"
+          name="path"
+          class="form-control"
+          value="{{ file.getPath() }}"
+          readonly />
+      </div>
+
+      <div class="form-group">
+        <label for="marge">Marge</label>
+        <input
+          type="number"
+          id="marge"
+          name="marge"
+          class="form-control"
+          value="{{ file.getMarge() }}"
+          required />
+      </div>
+
+      <div class="form-group">
+        <label for="prefix">SKU Prefix</label>
+        <input
+          type="text"
+          id="prefix"
+          name="prefix"
+          class="form-control"
+          value="{{ file.getPrefix() }}"
+          placeholder="preorder-" />
+      </div>
+
+      <div class="form-group">
+        <label for="config">Config</label>
+        <input
+          type="text"
+          id="config"
+          name="config"
+          class="form-control"
+          value="{{ file.getConfig().getName() }}"
+          />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Speichern</button>
+      <a href="/files" class="btn btn-secondary">Abbrechen</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

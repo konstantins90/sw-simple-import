@@ -99,6 +99,27 @@ abstract class Files implements ActiveRecordInterface
     protected $status;
 
     /**
+     * The value for the product_status field.
+     *
+     * @var        string|null
+     */
+    protected $product_status;
+
+    /**
+     * The value for the prefix field.
+     *
+     * @var        string|null
+     */
+    protected $prefix;
+
+    /**
+     * The value for the marge field.
+     *
+     * @var        double|null
+     */
+    protected $marge;
+
+    /**
      * The value for the config_id field.
      *
      * @var        int
@@ -413,6 +434,36 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Get the [product_status] column value.
+     *
+     * @return string|null
+     */
+    public function getProductStatus()
+    {
+        return $this->product_status;
+    }
+
+    /**
+     * Get the [prefix] column value.
+     *
+     * @return string|null
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * Get the [marge] column value.
+     *
+     * @return double|null
+     */
+    public function getMarge()
+    {
+        return $this->marge;
+    }
+
+    /**
      * Get the [config_id] column value.
      *
      * @return int
@@ -547,6 +598,66 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Set the value of [product_status] column.
+     *
+     * @param string|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setProductStatus($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->product_status !== $v) {
+            $this->product_status = $v;
+            $this->modifiedColumns[FilesTableMap::COL_PRODUCT_STATUS] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [prefix] column.
+     *
+     * @param string|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setPrefix($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->prefix !== $v) {
+            $this->prefix = $v;
+            $this->modifiedColumns[FilesTableMap::COL_PREFIX] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [marge] column.
+     *
+     * @param double|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setMarge($v)
+    {
+        if ($v !== null) {
+            $v = (double) $v;
+        }
+
+        if ($this->marge !== $v) {
+            $this->marge = $v;
+            $this->modifiedColumns[FilesTableMap::COL_MARGE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the value of [config_id] column.
      *
      * @param int $v New value
@@ -658,16 +769,25 @@ abstract class Files implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : FilesTableMap::translateFieldName('Status', TableMap::TYPE_PHPNAME, $indexType)];
             $this->status = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : FilesTableMap::translateFieldName('ProductStatus', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->product_status = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : FilesTableMap::translateFieldName('Prefix', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->prefix = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : FilesTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->marge = (null !== $col) ? (double) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->config_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -680,7 +800,7 @@ abstract class Files implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = FilesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 10; // 10 = FilesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\Files'), 0, $e);
@@ -929,6 +1049,15 @@ abstract class Files implements ActiveRecordInterface
         if ($this->isColumnModified(FilesTableMap::COL_STATUS)) {
             $modifiedColumns[':p' . $index++]  = 'status';
         }
+        if ($this->isColumnModified(FilesTableMap::COL_PRODUCT_STATUS)) {
+            $modifiedColumns[':p' . $index++]  = 'product_status';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREFIX)) {
+            $modifiedColumns[':p' . $index++]  = 'prefix';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
+            $modifiedColumns[':p' . $index++]  = 'marge';
+        }
         if ($this->isColumnModified(FilesTableMap::COL_CONFIG_ID)) {
             $modifiedColumns[':p' . $index++]  = 'config_id';
         }
@@ -963,6 +1092,18 @@ abstract class Files implements ActiveRecordInterface
                         break;
                     case 'status':
                         $stmt->bindValue($identifier, $this->status, PDO::PARAM_STR);
+
+                        break;
+                    case 'product_status':
+                        $stmt->bindValue($identifier, $this->product_status, PDO::PARAM_STR);
+
+                        break;
+                    case 'prefix':
+                        $stmt->bindValue($identifier, $this->prefix, PDO::PARAM_STR);
+
+                        break;
+                    case 'marge':
+                        $stmt->bindValue($identifier, $this->marge, PDO::PARAM_STR);
 
                         break;
                     case 'config_id':
@@ -1052,12 +1193,21 @@ abstract class Files implements ActiveRecordInterface
                 return $this->getStatus();
 
             case 4:
-                return $this->getConfigId();
+                return $this->getProductStatus();
 
             case 5:
-                return $this->getCreatedAt();
+                return $this->getPrefix();
 
             case 6:
+                return $this->getMarge();
+
+            case 7:
+                return $this->getConfigId();
+
+            case 8:
+                return $this->getCreatedAt();
+
+            case 9:
                 return $this->getUpdatedAt();
 
             default:
@@ -1092,16 +1242,19 @@ abstract class Files implements ActiveRecordInterface
             $keys[1] => $this->getFilename(),
             $keys[2] => $this->getPath(),
             $keys[3] => $this->getStatus(),
-            $keys[4] => $this->getConfigId(),
-            $keys[5] => $this->getCreatedAt(),
-            $keys[6] => $this->getUpdatedAt(),
+            $keys[4] => $this->getProductStatus(),
+            $keys[5] => $this->getPrefix(),
+            $keys[6] => $this->getMarge(),
+            $keys[7] => $this->getConfigId(),
+            $keys[8] => $this->getCreatedAt(),
+            $keys[9] => $this->getUpdatedAt(),
         ];
-        if ($result[$keys[5]] instanceof \DateTimeInterface) {
-            $result[$keys[5]] = $result[$keys[5]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[8]] instanceof \DateTimeInterface) {
+            $result[$keys[8]] = $result[$keys[8]]->format('Y-m-d H:i:s.u');
         }
 
-        if ($result[$keys[6]] instanceof \DateTimeInterface) {
-            $result[$keys[6]] = $result[$keys[6]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[9]] instanceof \DateTimeInterface) {
+            $result[$keys[9]] = $result[$keys[9]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1189,12 +1342,21 @@ abstract class Files implements ActiveRecordInterface
                 $this->setStatus($value);
                 break;
             case 4:
-                $this->setConfigId($value);
+                $this->setProductStatus($value);
                 break;
             case 5:
-                $this->setCreatedAt($value);
+                $this->setPrefix($value);
                 break;
             case 6:
+                $this->setMarge($value);
+                break;
+            case 7:
+                $this->setConfigId($value);
+                break;
+            case 8:
+                $this->setCreatedAt($value);
+                break;
+            case 9:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1236,13 +1398,22 @@ abstract class Files implements ActiveRecordInterface
             $this->setStatus($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setConfigId($arr[$keys[4]]);
+            $this->setProductStatus($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setCreatedAt($arr[$keys[5]]);
+            $this->setPrefix($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setUpdatedAt($arr[$keys[6]]);
+            $this->setMarge($arr[$keys[6]]);
+        }
+        if (array_key_exists($keys[7], $arr)) {
+            $this->setConfigId($arr[$keys[7]]);
+        }
+        if (array_key_exists($keys[8], $arr)) {
+            $this->setCreatedAt($arr[$keys[8]]);
+        }
+        if (array_key_exists($keys[9], $arr)) {
+            $this->setUpdatedAt($arr[$keys[9]]);
         }
 
         return $this;
@@ -1298,6 +1469,15 @@ abstract class Files implements ActiveRecordInterface
         }
         if ($this->isColumnModified(FilesTableMap::COL_STATUS)) {
             $criteria->add(FilesTableMap::COL_STATUS, $this->status);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PRODUCT_STATUS)) {
+            $criteria->add(FilesTableMap::COL_PRODUCT_STATUS, $this->product_status);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREFIX)) {
+            $criteria->add(FilesTableMap::COL_PREFIX, $this->prefix);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
+            $criteria->add(FilesTableMap::COL_MARGE, $this->marge);
         }
         if ($this->isColumnModified(FilesTableMap::COL_CONFIG_ID)) {
             $criteria->add(FilesTableMap::COL_CONFIG_ID, $this->config_id);
@@ -1399,6 +1579,9 @@ abstract class Files implements ActiveRecordInterface
         $copyObj->setFilename($this->getFilename());
         $copyObj->setPath($this->getPath());
         $copyObj->setStatus($this->getStatus());
+        $copyObj->setProductStatus($this->getProductStatus());
+        $copyObj->setPrefix($this->getPrefix());
+        $copyObj->setMarge($this->getMarge());
         $copyObj->setConfigId($this->getConfigId());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
@@ -1767,6 +1950,9 @@ abstract class Files implements ActiveRecordInterface
         $this->filename = null;
         $this->path = null;
         $this->status = null;
+        $this->product_status = null;
+        $this->prefix = null;
+        $this->marge = null;
         $this->config_id = null;
         $this->created_at = null;
         $this->updated_at = null;

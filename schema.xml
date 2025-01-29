@@ -6,6 +6,9 @@
         <column name="filename" type="VARCHAR" size="255" required="true"/>
         <column name="path" type="VARCHAR" size="255" required="true"/>
         <column name="status" type="VARCHAR" size="50" required="true"/>
+        <column name="product_status" type="VARCHAR" size="50" required="false"/>
+        <column name="prefix" type="VARCHAR" size="255" required="false"/>
+        <column name="marge" type="float" required="false"/>
         <column name="config_id" type="INTEGER" required="true"/>
         <column name="created_at" type="DATETIME" required="true"/>
         <column name="updated_at" type="DATETIME" required="true"/>

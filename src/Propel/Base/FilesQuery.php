@@ -23,6 +23,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery orderByFilename($order = Criteria::ASC) Order by the filename column
  * @method     ChildFilesQuery orderByPath($order = Criteria::ASC) Order by the path column
  * @method     ChildFilesQuery orderByStatus($order = Criteria::ASC) Order by the status column
+ * @method     ChildFilesQuery orderByProductStatus($order = Criteria::ASC) Order by the product_status column
+ * @method     ChildFilesQuery orderByPrefix($order = Criteria::ASC) Order by the prefix column
+ * @method     ChildFilesQuery orderByMarge($order = Criteria::ASC) Order by the marge column
  * @method     ChildFilesQuery orderByConfigId($order = Criteria::ASC) Order by the config_id column
  * @method     ChildFilesQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method     ChildFilesQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
@@ -31,6 +34,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery groupByFilename() Group by the filename column
  * @method     ChildFilesQuery groupByPath() Group by the path column
  * @method     ChildFilesQuery groupByStatus() Group by the status column
+ * @method     ChildFilesQuery groupByProductStatus() Group by the product_status column
+ * @method     ChildFilesQuery groupByPrefix() Group by the prefix column
+ * @method     ChildFilesQuery groupByMarge() Group by the marge column
  * @method     ChildFilesQuery groupByConfigId() Group by the config_id column
  * @method     ChildFilesQuery groupByCreatedAt() Group by the created_at column
  * @method     ChildFilesQuery groupByUpdatedAt() Group by the updated_at column
@@ -72,6 +78,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles|null findOneByFilename(string $filename) Return the first ChildFiles filtered by the filename column
  * @method     ChildFiles|null findOneByPath(string $path) Return the first ChildFiles filtered by the path column
  * @method     ChildFiles|null findOneByStatus(string $status) Return the first ChildFiles filtered by the status column
+ * @method     ChildFiles|null findOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column
+ * @method     ChildFiles|null findOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column
+ * @method     ChildFiles|null findOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column
  * @method     ChildFiles|null findOneByConfigId(int $config_id) Return the first ChildFiles filtered by the config_id column
  * @method     ChildFiles|null findOneByCreatedAt(string $created_at) Return the first ChildFiles filtered by the created_at column
  * @method     ChildFiles|null findOneByUpdatedAt(string $updated_at) Return the first ChildFiles filtered by the updated_at column
@@ -83,6 +92,9 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles requireOneByFilename(string $filename) Return the first ChildFiles filtered by the filename column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPath(string $path) Return the first ChildFiles filtered by the path column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByStatus(string $status) Return the first ChildFiles filtered by the status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByConfigId(int $config_id) Return the first ChildFiles filtered by the config_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByCreatedAt(string $created_at) Return the first ChildFiles filtered by the created_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByUpdatedAt(string $updated_at) Return the first ChildFiles filtered by the updated_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -98,6 +110,12 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildFiles> findByPath(string|array<string> $path) Return ChildFiles objects filtered by the path column
  * @method     ChildFiles[]|Collection findByStatus(string|array<string> $status) Return ChildFiles objects filtered by the status column
  * @psalm-method Collection&\Traversable<ChildFiles> findByStatus(string|array<string> $status) Return ChildFiles objects filtered by the status column
+ * @method     ChildFiles[]|Collection findByProductStatus(string|array<string> $product_status) Return ChildFiles objects filtered by the product_status column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByProductStatus(string|array<string> $product_status) Return ChildFiles objects filtered by the product_status column
+ * @method     ChildFiles[]|Collection findByPrefix(string|array<string> $prefix) Return ChildFiles objects filtered by the prefix column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByPrefix(string|array<string> $prefix) Return ChildFiles objects filtered by the prefix column
+ * @method     ChildFiles[]|Collection findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
  * @method     ChildFiles[]|Collection findByConfigId(int|array<int> $config_id) Return ChildFiles objects filtered by the config_id column
  * @psalm-method Collection&\Traversable<ChildFiles> findByConfigId(int|array<int> $config_id) Return ChildFiles objects filtered by the config_id column
  * @method     ChildFiles[]|Collection findByCreatedAt(string|array<string> $created_at) Return ChildFiles objects filtered by the created_at column
@@ -203,7 +221,7 @@ abstract class FilesQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, filename, path, status, config_id, created_at, updated_at FROM files WHERE id = :p0';
+        $sql = 'SELECT id, filename, path, status, product_status, prefix, marge, config_id, created_at, updated_at FROM files WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -420,6 +438,105 @@ abstract class FilesQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(FilesTableMap::COL_STATUS, $status, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the product_status column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByProductStatus('fooValue');   // WHERE product_status = 'fooValue'
+     * $query->filterByProductStatus('%fooValue%', Criteria::LIKE); // WHERE product_status LIKE '%fooValue%'
+     * $query->filterByProductStatus(['foo', 'bar']); // WHERE product_status IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $productStatus The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByProductStatus($productStatus = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($productStatus)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PRODUCT_STATUS, $productStatus, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the prefix column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPrefix('fooValue');   // WHERE prefix = 'fooValue'
+     * $query->filterByPrefix('%fooValue%', Criteria::LIKE); // WHERE prefix LIKE '%fooValue%'
+     * $query->filterByPrefix(['foo', 'bar']); // WHERE prefix IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $prefix The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByPrefix($prefix = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($prefix)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PREFIX, $prefix, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the marge column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByMarge(1234); // WHERE marge = 1234
+     * $query->filterByMarge(array(12, 34)); // WHERE marge IN (12, 34)
+     * $query->filterByMarge(array('min' => 12)); // WHERE marge > 12
+     * </code>
+     *
+     * @param mixed $marge The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByMarge($marge = null, ?string $comparison = null)
+    {
+        if (is_array($marge)) {
+            $useMinMax = false;
+            if (isset($marge['min'])) {
+                $this->addUsingAlias(FilesTableMap::COL_MARGE, $marge['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($marge['max'])) {
+                $this->addUsingAlias(FilesTableMap::COL_MARGE, $marge['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_MARGE, $marge, $comparison);
 
         return $this;
     }

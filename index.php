@@ -107,6 +107,23 @@ $router->map('GET', '/files/[i:id]', function ($id) {
     exit;
 });
 
+$router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
+    $file = FilesQuery::create()->findPk($id);
+
+    // d($file, $file->getConfig()->getName());
+
+    if (!$file) {
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+        echo "File not found";
+        exit;
+    }
+    
+    echo $twig->render('file_edit.html.twig', [
+        'file' => $file,
+        'title' => 'Edit Datei'
+    ]);
+});
+
 $router->map('GET', '/config-files', function () use ($twig) {
     echo $twig->render('config.html.twig', [
         'title' => 'Конфиг Панель'

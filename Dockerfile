@@ -8,3 +8,5 @@ RUN apt-get update && apt-get install -y \
 
 # Arbeitsverzeichnis setzen
 WORKDIR /var/www/html
+
+COPY php.ini /usr/local/etc/php/conf.d/custom.ini

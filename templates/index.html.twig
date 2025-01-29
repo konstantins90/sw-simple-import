@@ -63,6 +63,10 @@
                 Löschen
               </button>
 
+              <button @click="editFile(file.id)" class="btn btn-info">
+                Ändern
+              </button>
+
               <button
                 x-show="file.status === 'idle'"
                 @click="updateStatus(file.id, 'pending', index)"
@@ -107,6 +111,7 @@
             id="configSelect"
             x-model="selectedConfig"
             class="form-select">
+            <option value="">Bitte wählen...</option>
             <template x-for="config in configs" :key="config.id">
               <option :value="config.id" x-text="config.name"></option>
             </template>
@@ -137,8 +142,9 @@
       files: [],
       configs: [],
       selectedFile: null,
-      selectedConfig: "",
+      selectedConfig: null,
       isModalOpen: false,
+      
       init() {
         const fileManagerInstance = this;
 
@@ -156,11 +162,11 @@
                   `select[name='files[${index}][config_name]']`
                 );
                 if (selectedConfig) {
-                  //console.log(selectedConfig);
+                  console.log(selectedConfig);
                   //   console.log(file);
                   selectedConfig.value = file.config_id;
                 } else {
-                  //console.log("qwe");
+                  console.log("qwe");
                 }
               });
             });
@@ -194,7 +200,12 @@
             .catch(() => alert("Ein Fehler ist aufgetreten."));
         }
       },
+      editFile(id) {
+        window.location.href = `/files/edit/${id}`;
+      },
       submitFile() {
+        console.log(this.selectedFile);
+        console.log(this.selectedConfig);
         if (!this.selectedFile || !this.selectedConfig) {
           alert("Bitte wählen Sie eine Datei und eine Konfiguration aus. 1");
           return;
@@ -222,6 +233,7 @@
             if (data.success) {
               alert("Datei erfolgreich hochgeladen.");
               this.closeModal();
+               window.location.reload();
             } else {
               alert(`Fehler: ${data.error || "Unbekannter Fehler"}`);
             }

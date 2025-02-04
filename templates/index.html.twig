@@ -204,8 +204,6 @@
         window.location.href = `/files/edit/${id}`;
       },
       submitFile() {
-        console.log(this.selectedFile);
-        console.log(this.selectedConfig);
         if (!this.selectedFile || !this.selectedConfig) {
           alert("Bitte wählen Sie eine Datei und eine Konfiguration aus. 1");
           return;

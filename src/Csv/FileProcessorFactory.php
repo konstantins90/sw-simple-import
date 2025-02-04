@@ -7,6 +7,7 @@ use App\Config\ConfigLoader;
 use App\Csv\PropertyCollector;
 use App\Utils\PriceCalculator;
 use GuzzleHttp\Client;
+use Propel\Files;
 
 class FileProcessorFactory
 {
@@ -24,14 +25,6 @@ class FileProcessorFactory
         $propertyCollector = new PropertyCollector($shopwareClient);
         $priceCalculator = new PriceCalculator($httpClient);
 
-        if (str_contains($filename, 'melikpashaev')) {
-            return new MelikpashaevFileProcessor($shopwareClient);
-        } elseif (str_contains($filename, 'polyandrija')) {
-            return new PolyandrijaFileProcessor($shopwareClient, $propertyCollector, $priceCalculator);
-        } elseif (str_contains($filename, 'nigma')) {
-            return new NigmaFileProcessor($shopwareClient, $propertyCollector, $priceCalculator);
-        } else {
-            throw new \Exception("Kein passender Prozessor für die Datei $filename gefunden.");
-        }
+        return new ConfigFileProcessor($shopwareClient, $propertyCollector, $priceCalculator);
     }
 }

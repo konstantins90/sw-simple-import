@@ -110,7 +110,20 @@ $router->map('GET', '/files/[i:id]', function ($id) {
 $router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
     $file = FilesQuery::create()->findPk($id);
 
-    // d($file, $file->getConfig()->getName());
+    if (!$file) {
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+        echo "File not found";
+        exit;
+    }
+    
+    echo $twig->render('file_edit.html.twig', [
+        'file' => $file,
+        'title' => 'Edit Datei'
+    ]);
+});
+
+$router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
+    $file = FilesQuery::create()->findPk($id);
 
     if (!$file) {
         header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
@@ -124,6 +137,32 @@ $router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
     ]);
 });
 
+$router->map('POST', '/files/edit/[i:id]', function ($id){
+    $file = FilesQuery::create()->findPk($id);
+
+    if (!$file) {
+        throw new Exception("Запись с ID $id не найдена!");
+    }
+
+    if (isset($_POST['marge'])) {
+        $file->setMarge($_POST['marge']);
+    }
+    if (isset($_POST['prefix'])) {
+        $file->setPrefix($_POST['prefix']);
+    }
+    if (isset($_POST['config'])) {
+        $file->setConfigId($_POST['config']);
+    }
+    if (isset($_POST['status'])) {
+        $file->setStatus($_POST['status']);
+    }
+
+    $file->save();
+
+    header("Location: /files/edit/$id");
+    exit;
+});
+
 $router->map('GET', '/config-files', function () use ($twig) {
     echo $twig->render('config.html.twig', [
         'title' => 'Конфиг Панель'
@@ -131,7 +170,9 @@ $router->map('GET', '/config-files', function () use ($twig) {
 });
 
 $router->map('GET', '/config-files/all', function () use ($twig) {
-    $files = ConfigQuery::create()->find();
+    $files = ConfigQuery::create()
+    ->orderByCreatedAt(Criteria::DESC)
+    ->find();
 
     $fileData = [];
     foreach ($files as $file) {
@@ -427,7 +468,9 @@ $router->map('GET', '/config-files/fields/[i:id]', function ($id) {
     // Config abrufen
     $configFile = ConfigQuery::create()->findPk($id);
 
-    $fields = json_decode($configFile->getMapping(), true) ?? [];
+    $jsonString = $configFile->getMapping();
+    $cleanedJsonString = str_replace(['\r\n', '\r', '\n'], "", $jsonString);
+    $fields = json_decode($cleanedJsonString, true) ?? [];
 
     // JSON-Antwort zurückgeben
     header('Content-Type: application/json');
@@ -437,8 +480,9 @@ $router->map('GET', '/config-files/fields/[i:id]', function ($id) {
 $router->map('GET', '/config-files/csv-headers/[i:id]', function ($id) {
     // Config abrufen
     $configFile = ConfigQuery::create()->findPk($id);
-
-    $csvHeaders = json_decode($configFile->getCsvHeaders(), true) ?? [];
+    $jsonString = $configFile->getCsvHeaders();
+    $cleanedJsonString = str_replace(['\r\n', '\r', '\n'], "", $jsonString);
+    $csvHeaders = json_decode($cleanedJsonString, true) ?? [];
 
     // JSON-Antwort zurückgeben
     header('Content-Type: application/json');

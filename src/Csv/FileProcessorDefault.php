@@ -5,6 +5,7 @@ namespace App\Csv;
 use App\Shopware\ShopwareApiClient;
 use App\Csv\PropertyCollector;
 use App\Utils\PriceCalculator;
+use Propel\Files;
 
 class FileProcessorDefault implements FileProcessorInterface
 {
@@ -66,7 +67,7 @@ class FileProcessorDefault implements FileProcessorInterface
         }
     }
 
-    public function importProduct(array $productData): void
+    public function importProduct(array $productData): bool
     {
         $productNumber = $productData['productNumber'];
 
@@ -103,7 +104,7 @@ class FileProcessorDefault implements FileProcessorInterface
         }
 
         if (!$productId) {
-            die('STOP');
+            return false;
         }
 
         // Wenn Medien vorhanden sind, lade sie hoch und füge sie dem Produkt hinzu
@@ -123,10 +124,17 @@ class FileProcessorDefault implements FileProcessorInterface
                 }
             }
         }
+
+        return true;
     }
 
     public function showLog(): void
     {
         d($this->logs);
+    }
+
+    public function setConfigFile(Files $configFile): void
+    {
+        $this->configFile = $configFile;
     }
 }

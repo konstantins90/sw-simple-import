@@ -63,20 +63,63 @@
           placeholder="preorder-" />
       </div>
 
-      <div class="form-group">
+      <div x-data="configSelect()" class="form-group">
         <label for="config">Config</label>
-        <input
-          type="text"
-          id="config"
-          name="config"
-          class="form-control"
-          value="{{ file.getConfig().getName() }}"
-          />
+        <select name="config" id="config" class="form-select" x-model="selectedConfig">
+          <template x-for="config in configs" :key="config.id">
+            <option
+              :value="config.id"
+              x-text="config.name"
+              x-bind:selected="selectedConfig == config.id"
+            ></option>
+          </template>
+        </select>
+      </div>
+
+      <div x-data="statusSelect()" class="form-group">
+        <label for="status">Status</label>
+        <select name="status" id="status" class="form-select" x-model="selectedStatus">
+          <template x-for="status in statusArray" :key="status.key">
+            <option
+              :value="status.key"
+              x-text="status.label"
+              x-bind:selected="selectedStatus == status.key"
+            ></option>
+          </template>
+        </select>
       </div>
 
       <button type="submit" class="btn btn-primary">Speichern</button>
-      <a href="/files" class="btn btn-secondary">Abbrechen</a>
+      <a href="/" class="btn btn-secondary">Abbrechen</a>
     </form>
   </div>
 </section>
+<script>
+  function configSelect() {
+    return {
+      configs: [],
+      selectedConfig: {{ file.getConfig().getId() | json_encode | raw }},
+      async init() {
+        try {
+          const response = await fetch('/config-files/all');
+          if (!response.ok) throw new Error("Ошибка загрузки конфигураций");
+          this.configs = await response.json();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+  }
+  function statusSelect() {
+    return {
+      statusArray: [
+        { key: 'idle', label: 'Kein Status' },
+        { key: 'pending', label: 'Ausstehend' },
+        { key: 'imported', label: 'Importiert' },
+        { key: 'error', label: 'Fehler' }
+      ],
+      selectedStatus: {{ file.getStatus() | json_encode | raw }}
+    };
+  }
+</script>
 {% endblock %}

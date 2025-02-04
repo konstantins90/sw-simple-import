@@ -12,6 +12,8 @@ class PriceCalculator
     private const CURRENCY_TO = 'eur'; // Zielwährung
     private const MARGIN = 1.25; // 20% Marge
 
+    private $margin = 1.25;
+
     private Client $httpClient;
     private ?array $currencyRates = null;
 
@@ -88,7 +90,7 @@ class PriceCalculator
      */
     private function applyMargin(float $amount): float
     {
-        $amountWithMargin = $amount * self::MARGIN;
+        $amountWithMargin = $amount * $this->getMargin();
         return round($amountWithMargin, 2);
     }
 
@@ -104,5 +106,19 @@ class PriceCalculator
         // Вычисляем брутто цену с НДС
         $grossAmount = $netAmount * (1 + $vatRate);
         return round($grossAmount, 2); // Округляем до двух знаков после запятой
+    }
+
+    public function getMargin(): float
+    {
+        return $this->margin;
+    }
+
+    public function setMargin(float $margin): void
+    {
+        if ($margin <= 0) {
+            $margin = 1;
+        }
+
+        $this->margin = $margin;
     }
 }

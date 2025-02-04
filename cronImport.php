@@ -2,19 +2,30 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
+use Propel\Runtime\Propel;
+
+Propel::init(__DIR__ . '/generated-conf/config-cli.php');
+
+use Propel\FilesQuery;
+use Propel\ConfigQuery;
+use Propel\Config;
+use Propel\Runtime\ActiveQuery\Criteria;
+
 use App\Csv\CsvParser;
 use App\Csv\FileProcessorFactory;
 
-$csvDir = __DIR__ . '/csv';
-$csvFiles = array_filter(scandir($csvDir), function ($file) use ($csvDir) {
-    // Überprüfen, ob es sich um eine CSV-Datei handelt und der Dateiname nicht mit "ignore_" beginnt
-    return pathinfo($file, PATHINFO_EXTENSION) === 'csv' &&
-        !is_dir($csvDir . '/' . $file) &&
-        strpos($file, 'ignore_') !== 0;
-});
+const STATUS_PENDING = 'pending';
 
-foreach ($csvFiles as $csvFile) {
-    $csvFilePath = $csvDir . '/' . $csvFile;
+$files = FilesQuery::create()
+    ->orderByUpdatedAt(Criteria::ASC)
+    ->filterByStatus(['eq' => STATUS_PENDING])
+    ->limit(5)
+    ->find();
+
+$csvDir = __DIR__ . '/csv';
+
+foreach ($files as $file) {
+    $csvFilePath = $csvDir . '/' . $file->getPath();
     echo "Bearbeite Datei: $csvFilePath\n";
 
     // Initialisiere den Parser und Prozessor für jede Datei
@@ -26,7 +37,11 @@ foreach ($csvFiles as $csvFile) {
         $productArray[] = $record;
     }
 
+    $fileProcessor->setConfigFile($file);
     $fileProcessor->setRecords($productArray);
+    $fields = $fileProcessor->getRecords();
+    d($fields);
+    die('STOP');
     $fileProcessor->mapProductProperties();
     $fileProcessor->import();
 

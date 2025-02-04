@@ -103,7 +103,12 @@
                 :required="field.type === 'csv'"
                 x-bind:value="field.csv">
                 <template x-for="header in csvHeaders" :key="key + '-' + index">
-                  <option :value="header" x-text="header"></option>
+                  <option
+                    :value="header"
+                    x-text="header"
+                  >
+                  
+                  </option>
                 </template>
               </select>
             </div>
@@ -146,23 +151,13 @@
           .then((data) => {
             this.extractProperties(data);
             this.fields = data;
-            console.log(this.fields);
-            for (const [key, value] of Object.entries(this.fields)) {
-              if (
-                value["type"] === "csv" &&
-                !this.csvHeaders.includes(value["csv"])
-              ) {
-                console.log(value["type"]);
-                this.csvHeaders.push(value["csv"]);
-              }
-            }
-
+            console.log('Fields', this.fields);
             this.$nextTick(() => {
               this.assignCsvHeadersToFields();
             });
           })
           .catch(() => {
-            alert("Fehler beim Laden der Felder.");
+            alert("Fehler beim Laden der Felder 1.");
           });
         fetch(`/config-files/fields`)
           .then((response) => response.json())
@@ -170,7 +165,7 @@
             this.mandatoryFields = data;
           })
           .catch(() => {
-            alert("Fehler beim Laden der Felder.");
+            alert("Fehler beim Laden der Felder 2.");
           });
         fetch(`/config-files/csv-headers/${this.id}`)
           .then((response) => response.json())

@@ -27,7 +27,11 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function setRecords(array $records): void
     {
         foreach($records as $record) {
-            $this->records[] = $this->parseData($record);
+            $item = $this->parseData($record);
+            if ($item['name'] == '' || $item['ean' == '']) {
+                continue;
+            }
+            $this->records[] = $item;
         }
     }
 
@@ -178,17 +182,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
                     'visibility' => $this->getProperty('visibility')
                 ]
             ],
-            'properties' => [
-                'publishing' => 'НИГМА',
-                'author' => $record['Авторы'],
-                // 'illustrator' => $record['Иллюстратор'],
-                'series' => $record['Серия'],
-                'age' => $record['Категория'],
-                'releaseYear' => $record['Год'],
-                'pageCount' => $record['Стр.'],
-                'binding' => $record['Переплет'],
-                'format' => $record['Формат книги'],
-            ],
+            'properties' => $this->getPropertiesData()
         ];
 
         $this->currentRecord = [];
@@ -249,5 +243,23 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         }
 
         return $field['default'] ?: '';
+    }
+
+    protected function getPropertiesData():array
+    {
+        $data = [];
+        $fields = $this->getPropertiesFields()['properties'];
+
+        foreach ($fields as $key => $field) {
+            if ($field['type'] != 'csv') {
+                $data[$key] = $field['default'];
+            } else {
+                if (isset($this->currentRecord[$field['csv']])) {
+                    $data[$key] = $this->currentRecord[$field['csv']];
+                }
+            }
+        }
+
+        return $data;
     }
 }

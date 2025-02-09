@@ -120,6 +120,34 @@ abstract class Files implements ActiveRecordInterface
     protected $marge;
 
     /**
+     * The value for the preorder field.
+     *
+     * @var        int|null
+     */
+    protected $preorder;
+
+    /**
+     * The value for the preorder_deadline field.
+     *
+     * @var        DateTime|null
+     */
+    protected $preorder_deadline;
+
+    /**
+     * The value for the preorder_delivery field.
+     *
+     * @var        DateTime|null
+     */
+    protected $preorder_delivery;
+
+    /**
+     * The value for the preorder_state field.
+     *
+     * @var        string|null
+     */
+    protected $preorder_state;
+
+    /**
      * The value for the config_id field.
      *
      * @var        int
@@ -464,6 +492,70 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Get the [preorder] column value.
+     *
+     * @return int|null
+     */
+    public function getPreorder()
+    {
+        return $this->preorder;
+    }
+
+    /**
+     * Get the [optionally formatted] temporal [preorder_deadline] column value.
+     *
+     *
+     * @param string|null $format The date/time format string (either date()-style or strftime()-style).
+     *   If format is NULL, then the raw DateTime object will be returned.
+     *
+     * @return string|DateTime|null Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00.
+     *
+     * @throws \Propel\Runtime\Exception\PropelException - if unable to parse/validate the date/time value.
+     *
+     * @psalm-return ($format is null ? DateTime|null : string|null)
+     */
+    public function getPreorderDeadline($format = null)
+    {
+        if ($format === null) {
+            return $this->preorder_deadline;
+        } else {
+            return $this->preorder_deadline instanceof \DateTimeInterface ? $this->preorder_deadline->format($format) : null;
+        }
+    }
+
+    /**
+     * Get the [optionally formatted] temporal [preorder_delivery] column value.
+     *
+     *
+     * @param string|null $format The date/time format string (either date()-style or strftime()-style).
+     *   If format is NULL, then the raw DateTime object will be returned.
+     *
+     * @return string|DateTime|null Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00.
+     *
+     * @throws \Propel\Runtime\Exception\PropelException - if unable to parse/validate the date/time value.
+     *
+     * @psalm-return ($format is null ? DateTime|null : string|null)
+     */
+    public function getPreorderDelivery($format = null)
+    {
+        if ($format === null) {
+            return $this->preorder_delivery;
+        } else {
+            return $this->preorder_delivery instanceof \DateTimeInterface ? $this->preorder_delivery->format($format) : null;
+        }
+    }
+
+    /**
+     * Get the [preorder_state] column value.
+     *
+     * @return string|null
+     */
+    public function getPreorderState()
+    {
+        return $this->preorder_state;
+    }
+
+    /**
      * Get the [config_id] column value.
      *
      * @return int
@@ -658,6 +750,86 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Set the value of [preorder] column.
+     *
+     * @param int|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setPreorder($v)
+    {
+        if ($v !== null) {
+            $v = (int) $v;
+        }
+
+        if ($this->preorder !== $v) {
+            $this->preorder = $v;
+            $this->modifiedColumns[FilesTableMap::COL_PREORDER] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sets the value of [preorder_deadline] column to a normalized version of the date/time value specified.
+     *
+     * @param string|integer|\DateTimeInterface|null $v string, integer (timestamp), or \DateTimeInterface value.
+     *               Empty strings are treated as NULL.
+     * @return $this The current object (for fluent API support)
+     */
+    public function setPreorderDeadline($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
+        if ($this->preorder_deadline !== null || $dt !== null) {
+            if ($this->preorder_deadline === null || $dt === null || $dt->format("Y-m-d H:i:s.u") !== $this->preorder_deadline->format("Y-m-d H:i:s.u")) {
+                $this->preorder_deadline = $dt === null ? null : clone $dt;
+                $this->modifiedColumns[FilesTableMap::COL_PREORDER_DEADLINE] = true;
+            }
+        } // if either are not null
+
+        return $this;
+    }
+
+    /**
+     * Sets the value of [preorder_delivery] column to a normalized version of the date/time value specified.
+     *
+     * @param string|integer|\DateTimeInterface|null $v string, integer (timestamp), or \DateTimeInterface value.
+     *               Empty strings are treated as NULL.
+     * @return $this The current object (for fluent API support)
+     */
+    public function setPreorderDelivery($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
+        if ($this->preorder_delivery !== null || $dt !== null) {
+            if ($this->preorder_delivery === null || $dt === null || $dt->format("Y-m-d H:i:s.u") !== $this->preorder_delivery->format("Y-m-d H:i:s.u")) {
+                $this->preorder_delivery = $dt === null ? null : clone $dt;
+                $this->modifiedColumns[FilesTableMap::COL_PREORDER_DELIVERY] = true;
+            }
+        } // if either are not null
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [preorder_state] column.
+     *
+     * @param string|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setPreorderState($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->preorder_state !== $v) {
+            $this->preorder_state = $v;
+            $this->modifiedColumns[FilesTableMap::COL_PREORDER_STATE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the value of [config_id] column.
      *
      * @param int $v New value
@@ -778,16 +950,34 @@ abstract class Files implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : FilesTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
             $this->marge = (null !== $col) ? (double) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : FilesTableMap::translateFieldName('Preorder', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->preorder = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : FilesTableMap::translateFieldName('PreorderDeadline', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00 00:00:00') {
+                $col = null;
+            }
+            $this->preorder_deadline = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : FilesTableMap::translateFieldName('PreorderDelivery', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00 00:00:00') {
+                $col = null;
+            }
+            $this->preorder_delivery = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : FilesTableMap::translateFieldName('PreorderState', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->preorder_state = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 11 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->config_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 12 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 13 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -800,7 +990,7 @@ abstract class Files implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 10; // 10 = FilesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 14; // 14 = FilesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\Files'), 0, $e);
@@ -1058,6 +1248,18 @@ abstract class Files implements ActiveRecordInterface
         if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
             $modifiedColumns[':p' . $index++]  = 'marge';
         }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER)) {
+            $modifiedColumns[':p' . $index++]  = 'preorder';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_DEADLINE)) {
+            $modifiedColumns[':p' . $index++]  = 'preorder_deadline';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_DELIVERY)) {
+            $modifiedColumns[':p' . $index++]  = 'preorder_delivery';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_STATE)) {
+            $modifiedColumns[':p' . $index++]  = 'preorder_state';
+        }
         if ($this->isColumnModified(FilesTableMap::COL_CONFIG_ID)) {
             $modifiedColumns[':p' . $index++]  = 'config_id';
         }
@@ -1104,6 +1306,22 @@ abstract class Files implements ActiveRecordInterface
                         break;
                     case 'marge':
                         $stmt->bindValue($identifier, $this->marge, PDO::PARAM_STR);
+
+                        break;
+                    case 'preorder':
+                        $stmt->bindValue($identifier, $this->preorder, PDO::PARAM_INT);
+
+                        break;
+                    case 'preorder_deadline':
+                        $stmt->bindValue($identifier, $this->preorder_deadline ? $this->preorder_deadline->format("Y-m-d H:i:s.u") : null, PDO::PARAM_STR);
+
+                        break;
+                    case 'preorder_delivery':
+                        $stmt->bindValue($identifier, $this->preorder_delivery ? $this->preorder_delivery->format("Y-m-d H:i:s.u") : null, PDO::PARAM_STR);
+
+                        break;
+                    case 'preorder_state':
+                        $stmt->bindValue($identifier, $this->preorder_state, PDO::PARAM_STR);
 
                         break;
                     case 'config_id':
@@ -1202,12 +1420,24 @@ abstract class Files implements ActiveRecordInterface
                 return $this->getMarge();
 
             case 7:
-                return $this->getConfigId();
+                return $this->getPreorder();
 
             case 8:
-                return $this->getCreatedAt();
+                return $this->getPreorderDeadline();
 
             case 9:
+                return $this->getPreorderDelivery();
+
+            case 10:
+                return $this->getPreorderState();
+
+            case 11:
+                return $this->getConfigId();
+
+            case 12:
+                return $this->getCreatedAt();
+
+            case 13:
                 return $this->getUpdatedAt();
 
             default:
@@ -1245,9 +1475,13 @@ abstract class Files implements ActiveRecordInterface
             $keys[4] => $this->getProductStatus(),
             $keys[5] => $this->getPrefix(),
             $keys[6] => $this->getMarge(),
-            $keys[7] => $this->getConfigId(),
-            $keys[8] => $this->getCreatedAt(),
-            $keys[9] => $this->getUpdatedAt(),
+            $keys[7] => $this->getPreorder(),
+            $keys[8] => $this->getPreorderDeadline(),
+            $keys[9] => $this->getPreorderDelivery(),
+            $keys[10] => $this->getPreorderState(),
+            $keys[11] => $this->getConfigId(),
+            $keys[12] => $this->getCreatedAt(),
+            $keys[13] => $this->getUpdatedAt(),
         ];
         if ($result[$keys[8]] instanceof \DateTimeInterface) {
             $result[$keys[8]] = $result[$keys[8]]->format('Y-m-d H:i:s.u');
@@ -1255,6 +1489,14 @@ abstract class Files implements ActiveRecordInterface
 
         if ($result[$keys[9]] instanceof \DateTimeInterface) {
             $result[$keys[9]] = $result[$keys[9]]->format('Y-m-d H:i:s.u');
+        }
+
+        if ($result[$keys[12]] instanceof \DateTimeInterface) {
+            $result[$keys[12]] = $result[$keys[12]]->format('Y-m-d H:i:s.u');
+        }
+
+        if ($result[$keys[13]] instanceof \DateTimeInterface) {
+            $result[$keys[13]] = $result[$keys[13]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1351,12 +1593,24 @@ abstract class Files implements ActiveRecordInterface
                 $this->setMarge($value);
                 break;
             case 7:
-                $this->setConfigId($value);
+                $this->setPreorder($value);
                 break;
             case 8:
-                $this->setCreatedAt($value);
+                $this->setPreorderDeadline($value);
                 break;
             case 9:
+                $this->setPreorderDelivery($value);
+                break;
+            case 10:
+                $this->setPreorderState($value);
+                break;
+            case 11:
+                $this->setConfigId($value);
+                break;
+            case 12:
+                $this->setCreatedAt($value);
+                break;
+            case 13:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1407,13 +1661,25 @@ abstract class Files implements ActiveRecordInterface
             $this->setMarge($arr[$keys[6]]);
         }
         if (array_key_exists($keys[7], $arr)) {
-            $this->setConfigId($arr[$keys[7]]);
+            $this->setPreorder($arr[$keys[7]]);
         }
         if (array_key_exists($keys[8], $arr)) {
-            $this->setCreatedAt($arr[$keys[8]]);
+            $this->setPreorderDeadline($arr[$keys[8]]);
         }
         if (array_key_exists($keys[9], $arr)) {
-            $this->setUpdatedAt($arr[$keys[9]]);
+            $this->setPreorderDelivery($arr[$keys[9]]);
+        }
+        if (array_key_exists($keys[10], $arr)) {
+            $this->setPreorderState($arr[$keys[10]]);
+        }
+        if (array_key_exists($keys[11], $arr)) {
+            $this->setConfigId($arr[$keys[11]]);
+        }
+        if (array_key_exists($keys[12], $arr)) {
+            $this->setCreatedAt($arr[$keys[12]]);
+        }
+        if (array_key_exists($keys[13], $arr)) {
+            $this->setUpdatedAt($arr[$keys[13]]);
         }
 
         return $this;
@@ -1478,6 +1744,18 @@ abstract class Files implements ActiveRecordInterface
         }
         if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
             $criteria->add(FilesTableMap::COL_MARGE, $this->marge);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER)) {
+            $criteria->add(FilesTableMap::COL_PREORDER, $this->preorder);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_DEADLINE)) {
+            $criteria->add(FilesTableMap::COL_PREORDER_DEADLINE, $this->preorder_deadline);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_DELIVERY)) {
+            $criteria->add(FilesTableMap::COL_PREORDER_DELIVERY, $this->preorder_delivery);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_PREORDER_STATE)) {
+            $criteria->add(FilesTableMap::COL_PREORDER_STATE, $this->preorder_state);
         }
         if ($this->isColumnModified(FilesTableMap::COL_CONFIG_ID)) {
             $criteria->add(FilesTableMap::COL_CONFIG_ID, $this->config_id);
@@ -1582,6 +1860,10 @@ abstract class Files implements ActiveRecordInterface
         $copyObj->setProductStatus($this->getProductStatus());
         $copyObj->setPrefix($this->getPrefix());
         $copyObj->setMarge($this->getMarge());
+        $copyObj->setPreorder($this->getPreorder());
+        $copyObj->setPreorderDeadline($this->getPreorderDeadline());
+        $copyObj->setPreorderDelivery($this->getPreorderDelivery());
+        $copyObj->setPreorderState($this->getPreorderState());
         $copyObj->setConfigId($this->getConfigId());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
@@ -1953,6 +2235,10 @@ abstract class Files implements ActiveRecordInterface
         $this->product_status = null;
         $this->prefix = null;
         $this->marge = null;
+        $this->preorder = null;
+        $this->preorder_deadline = null;
+        $this->preorder_delivery = null;
+        $this->preorder_state = null;
         $this->config_id = null;
         $this->created_at = null;
         $this->updated_at = null;

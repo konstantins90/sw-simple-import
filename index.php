@@ -18,6 +18,7 @@ use Propel\Runtime\ActiveQuery\Criteria;
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig = new Environment($loader);
 error_reporting(0);
+// error_reporting(E_ALL);
 $router = new \AltoRouter();
 
 // try {
@@ -155,6 +156,18 @@ $router->map('POST', '/files/edit/[i:id]', function ($id){
     }
     if (isset($_POST['status'])) {
         $file->setStatus($_POST['status']);
+    }
+    if (isset($_POST['preorder-status'])) {
+        $file->setPreorder($_POST['preorder-status']);
+    }
+    if (isset($_POST['preorder-deadline'])) {
+        $file->setPreorderDeadline($_POST['preorder-deadline']);
+    }
+    if (isset($_POST['preorder-delivery'])) {
+        $file->setPreorderDelivery($_POST['preorder-delivery']);
+    }
+    if (isset($_POST['preorder-state'])) {
+        $file->setPreorderState($_POST['preorder-state']);
     }
 
     $file->save();

@@ -40,8 +40,6 @@ foreach ($files as $file) {
     $fileProcessor->setConfigFile($file);
     $fileProcessor->setRecords($productArray);
     $fields = $fileProcessor->getRecords();
-    d($fields);
-    die('STOP');
     $fileProcessor->mapProductProperties();
     $fileProcessor->import();
 

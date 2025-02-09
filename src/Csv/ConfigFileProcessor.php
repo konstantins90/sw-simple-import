@@ -28,7 +28,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     {
         foreach($records as $record) {
             $item = $this->parseData($record);
-            if ($item['name'] == '' || $item['ean' == '']) {
+            if ($item['name'] == '' || $item['ean'] == '') {
                 continue;
             }
             $this->records[] = $item;
@@ -137,13 +137,15 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
             if ($mediaId !== false) {
                 $this->logs[$productNumber][] = 'Media wird hochgeladen';
-                $this->shopwareClient->uploadMedia($mediaId, $productData['media']);
-                $this->logs[$productNumber][] = 'Media wird zu product gesetzt';
-                $productMediaId = $this->shopwareClient->addMediaToProduct($productId, $mediaId);
-
-                if ($productMediaId) {
-                    $this->logs[$productNumber][] = 'Cover wird gesetzt';
-                    $this->shopwareClient->productSetCover($productId, $productMediaId);
+                $uploadMediaResult = $this->shopwareClient->uploadMedia($mediaId, $productData['media']);
+                if ($uploadMediaResult) {
+                    $this->logs[$productNumber][] = 'Media wird zu product gesetzt';
+                    $productMediaId = $this->shopwareClient->addMediaToProduct($productId, $mediaId);
+                    
+                    if ($productMediaId) {
+                        $this->logs[$productNumber][] = 'Cover wird gesetzt';
+                        $this->shopwareClient->productSetCover($productId, $productMediaId);
+                    }
                 }
             }
         }
@@ -171,7 +173,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
                     'linked' => false
                 ]
             ],
-            'stock' => $this->getProperty('stock'),
+            'stock' => (int) $this->getProperty('stock'),
             'taxId' => $this->getProperty('taxId'),
             'manufacturer' => $this->getProperty('manufacturer'),
             'weight' => floatval(str_replace(",", ".", $this->getProperty('weight'))),
@@ -179,10 +181,17 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             'visibilities' => [
                 [
                     'salesChannelId' => $this->getProperty('salesChannelId'),
-                    'visibility' => $this->getProperty('visibility')
+                    'visibility' => (int) $this->getProperty('visibility')
                 ]
             ],
-            'properties' => $this->getPropertiesData()
+            'properties' => $this->getPropertiesData(),
+            'customFields' => [
+                'custom_preorder_status' => $this->getCustomField('preorder') == '1' ? true : false,
+                'custom_preorder_deadline' => $this->getCustomField('preorder_deadline'),
+                'custom_preorder_delivery_date' => $this->getCustomField('preorder_delivery'),
+                'custom_preorder_order_status' => $this->getCustomField('preorder_state'),
+                // 'custom_preorder_publisher' => $this->getCustomField('status'),
+            ]
         ];
 
         $this->currentRecord = [];
@@ -229,20 +238,54 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
     public function getProperty(string $name): string
     {
+        $result = '';
         $fields = $this->getMapping();
         if (!isset($fields[$name])) {
-            return '';
+            return $result;
         }
 
         $field = $fields[$name];
 
         if ($field['type'] === 'csv') {
             if (isset($this->currentRecord[$field['csv']])) {
-                return $this->currentRecord[$field['csv']];
+                $result = $this->currentRecord[$field['csv']];
             }
+        } else {
+            $result = $field['default'] ?: '';
         }
 
-        return $field['default'] ?: '';
+        if ($name === 'productNumber' && $prefix = $this->getConfigFile()->getPrefix()) {
+            $result = (string) $prefix . '-' . $result;
+        }
+
+        return $result;
+    }
+
+    protected function getCustomField(string $name): string
+    {
+        $result = '';
+        $enabled = $this->getConfigFile()->getPreorder();
+
+        if ((string) $enabled !== '1') {
+            return $result;
+        }
+
+        switch ($name) {
+            case 'preorder':
+                $result = $enabled;
+                break;
+            case 'preorder_deadline':
+                $result = $this->getConfigFile()->getPreorderDeadline() ? $this->getConfigFile()->getPreorderDeadline()->format('Y-m-d\\TH:i') : '';
+                break;
+            case 'preorder_delivery':
+                $result = $this->getConfigFile()->getPreorderDelivery() ? $this->getConfigFile()->getPreorderDelivery()->format('Y-m-d\\TH:i') : '';
+                break;
+            case 'preorder_state':
+                $result = $this->getConfigFile()->getPreorderState() ?: '';
+                break;
+        }
+
+        return $result;
     }
 
     protected function getPropertiesData():array

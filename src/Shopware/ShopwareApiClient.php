@@ -48,19 +48,21 @@ class ShopwareApiClient
                     'Authorization' => 'Bearer ' . $this->accessToken,
                     'Content-Type'  => 'application/json',
                 ],
-                'body' => json_encode($productData),
+                'body' => json_encode($productData, JSON_UNESCAPED_UNICODE ),
             ]);
 
             if ($response->getStatusCode() == 200) {
                 $responseData = json_decode($response->getBody()->getContents(), true);
                 return $responseData['data']['id'] ?? null; // Gib die productId zurück
             } elseif ($response->getStatusCode() !== 200 && $response->getStatusCode() !== 204) {
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                d($responseData);
                 throw new \Exception('Failed to import product, HTTP status: ' . $response->getStatusCode());
             }
     
             return null;
         } catch (RequestException $e) {
-            d('Error importing product: ' . $e->getMessage());
+            d('Error importing product: ' . $e->getMessage(), json_encode($productData, JSON_UNESCAPED_UNICODE ));
             return false;
         }
     }
@@ -75,7 +77,7 @@ class ShopwareApiClient
                     'Authorization' => 'Bearer ' . $this->accessToken,
                     'Content-Type' => 'application/json',
                 ],
-                'body' => json_encode($productData),
+                'body' => json_encode($productData, JSON_UNESCAPED_UNICODE ),
             ]);
             return true;
         } catch (RequestException $e) {
@@ -101,7 +103,7 @@ class ShopwareApiClient
                             'value' => $productNumber,
                         ]
                     ]
-                ]),
+                ], JSON_UNESCAPED_UNICODE ),
             ]);
 
             $responseData = json_decode($response->getBody()->getContents(), true);
@@ -164,7 +166,7 @@ class ShopwareApiClient
                             'value' => $mediaUrl,
                         ]
                     ]
-                ]),
+                ], JSON_UNESCAPED_UNICODE ),
             ]);
 
             $responseData = json_decode($response->getBody()->getContents(), true);
@@ -193,18 +195,20 @@ class ShopwareApiClient
                 ],
                 'body' => json_encode([
                     'url' => $mediaUrl,
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
                 $responseData = json_decode($response->getBody()->getContents(), true);
-                return $responseData['data']['id'] ?? false; // Gib die productId zurück
+                return true;
             } else {
                 d('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
                 return false;
             }
         } catch (RequestException $e) {
-            d('Error uploading media: ' . $e->getMessage());
+            d('Error uploading media: ' . $e->getMessage(), json_encode([
+                'url' => $mediaUrl,
+            ], JSON_UNESCAPED_UNICODE));
             return false;
         }
     }
@@ -222,7 +226,7 @@ class ShopwareApiClient
                 // Produkt-Update mit Medien-ID
                 'body' => json_encode([
                     'coverId' => $mediaId
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
@@ -249,7 +253,7 @@ class ShopwareApiClient
                 // Produkt-Update mit Medien-ID
                 'body' => json_encode([
                     'mediaFolderId' => FileProcessorInterface::MEDIA_FOLDER,
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
@@ -280,7 +284,7 @@ class ShopwareApiClient
                     'mediaId' => $mediaId,
                     'position' => 0
 
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             if ($response->getStatusCode() === 200 || $response->getStatusCode() === 204) {
@@ -354,7 +358,7 @@ class ShopwareApiClient
                 ],
                 'body' => json_encode([
                     'name' => $manufacturer,
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             $this->getManufacturerList(true);
@@ -398,7 +402,7 @@ class ShopwareApiClient
 
             return null; // Если опция не найдена
         } catch (RequestException $e) {
-            d('Error find property: ' . $e->getMessage());
+            d('Error find property: ' . $e->getMessage(), $params);
             return false;
         }
     }
@@ -416,7 +420,7 @@ class ShopwareApiClient
                 'body' => json_encode([
                     'groupId' => $propertyGroupId,
                     'name' => $optionName
-                ])
+                ], JSON_UNESCAPED_UNICODE)
             ]);
 
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {

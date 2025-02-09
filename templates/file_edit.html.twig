@@ -89,6 +89,58 @@
         </select>
       </div>
 
+      <hr class="mt-4 mb-3" />
+
+      <h4>Vorberstellung</h4>
+
+      <div x-data="preorderStatusSelect()" class="form-group">
+        <label for="preorder-status">Status</label>
+        <select name="preorder-status" id="preorder-status" class="form-select" x-model="selectedPreorderStatus">
+          <template x-for="preorderStatus in preorderStatusArray" :key="preorderStatus.key">
+            <option
+              :value="preorderStatus.key"
+              x-text="preorderStatus.label"
+              x-bind:selected="selectedPreorderStatus == preorderStatus.key"
+            ></option>
+          </template>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="preorder-deadline">Deadline</label>
+        <input
+          type="datetime-local"
+          id="preorder-deadline"
+          class="form-control"
+          name="preorder-deadline"
+          value="{{ file.getPreorderDeadline() is not null ? file.getPreorderDeadline()|date('Y-m-d\\TH:i') : '' }}"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="preorder-delivery">Lieferung</label>
+        <input
+          type="date"
+          id="preorder-delivery"
+          class="form-control"
+          name="preorder-delivery"
+          value="{{ file.getPreorderDelivery() is not null ? file.getPreorderDelivery()|date('Y-m-d') : '' }}"
+        />
+      </div>
+
+      <div x-data="preorderStateSelect()" class="form-group">
+        <label for="preorder-state">State</label>
+        <select name="preorder-state" id="preorder-state" class="form-select" x-model="selectedPreorderState">
+          <template x-for="preorderState in preorderStateArray" :key="preorderState.key">
+            <option
+              :value="preorderState.key"
+              x-text="preorderState.label"
+              x-bind:selected="selectedPreorderState == preorderState.key"
+            ></option>
+          </template>
+        </select>
+      </div>
+
       <button type="submit" class="btn btn-primary">Speichern</button>
       <a href="/" class="btn btn-secondary">Abbrechen</a>
     </form>
@@ -110,6 +162,7 @@
       }
     };
   }
+
   function statusSelect() {
     return {
       statusArray: [
@@ -119,6 +172,29 @@
         { key: 'error', label: 'Fehler' }
       ],
       selectedStatus: {{ file.getStatus() | json_encode | raw }}
+    };
+  }
+
+  function preorderStatusSelect() {
+    return {
+      preorderStatusArray: [
+        { key: 0, label: 'Deaktiviert' },
+        { key: 1, label: 'Aktiviert' },
+      ],
+      selectedPreorderStatus: {{ file.getPreorder() | json_encode | raw }}
+    };
+  }
+
+  function preorderStateSelect() {
+    return {
+      preorderStateArray: [
+        { key: 'open', label: 'Open' },
+        { key: 'closed', label: 'Closed' },
+        { key: 'sent_to_publisher', label: 'Sent to Publisher' },
+        { key: 'awaiting_delivery', label: 'Awaiting Delivery' },
+        { key: 'delivered', label: 'Delivered' },
+      ],
+      selectedPreorderState: {{ file.getPreorderState() | json_encode | raw }}
     };
   }
 </script>

@@ -9,6 +9,10 @@
         <column name="product_status" type="VARCHAR" size="50" required="false"/>
         <column name="prefix" type="VARCHAR" size="255" required="false"/>
         <column name="marge" type="float" required="false"/>
+        <column name="preorder" type="INTEGER" required="false"/>
+        <column name="preorder_deadline" type="DATETIME" required="false"/>
+        <column name="preorder_delivery" type="DATETIME" required="false"/>
+        <column name="preorder_state" type="VARCHAR" required="false"/>
         <column name="config_id" type="INTEGER" required="true"/>
         <column name="created_at" type="DATETIME" required="true"/>
         <column name="updated_at" type="DATETIME" required="true"/>

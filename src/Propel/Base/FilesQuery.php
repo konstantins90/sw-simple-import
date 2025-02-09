@@ -26,6 +26,10 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery orderByProductStatus($order = Criteria::ASC) Order by the product_status column
  * @method     ChildFilesQuery orderByPrefix($order = Criteria::ASC) Order by the prefix column
  * @method     ChildFilesQuery orderByMarge($order = Criteria::ASC) Order by the marge column
+ * @method     ChildFilesQuery orderByPreorder($order = Criteria::ASC) Order by the preorder column
+ * @method     ChildFilesQuery orderByPreorderDeadline($order = Criteria::ASC) Order by the preorder_deadline column
+ * @method     ChildFilesQuery orderByPreorderDelivery($order = Criteria::ASC) Order by the preorder_delivery column
+ * @method     ChildFilesQuery orderByPreorderState($order = Criteria::ASC) Order by the preorder_state column
  * @method     ChildFilesQuery orderByConfigId($order = Criteria::ASC) Order by the config_id column
  * @method     ChildFilesQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method     ChildFilesQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
@@ -37,6 +41,10 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery groupByProductStatus() Group by the product_status column
  * @method     ChildFilesQuery groupByPrefix() Group by the prefix column
  * @method     ChildFilesQuery groupByMarge() Group by the marge column
+ * @method     ChildFilesQuery groupByPreorder() Group by the preorder column
+ * @method     ChildFilesQuery groupByPreorderDeadline() Group by the preorder_deadline column
+ * @method     ChildFilesQuery groupByPreorderDelivery() Group by the preorder_delivery column
+ * @method     ChildFilesQuery groupByPreorderState() Group by the preorder_state column
  * @method     ChildFilesQuery groupByConfigId() Group by the config_id column
  * @method     ChildFilesQuery groupByCreatedAt() Group by the created_at column
  * @method     ChildFilesQuery groupByUpdatedAt() Group by the updated_at column
@@ -81,6 +89,10 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles|null findOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column
  * @method     ChildFiles|null findOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column
  * @method     ChildFiles|null findOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column
+ * @method     ChildFiles|null findOneByPreorder(int $preorder) Return the first ChildFiles filtered by the preorder column
+ * @method     ChildFiles|null findOneByPreorderDeadline(string $preorder_deadline) Return the first ChildFiles filtered by the preorder_deadline column
+ * @method     ChildFiles|null findOneByPreorderDelivery(string $preorder_delivery) Return the first ChildFiles filtered by the preorder_delivery column
+ * @method     ChildFiles|null findOneByPreorderState(string $preorder_state) Return the first ChildFiles filtered by the preorder_state column
  * @method     ChildFiles|null findOneByConfigId(int $config_id) Return the first ChildFiles filtered by the config_id column
  * @method     ChildFiles|null findOneByCreatedAt(string $created_at) Return the first ChildFiles filtered by the created_at column
  * @method     ChildFiles|null findOneByUpdatedAt(string $updated_at) Return the first ChildFiles filtered by the updated_at column
@@ -95,6 +107,10 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles requireOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByPreorder(int $preorder) Return the first ChildFiles filtered by the preorder column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByPreorderDeadline(string $preorder_deadline) Return the first ChildFiles filtered by the preorder_deadline column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByPreorderDelivery(string $preorder_delivery) Return the first ChildFiles filtered by the preorder_delivery column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByPreorderState(string $preorder_state) Return the first ChildFiles filtered by the preorder_state column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByConfigId(int $config_id) Return the first ChildFiles filtered by the config_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByCreatedAt(string $created_at) Return the first ChildFiles filtered by the created_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByUpdatedAt(string $updated_at) Return the first ChildFiles filtered by the updated_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -116,6 +132,14 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildFiles> findByPrefix(string|array<string> $prefix) Return ChildFiles objects filtered by the prefix column
  * @method     ChildFiles[]|Collection findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
  * @psalm-method Collection&\Traversable<ChildFiles> findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
+ * @method     ChildFiles[]|Collection findByPreorder(int|array<int> $preorder) Return ChildFiles objects filtered by the preorder column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByPreorder(int|array<int> $preorder) Return ChildFiles objects filtered by the preorder column
+ * @method     ChildFiles[]|Collection findByPreorderDeadline(string|array<string> $preorder_deadline) Return ChildFiles objects filtered by the preorder_deadline column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByPreorderDeadline(string|array<string> $preorder_deadline) Return ChildFiles objects filtered by the preorder_deadline column
+ * @method     ChildFiles[]|Collection findByPreorderDelivery(string|array<string> $preorder_delivery) Return ChildFiles objects filtered by the preorder_delivery column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByPreorderDelivery(string|array<string> $preorder_delivery) Return ChildFiles objects filtered by the preorder_delivery column
+ * @method     ChildFiles[]|Collection findByPreorderState(string|array<string> $preorder_state) Return ChildFiles objects filtered by the preorder_state column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByPreorderState(string|array<string> $preorder_state) Return ChildFiles objects filtered by the preorder_state column
  * @method     ChildFiles[]|Collection findByConfigId(int|array<int> $config_id) Return ChildFiles objects filtered by the config_id column
  * @psalm-method Collection&\Traversable<ChildFiles> findByConfigId(int|array<int> $config_id) Return ChildFiles objects filtered by the config_id column
  * @method     ChildFiles[]|Collection findByCreatedAt(string|array<string> $created_at) Return ChildFiles objects filtered by the created_at column
@@ -221,7 +245,7 @@ abstract class FilesQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, filename, path, status, product_status, prefix, marge, config_id, created_at, updated_at FROM files WHERE id = :p0';
+        $sql = 'SELECT id, filename, path, status, product_status, prefix, marge, preorder, preorder_deadline, preorder_delivery, preorder_state, config_id, created_at, updated_at FROM files WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -537,6 +561,167 @@ abstract class FilesQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(FilesTableMap::COL_MARGE, $marge, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the preorder column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPreorder(1234); // WHERE preorder = 1234
+     * $query->filterByPreorder(array(12, 34)); // WHERE preorder IN (12, 34)
+     * $query->filterByPreorder(array('min' => 12)); // WHERE preorder > 12
+     * </code>
+     *
+     * @param mixed $preorder The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByPreorder($preorder = null, ?string $comparison = null)
+    {
+        if (is_array($preorder)) {
+            $useMinMax = false;
+            if (isset($preorder['min'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER, $preorder['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($preorder['max'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER, $preorder['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PREORDER, $preorder, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the preorder_deadline column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPreorderDeadline('2011-03-14'); // WHERE preorder_deadline = '2011-03-14'
+     * $query->filterByPreorderDeadline('now'); // WHERE preorder_deadline = '2011-03-14'
+     * $query->filterByPreorderDeadline(array('max' => 'yesterday')); // WHERE preorder_deadline > '2011-03-13'
+     * </code>
+     *
+     * @param mixed $preorderDeadline The value to use as filter.
+     *              Values can be integers (unix timestamps), DateTime objects, or strings.
+     *              Empty strings are treated as NULL.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByPreorderDeadline($preorderDeadline = null, ?string $comparison = null)
+    {
+        if (is_array($preorderDeadline)) {
+            $useMinMax = false;
+            if (isset($preorderDeadline['min'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER_DEADLINE, $preorderDeadline['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($preorderDeadline['max'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER_DEADLINE, $preorderDeadline['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PREORDER_DEADLINE, $preorderDeadline, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the preorder_delivery column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPreorderDelivery('2011-03-14'); // WHERE preorder_delivery = '2011-03-14'
+     * $query->filterByPreorderDelivery('now'); // WHERE preorder_delivery = '2011-03-14'
+     * $query->filterByPreorderDelivery(array('max' => 'yesterday')); // WHERE preorder_delivery > '2011-03-13'
+     * </code>
+     *
+     * @param mixed $preorderDelivery The value to use as filter.
+     *              Values can be integers (unix timestamps), DateTime objects, or strings.
+     *              Empty strings are treated as NULL.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByPreorderDelivery($preorderDelivery = null, ?string $comparison = null)
+    {
+        if (is_array($preorderDelivery)) {
+            $useMinMax = false;
+            if (isset($preorderDelivery['min'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER_DELIVERY, $preorderDelivery['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($preorderDelivery['max'])) {
+                $this->addUsingAlias(FilesTableMap::COL_PREORDER_DELIVERY, $preorderDelivery['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PREORDER_DELIVERY, $preorderDelivery, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the preorder_state column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByPreorderState('fooValue');   // WHERE preorder_state = 'fooValue'
+     * $query->filterByPreorderState('%fooValue%', Criteria::LIKE); // WHERE preorder_state LIKE '%fooValue%'
+     * $query->filterByPreorderState(['foo', 'bar']); // WHERE preorder_state IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $preorderState The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByPreorderState($preorderState = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($preorderState)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_PREORDER_STATE, $preorderState, $comparison);
 
         return $this;
     }

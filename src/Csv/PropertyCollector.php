@@ -35,7 +35,7 @@ class PropertyCollector
     public function collectProperties(array $productData): void
     {
         foreach ($productData['properties'] as $propertyName => $propertyValue) {
-            if ($this->isValidProperty($propertyName)) {
+            if ($this->isValidProperty($propertyName) && $propertyValue) {
                 $propertyGroupId = $this->propertiesArray[$propertyName]['propertyGroupId'];
 
                 // Проверяем, существует ли опция

@@ -16,9 +16,12 @@
 <div class="wrapper">
     {% include 'components/header.html.twig' %}
     {% include 'components/sidebar.html.twig' %}
-    
-    <!-- Определяем блок контента, который будет изменяться в дочерних шаблонах -->
     <div class="content-wrapper">
+        <div class="content-header">
+            <div class="alert {{ (dbConnection.status == true) ? 'alert-success' : 'alert-danger' }}" role="alert">
+                {{ dbConnection.message }}
+            </div>
+        </div>
         {% block content %}
         {% endblock %}
     </div>

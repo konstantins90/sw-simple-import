@@ -21,19 +21,25 @@ error_reporting(0);
 // error_reporting(E_ALL);
 $router = new \AltoRouter();
 
-// try {
-//     $connection = Propel::getServiceContainer()->getConnection();
-//     $result = $connection->query('SELECT * FROM config');
+$dbConnection = [
+    'status' => false,
+    'message' => null,
+];
 
-//     var_dump($result->fetchAll());
-//     echo "Соединение c базой данных успешно.";
-// } catch (\Exception $e) {
-//     echo "Ошибка соединения c базой данных: " . $e->getMessage();
-// }
+try {
+    $connection = Propel::getServiceContainer()->getConnection();
+    $result = $connection->query('SELECT * FROM config');
+    $dbConnection['status'] = true;
+    $dbConnection['message'] = 'Соединение c базой данных успешно.';
+} catch (\Exception $e) {
+    $dbConnection['status'] = false;
+    $dbConnection['message'] = "Ошибка соединения c базой данных: " . $e->getMessage();
+}
 
-$router->map('GET', '/', function () use ($twig) {
+$router->map('GET', '/', function () use ($twig, $dbConnection) {
     echo $twig->render('index.html.twig', [
         'title' => 'Админ Панель',
+        'dbConnection' => $dbConnection,
     ]);
 });
 

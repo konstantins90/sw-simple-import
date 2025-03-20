@@ -99,6 +99,14 @@ abstract class Files implements ActiveRecordInterface
     protected $status;
 
     /**
+     * The value for the import_type field.
+     *
+     * Note: this column has a database default value of: 'create_update'
+     * @var        string
+     */
+    protected $import_type;
+
+    /**
      * The value for the product_status field.
      *
      * @var        string|null
@@ -118,6 +126,14 @@ abstract class Files implements ActiveRecordInterface
      * @var        double|null
      */
     protected $marge;
+
+    /**
+     * The value for the exchange_rate field.
+     *
+     * Note: this column has a database default value of: 1.0
+     * @var        double|null
+     */
+    protected $exchange_rate;
 
     /**
      * The value for the preorder field.
@@ -196,10 +212,24 @@ abstract class Files implements ActiveRecordInterface
     protected $importHistoriesScheduledForDeletion = null;
 
     /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see __construct()
+     */
+    public function applyDefaultValues(): void
+    {
+        $this->import_type = 'create_update';
+        $this->exchange_rate = 1.0;
+    }
+
+    /**
      * Initializes internal state of Propel\Base\Files object.
+     * @see applyDefaults()
      */
     public function __construct()
     {
+        $this->applyDefaultValues();
     }
 
     /**
@@ -462,6 +492,16 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Get the [import_type] column value.
+     *
+     * @return string
+     */
+    public function getImportType()
+    {
+        return $this->import_type;
+    }
+
+    /**
      * Get the [product_status] column value.
      *
      * @return string|null
@@ -489,6 +529,16 @@ abstract class Files implements ActiveRecordInterface
     public function getMarge()
     {
         return $this->marge;
+    }
+
+    /**
+     * Get the [exchange_rate] column value.
+     *
+     * @return double|null
+     */
+    public function getExchangeRate()
+    {
+        return $this->exchange_rate;
     }
 
     /**
@@ -690,6 +740,26 @@ abstract class Files implements ActiveRecordInterface
     }
 
     /**
+     * Set the value of [import_type] column.
+     *
+     * @param string $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setImportType($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->import_type !== $v) {
+            $this->import_type = $v;
+            $this->modifiedColumns[FilesTableMap::COL_IMPORT_TYPE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the value of [product_status] column.
      *
      * @param string|null $v New value
@@ -744,6 +814,26 @@ abstract class Files implements ActiveRecordInterface
         if ($this->marge !== $v) {
             $this->marge = $v;
             $this->modifiedColumns[FilesTableMap::COL_MARGE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [exchange_rate] column.
+     *
+     * @param double|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setExchangeRate($v)
+    {
+        if ($v !== null) {
+            $v = (double) $v;
+        }
+
+        if ($this->exchange_rate !== $v) {
+            $this->exchange_rate = $v;
+            $this->modifiedColumns[FilesTableMap::COL_EXCHANGE_RATE] = true;
         }
 
         return $this;
@@ -903,6 +993,14 @@ abstract class Files implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues(): bool
     {
+            if ($this->import_type !== 'create_update') {
+                return false;
+            }
+
+            if ($this->exchange_rate !== 1.0) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     }
@@ -941,43 +1039,49 @@ abstract class Files implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : FilesTableMap::translateFieldName('Status', TableMap::TYPE_PHPNAME, $indexType)];
             $this->status = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : FilesTableMap::translateFieldName('ProductStatus', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : FilesTableMap::translateFieldName('ImportType', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->import_type = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : FilesTableMap::translateFieldName('ProductStatus', TableMap::TYPE_PHPNAME, $indexType)];
             $this->product_status = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : FilesTableMap::translateFieldName('Prefix', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : FilesTableMap::translateFieldName('Prefix', TableMap::TYPE_PHPNAME, $indexType)];
             $this->prefix = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : FilesTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : FilesTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
             $this->marge = (null !== $col) ? (double) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : FilesTableMap::translateFieldName('Preorder', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : FilesTableMap::translateFieldName('ExchangeRate', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->exchange_rate = (null !== $col) ? (double) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : FilesTableMap::translateFieldName('Preorder', TableMap::TYPE_PHPNAME, $indexType)];
             $this->preorder = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : FilesTableMap::translateFieldName('PreorderDeadline', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : FilesTableMap::translateFieldName('PreorderDeadline', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->preorder_deadline = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : FilesTableMap::translateFieldName('PreorderDelivery', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 11 + $startcol : FilesTableMap::translateFieldName('PreorderDelivery', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->preorder_delivery = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 10 + $startcol : FilesTableMap::translateFieldName('PreorderState', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 12 + $startcol : FilesTableMap::translateFieldName('PreorderState', TableMap::TYPE_PHPNAME, $indexType)];
             $this->preorder_state = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 11 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 13 + $startcol : FilesTableMap::translateFieldName('ConfigId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->config_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 12 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 14 + $startcol : FilesTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 13 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 15 + $startcol : FilesTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -990,7 +1094,7 @@ abstract class Files implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 14; // 14 = FilesTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 16; // 16 = FilesTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\Files'), 0, $e);
@@ -1239,6 +1343,9 @@ abstract class Files implements ActiveRecordInterface
         if ($this->isColumnModified(FilesTableMap::COL_STATUS)) {
             $modifiedColumns[':p' . $index++]  = 'status';
         }
+        if ($this->isColumnModified(FilesTableMap::COL_IMPORT_TYPE)) {
+            $modifiedColumns[':p' . $index++]  = 'import_type';
+        }
         if ($this->isColumnModified(FilesTableMap::COL_PRODUCT_STATUS)) {
             $modifiedColumns[':p' . $index++]  = 'product_status';
         }
@@ -1247,6 +1354,9 @@ abstract class Files implements ActiveRecordInterface
         }
         if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
             $modifiedColumns[':p' . $index++]  = 'marge';
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_EXCHANGE_RATE)) {
+            $modifiedColumns[':p' . $index++]  = 'exchange_rate';
         }
         if ($this->isColumnModified(FilesTableMap::COL_PREORDER)) {
             $modifiedColumns[':p' . $index++]  = 'preorder';
@@ -1296,6 +1406,10 @@ abstract class Files implements ActiveRecordInterface
                         $stmt->bindValue($identifier, $this->status, PDO::PARAM_STR);
 
                         break;
+                    case 'import_type':
+                        $stmt->bindValue($identifier, $this->import_type, PDO::PARAM_STR);
+
+                        break;
                     case 'product_status':
                         $stmt->bindValue($identifier, $this->product_status, PDO::PARAM_STR);
 
@@ -1306,6 +1420,10 @@ abstract class Files implements ActiveRecordInterface
                         break;
                     case 'marge':
                         $stmt->bindValue($identifier, $this->marge, PDO::PARAM_STR);
+
+                        break;
+                    case 'exchange_rate':
+                        $stmt->bindValue($identifier, $this->exchange_rate, PDO::PARAM_STR);
 
                         break;
                     case 'preorder':
@@ -1411,33 +1529,39 @@ abstract class Files implements ActiveRecordInterface
                 return $this->getStatus();
 
             case 4:
-                return $this->getProductStatus();
+                return $this->getImportType();
 
             case 5:
-                return $this->getPrefix();
+                return $this->getProductStatus();
 
             case 6:
-                return $this->getMarge();
+                return $this->getPrefix();
 
             case 7:
-                return $this->getPreorder();
+                return $this->getMarge();
 
             case 8:
-                return $this->getPreorderDeadline();
+                return $this->getExchangeRate();
 
             case 9:
-                return $this->getPreorderDelivery();
+                return $this->getPreorder();
 
             case 10:
-                return $this->getPreorderState();
+                return $this->getPreorderDeadline();
 
             case 11:
-                return $this->getConfigId();
+                return $this->getPreorderDelivery();
 
             case 12:
-                return $this->getCreatedAt();
+                return $this->getPreorderState();
 
             case 13:
+                return $this->getConfigId();
+
+            case 14:
+                return $this->getCreatedAt();
+
+            case 15:
                 return $this->getUpdatedAt();
 
             default:
@@ -1472,31 +1596,33 @@ abstract class Files implements ActiveRecordInterface
             $keys[1] => $this->getFilename(),
             $keys[2] => $this->getPath(),
             $keys[3] => $this->getStatus(),
-            $keys[4] => $this->getProductStatus(),
-            $keys[5] => $this->getPrefix(),
-            $keys[6] => $this->getMarge(),
-            $keys[7] => $this->getPreorder(),
-            $keys[8] => $this->getPreorderDeadline(),
-            $keys[9] => $this->getPreorderDelivery(),
-            $keys[10] => $this->getPreorderState(),
-            $keys[11] => $this->getConfigId(),
-            $keys[12] => $this->getCreatedAt(),
-            $keys[13] => $this->getUpdatedAt(),
+            $keys[4] => $this->getImportType(),
+            $keys[5] => $this->getProductStatus(),
+            $keys[6] => $this->getPrefix(),
+            $keys[7] => $this->getMarge(),
+            $keys[8] => $this->getExchangeRate(),
+            $keys[9] => $this->getPreorder(),
+            $keys[10] => $this->getPreorderDeadline(),
+            $keys[11] => $this->getPreorderDelivery(),
+            $keys[12] => $this->getPreorderState(),
+            $keys[13] => $this->getConfigId(),
+            $keys[14] => $this->getCreatedAt(),
+            $keys[15] => $this->getUpdatedAt(),
         ];
-        if ($result[$keys[8]] instanceof \DateTimeInterface) {
-            $result[$keys[8]] = $result[$keys[8]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[10]] instanceof \DateTimeInterface) {
+            $result[$keys[10]] = $result[$keys[10]]->format('Y-m-d H:i:s.u');
         }
 
-        if ($result[$keys[9]] instanceof \DateTimeInterface) {
-            $result[$keys[9]] = $result[$keys[9]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[11]] instanceof \DateTimeInterface) {
+            $result[$keys[11]] = $result[$keys[11]]->format('Y-m-d H:i:s.u');
         }
 
-        if ($result[$keys[12]] instanceof \DateTimeInterface) {
-            $result[$keys[12]] = $result[$keys[12]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[14]] instanceof \DateTimeInterface) {
+            $result[$keys[14]] = $result[$keys[14]]->format('Y-m-d H:i:s.u');
         }
 
-        if ($result[$keys[13]] instanceof \DateTimeInterface) {
-            $result[$keys[13]] = $result[$keys[13]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[15]] instanceof \DateTimeInterface) {
+            $result[$keys[15]] = $result[$keys[15]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1584,33 +1710,39 @@ abstract class Files implements ActiveRecordInterface
                 $this->setStatus($value);
                 break;
             case 4:
-                $this->setProductStatus($value);
+                $this->setImportType($value);
                 break;
             case 5:
-                $this->setPrefix($value);
+                $this->setProductStatus($value);
                 break;
             case 6:
-                $this->setMarge($value);
+                $this->setPrefix($value);
                 break;
             case 7:
-                $this->setPreorder($value);
+                $this->setMarge($value);
                 break;
             case 8:
-                $this->setPreorderDeadline($value);
+                $this->setExchangeRate($value);
                 break;
             case 9:
-                $this->setPreorderDelivery($value);
+                $this->setPreorder($value);
                 break;
             case 10:
-                $this->setPreorderState($value);
+                $this->setPreorderDeadline($value);
                 break;
             case 11:
-                $this->setConfigId($value);
+                $this->setPreorderDelivery($value);
                 break;
             case 12:
-                $this->setCreatedAt($value);
+                $this->setPreorderState($value);
                 break;
             case 13:
+                $this->setConfigId($value);
+                break;
+            case 14:
+                $this->setCreatedAt($value);
+                break;
+            case 15:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1652,34 +1784,40 @@ abstract class Files implements ActiveRecordInterface
             $this->setStatus($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setProductStatus($arr[$keys[4]]);
+            $this->setImportType($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setPrefix($arr[$keys[5]]);
+            $this->setProductStatus($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setMarge($arr[$keys[6]]);
+            $this->setPrefix($arr[$keys[6]]);
         }
         if (array_key_exists($keys[7], $arr)) {
-            $this->setPreorder($arr[$keys[7]]);
+            $this->setMarge($arr[$keys[7]]);
         }
         if (array_key_exists($keys[8], $arr)) {
-            $this->setPreorderDeadline($arr[$keys[8]]);
+            $this->setExchangeRate($arr[$keys[8]]);
         }
         if (array_key_exists($keys[9], $arr)) {
-            $this->setPreorderDelivery($arr[$keys[9]]);
+            $this->setPreorder($arr[$keys[9]]);
         }
         if (array_key_exists($keys[10], $arr)) {
-            $this->setPreorderState($arr[$keys[10]]);
+            $this->setPreorderDeadline($arr[$keys[10]]);
         }
         if (array_key_exists($keys[11], $arr)) {
-            $this->setConfigId($arr[$keys[11]]);
+            $this->setPreorderDelivery($arr[$keys[11]]);
         }
         if (array_key_exists($keys[12], $arr)) {
-            $this->setCreatedAt($arr[$keys[12]]);
+            $this->setPreorderState($arr[$keys[12]]);
         }
         if (array_key_exists($keys[13], $arr)) {
-            $this->setUpdatedAt($arr[$keys[13]]);
+            $this->setConfigId($arr[$keys[13]]);
+        }
+        if (array_key_exists($keys[14], $arr)) {
+            $this->setCreatedAt($arr[$keys[14]]);
+        }
+        if (array_key_exists($keys[15], $arr)) {
+            $this->setUpdatedAt($arr[$keys[15]]);
         }
 
         return $this;
@@ -1736,6 +1874,9 @@ abstract class Files implements ActiveRecordInterface
         if ($this->isColumnModified(FilesTableMap::COL_STATUS)) {
             $criteria->add(FilesTableMap::COL_STATUS, $this->status);
         }
+        if ($this->isColumnModified(FilesTableMap::COL_IMPORT_TYPE)) {
+            $criteria->add(FilesTableMap::COL_IMPORT_TYPE, $this->import_type);
+        }
         if ($this->isColumnModified(FilesTableMap::COL_PRODUCT_STATUS)) {
             $criteria->add(FilesTableMap::COL_PRODUCT_STATUS, $this->product_status);
         }
@@ -1744,6 +1885,9 @@ abstract class Files implements ActiveRecordInterface
         }
         if ($this->isColumnModified(FilesTableMap::COL_MARGE)) {
             $criteria->add(FilesTableMap::COL_MARGE, $this->marge);
+        }
+        if ($this->isColumnModified(FilesTableMap::COL_EXCHANGE_RATE)) {
+            $criteria->add(FilesTableMap::COL_EXCHANGE_RATE, $this->exchange_rate);
         }
         if ($this->isColumnModified(FilesTableMap::COL_PREORDER)) {
             $criteria->add(FilesTableMap::COL_PREORDER, $this->preorder);
@@ -1857,9 +2001,11 @@ abstract class Files implements ActiveRecordInterface
         $copyObj->setFilename($this->getFilename());
         $copyObj->setPath($this->getPath());
         $copyObj->setStatus($this->getStatus());
+        $copyObj->setImportType($this->getImportType());
         $copyObj->setProductStatus($this->getProductStatus());
         $copyObj->setPrefix($this->getPrefix());
         $copyObj->setMarge($this->getMarge());
+        $copyObj->setExchangeRate($this->getExchangeRate());
         $copyObj->setPreorder($this->getPreorder());
         $copyObj->setPreorderDeadline($this->getPreorderDeadline());
         $copyObj->setPreorderDelivery($this->getPreorderDelivery());
@@ -2232,9 +2378,11 @@ abstract class Files implements ActiveRecordInterface
         $this->filename = null;
         $this->path = null;
         $this->status = null;
+        $this->import_type = null;
         $this->product_status = null;
         $this->prefix = null;
         $this->marge = null;
+        $this->exchange_rate = null;
         $this->preorder = null;
         $this->preorder_deadline = null;
         $this->preorder_delivery = null;
@@ -2244,6 +2392,7 @@ abstract class Files implements ActiveRecordInterface
         $this->updated_at = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);

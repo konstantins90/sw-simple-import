@@ -37,6 +37,19 @@ class FileProcessorDefault implements FileProcessorInterface
         ];
     }
 
+    static public function getDefaultPropertyFields(): array
+    {
+        return [
+            'publishing',
+            'series',
+            'age',
+            'releaseYear',
+            'pageCount',
+            'binding',
+            'format',
+        ];
+    }
+
     public function setRecords(array $records): void
     {
         $this->records = $records;

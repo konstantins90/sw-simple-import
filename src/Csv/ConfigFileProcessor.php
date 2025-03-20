@@ -4,6 +4,7 @@ namespace App\Csv;
 
 use App\Shopware\ShopwareApiClient;
 use App\Csv\PropertyCollector;
+use App\Csv\ImageDownloader;
 use App\Utils\PriceCalculator;
 use Propel\Files;
 
@@ -19,7 +20,8 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function __construct(
         protected ShopwareApiClient $shopwareClient,
         protected PropertyCollector $propertyCollector,
-        protected PriceCalculator $priceCalculator
+        protected PriceCalculator $priceCalculator,
+        protected ImageDownloader $imageDownloader
     ){
         
     }
@@ -49,10 +51,25 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         return $propertiesArray;
     }
 
+    public function downloadImages(): void
+    {
+        foreach($this->records as &$productData) {
+            $productData['media'] = $this->imageDownloader->downloadImage($productData);
+        }
+    }
+
     public function mapProductProperties(): void
     {
         $mappedProperties = [];
+        $startTime = microtime(true);
+        echo "Generiere Produkt Properties";
+
+        $this->downloadImages();
         $propertiesArray = $this->getPropertiesArray();
+
+        $endTime = microtime(true);
+        $executionTime = $startTime - $endTime;
+        echo ": {$executionTime} s\n";
 
         foreach($this->records as &$productData)
         {
@@ -82,8 +99,10 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function import(): void
     {
         $count = 0;
+        $this->shopwareClient->getManufacturerList(true);
         foreach($this->getRecords() as $productData)
         {
+            $this->shopwareClient->checkTimeout();
             $this->importProduct($productData);
             $count++;
         }
@@ -117,7 +136,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             $this->logs[$productNumber][] = 'Produkt existiert, aktualisiere es';
             // Produkt existiert, aktualisiere es
             unset($productData['visibilities']);
-            d($productData);
+            // d($productData);
             $this->shopwareClient->updateProduct($productId, $productData);
         } else {
             // Produkt existiert nicht, importiere es
@@ -130,23 +149,39 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             return false;
         }
 
-        // Wenn Medien vorhanden sind, lade sie hoch und füge sie dem Produkt hinzu
-        if (isset($productData['media']) && $this->shopwareClient->productHasMedia($productId) == false) {
-            $this->logs[$productNumber][] = 'Neues Media wird erstellt';
-            $mediaId = $this->shopwareClient->createMedia($productData['media']);
+        // d($productData);
 
-            if ($mediaId !== false) {
-                $this->logs[$productNumber][] = 'Media wird hochgeladen';
-                $uploadMediaResult = $this->shopwareClient->uploadMedia($mediaId, $productData['media']);
-                if ($uploadMediaResult) {
-                    $this->logs[$productNumber][] = 'Media wird zu product gesetzt';
-                    $productMediaId = $this->shopwareClient->addMediaToProduct($productId, $mediaId);
-                    
-                    if ($productMediaId) {
-                        $this->logs[$productNumber][] = 'Cover wird gesetzt';
-                        $this->shopwareClient->productSetCover($productId, $productMediaId);
+        // Wenn Medien vorhanden sind, lade sie hoch und füge sie dem Produkt hinzu
+        if ($this->shopwareClient->productHasMedia($productId) == false) {
+            $this->logs[$productNumber][] = 'Neues Media wird erstellt';
+
+            $mediaName = isset($productData['ean']) ? $productData['ean'] : $productData['productNumber'];
+            // d($mediaName);
+            $mediaId = $this->shopwareClient->findMediaByName($mediaName);
+
+            if (empty($mediaId) && isset($productData['media'])) {
+                $mediaId = $this->shopwareClient->createMedia($productData['media']);
+
+                if (!empty($mediaId)) {
+                    $this->logs[$productNumber][] = 'Media wird hochgeladen';
+                    $uploadMediaResult = $this->shopwareClient->uploadMedia($mediaId, $productData['media']);
+
+                    if (!$uploadMediaResult) {
+                        return false;
                     }
                 }
+            }
+
+            if (empty($mediaId)) {
+                return false;
+            }
+
+            $this->logs[$productNumber][] = 'Media wird zu product gesetzt';
+            $productMediaId = $this->shopwareClient->addMediaToProduct($productId, $mediaId);
+            
+            if ($productMediaId) {
+                $this->logs[$productNumber][] = 'Cover wird gesetzt';
+                $this->shopwareClient->productSetCover($productId, $productMediaId);
             }
         }
 
@@ -157,6 +192,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     {
         $this->currentRecord = $record;
         $this->priceCalculator->setMargin((float) $this->getPriceMarge());
+        $this->priceCalculator->setExchangeRate((float) $this->getExchangeRate());
         $netPrice = $this->priceCalculator->convertRubToEurWithMargin((float) $this->getProperty('price'));
         $grossPrice = $this->priceCalculator->convertNetToGross($netPrice, 0.07);
 
@@ -173,6 +209,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
                     'linked' => false
                 ]
             ],
+            'active' => ($this->getConfigFile()->getImportType() === 'disable' ? false : true),
             'stock' => (int) $this->getProperty('stock'),
             'taxId' => $this->getProperty('taxId'),
             'manufacturer' => $this->getProperty('manufacturer'),
@@ -217,6 +254,11 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function getPriceMarge()
     {
         return $this->getConfigFile()->getMarge() ?: $this->getConfigFile()->getConfig()?->getMarge();
+    }
+
+    public function getExchangeRate()
+    {
+        return $this->getConfigFile()->getExchangeRate() ?: 1;
     }
 
     public function getMapping(): array

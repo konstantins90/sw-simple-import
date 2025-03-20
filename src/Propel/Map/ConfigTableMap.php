@@ -63,7 +63,7 @@ class ConfigTableMap extends TableMap
     /**
      * The total number of columns
      */
-    public const NUM_COLUMNS = 9;
+    public const NUM_COLUMNS = 10;
 
     /**
      * The number of lazy-loaded columns
@@ -73,7 +73,7 @@ class ConfigTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    public const NUM_HYDRATE_COLUMNS = 9;
+    public const NUM_HYDRATE_COLUMNS = 10;
 
     /**
      * the column name for the id field
@@ -94,6 +94,11 @@ class ConfigTableMap extends TableMap
      * the column name for the marge field
      */
     public const COL_MARGE = 'config.marge';
+
+    /**
+     * the column name for the exchange_rate field
+     */
+    public const COL_EXCHANGE_RATE = 'config.exchange_rate';
 
     /**
      * the column name for the mapping field
@@ -134,11 +139,11 @@ class ConfigTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldNames = [
-        self::TYPE_PHPNAME       => ['Id', 'Name', 'Prefix', 'Marge', 'Mapping', 'CsvHeaders', 'MappingProperties', 'CreatedAt', 'UpdatedAt', ],
-        self::TYPE_CAMELNAME     => ['id', 'name', 'prefix', 'marge', 'mapping', 'csvHeaders', 'mappingProperties', 'createdAt', 'updatedAt', ],
-        self::TYPE_COLNAME       => [ConfigTableMap::COL_ID, ConfigTableMap::COL_NAME, ConfigTableMap::COL_PREFIX, ConfigTableMap::COL_MARGE, ConfigTableMap::COL_MAPPING, ConfigTableMap::COL_CSV_HEADERS, ConfigTableMap::COL_MAPPING_PROPERTIES, ConfigTableMap::COL_CREATED_AT, ConfigTableMap::COL_UPDATED_AT, ],
-        self::TYPE_FIELDNAME     => ['id', 'name', 'prefix', 'marge', 'mapping', 'csv_headers', 'mapping_properties', 'created_at', 'updated_at', ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, ]
+        self::TYPE_PHPNAME       => ['Id', 'Name', 'Prefix', 'Marge', 'ExchangeRate', 'Mapping', 'CsvHeaders', 'MappingProperties', 'CreatedAt', 'UpdatedAt', ],
+        self::TYPE_CAMELNAME     => ['id', 'name', 'prefix', 'marge', 'exchangeRate', 'mapping', 'csvHeaders', 'mappingProperties', 'createdAt', 'updatedAt', ],
+        self::TYPE_COLNAME       => [ConfigTableMap::COL_ID, ConfigTableMap::COL_NAME, ConfigTableMap::COL_PREFIX, ConfigTableMap::COL_MARGE, ConfigTableMap::COL_EXCHANGE_RATE, ConfigTableMap::COL_MAPPING, ConfigTableMap::COL_CSV_HEADERS, ConfigTableMap::COL_MAPPING_PROPERTIES, ConfigTableMap::COL_CREATED_AT, ConfigTableMap::COL_UPDATED_AT, ],
+        self::TYPE_FIELDNAME     => ['id', 'name', 'prefix', 'marge', 'exchange_rate', 'mapping', 'csv_headers', 'mapping_properties', 'created_at', 'updated_at', ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ]
     ];
 
     /**
@@ -150,11 +155,11 @@ class ConfigTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldKeys = [
-        self::TYPE_PHPNAME       => ['Id' => 0, 'Name' => 1, 'Prefix' => 2, 'Marge' => 3, 'Mapping' => 4, 'CsvHeaders' => 5, 'MappingProperties' => 6, 'CreatedAt' => 7, 'UpdatedAt' => 8, ],
-        self::TYPE_CAMELNAME     => ['id' => 0, 'name' => 1, 'prefix' => 2, 'marge' => 3, 'mapping' => 4, 'csvHeaders' => 5, 'mappingProperties' => 6, 'createdAt' => 7, 'updatedAt' => 8, ],
-        self::TYPE_COLNAME       => [ConfigTableMap::COL_ID => 0, ConfigTableMap::COL_NAME => 1, ConfigTableMap::COL_PREFIX => 2, ConfigTableMap::COL_MARGE => 3, ConfigTableMap::COL_MAPPING => 4, ConfigTableMap::COL_CSV_HEADERS => 5, ConfigTableMap::COL_MAPPING_PROPERTIES => 6, ConfigTableMap::COL_CREATED_AT => 7, ConfigTableMap::COL_UPDATED_AT => 8, ],
-        self::TYPE_FIELDNAME     => ['id' => 0, 'name' => 1, 'prefix' => 2, 'marge' => 3, 'mapping' => 4, 'csv_headers' => 5, 'mapping_properties' => 6, 'created_at' => 7, 'updated_at' => 8, ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, ]
+        self::TYPE_PHPNAME       => ['Id' => 0, 'Name' => 1, 'Prefix' => 2, 'Marge' => 3, 'ExchangeRate' => 4, 'Mapping' => 5, 'CsvHeaders' => 6, 'MappingProperties' => 7, 'CreatedAt' => 8, 'UpdatedAt' => 9, ],
+        self::TYPE_CAMELNAME     => ['id' => 0, 'name' => 1, 'prefix' => 2, 'marge' => 3, 'exchangeRate' => 4, 'mapping' => 5, 'csvHeaders' => 6, 'mappingProperties' => 7, 'createdAt' => 8, 'updatedAt' => 9, ],
+        self::TYPE_COLNAME       => [ConfigTableMap::COL_ID => 0, ConfigTableMap::COL_NAME => 1, ConfigTableMap::COL_PREFIX => 2, ConfigTableMap::COL_MARGE => 3, ConfigTableMap::COL_EXCHANGE_RATE => 4, ConfigTableMap::COL_MAPPING => 5, ConfigTableMap::COL_CSV_HEADERS => 6, ConfigTableMap::COL_MAPPING_PROPERTIES => 7, ConfigTableMap::COL_CREATED_AT => 8, ConfigTableMap::COL_UPDATED_AT => 9, ],
+        self::TYPE_FIELDNAME     => ['id' => 0, 'name' => 1, 'prefix' => 2, 'marge' => 3, 'exchange_rate' => 4, 'mapping' => 5, 'csv_headers' => 6, 'mapping_properties' => 7, 'created_at' => 8, 'updated_at' => 9, ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ]
     ];
 
     /**
@@ -187,6 +192,14 @@ class ConfigTableMap extends TableMap
         'config.marge' => 'MARGE',
         'ConfigTableMap::COL_MARGE' => 'MARGE',
         'COL_MARGE' => 'MARGE',
+        'ExchangeRate' => 'EXCHANGE_RATE',
+        'Config.ExchangeRate' => 'EXCHANGE_RATE',
+        'exchangeRate' => 'EXCHANGE_RATE',
+        'config.exchangeRate' => 'EXCHANGE_RATE',
+        'ConfigTableMap::COL_EXCHANGE_RATE' => 'EXCHANGE_RATE',
+        'COL_EXCHANGE_RATE' => 'EXCHANGE_RATE',
+        'exchange_rate' => 'EXCHANGE_RATE',
+        'config.exchange_rate' => 'EXCHANGE_RATE',
         'Mapping' => 'MAPPING',
         'Config.Mapping' => 'MAPPING',
         'mapping' => 'MAPPING',
@@ -248,6 +261,7 @@ class ConfigTableMap extends TableMap
         $this->addColumn('name', 'Name', 'VARCHAR', true, 255, null);
         $this->addColumn('prefix', 'Prefix', 'VARCHAR', false, 255, null);
         $this->addColumn('marge', 'Marge', 'FLOAT', true, null, 1);
+        $this->addColumn('exchange_rate', 'ExchangeRate', 'FLOAT', false, null, 1);
         $this->addColumn('mapping', 'Mapping', 'LONGVARCHAR', false, null, null);
         $this->addColumn('csv_headers', 'CsvHeaders', 'LONGVARCHAR', false, null, null);
         $this->addColumn('mapping_properties', 'MappingProperties', 'LONGVARCHAR', false, null, null);
@@ -427,6 +441,7 @@ class ConfigTableMap extends TableMap
             $criteria->addSelectColumn(ConfigTableMap::COL_NAME);
             $criteria->addSelectColumn(ConfigTableMap::COL_PREFIX);
             $criteria->addSelectColumn(ConfigTableMap::COL_MARGE);
+            $criteria->addSelectColumn(ConfigTableMap::COL_EXCHANGE_RATE);
             $criteria->addSelectColumn(ConfigTableMap::COL_MAPPING);
             $criteria->addSelectColumn(ConfigTableMap::COL_CSV_HEADERS);
             $criteria->addSelectColumn(ConfigTableMap::COL_MAPPING_PROPERTIES);
@@ -437,6 +452,7 @@ class ConfigTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.prefix');
             $criteria->addSelectColumn($alias . '.marge');
+            $criteria->addSelectColumn($alias . '.exchange_rate');
             $criteria->addSelectColumn($alias . '.mapping');
             $criteria->addSelectColumn($alias . '.csv_headers');
             $criteria->addSelectColumn($alias . '.mapping_properties');
@@ -464,6 +480,7 @@ class ConfigTableMap extends TableMap
             $criteria->removeSelectColumn(ConfigTableMap::COL_NAME);
             $criteria->removeSelectColumn(ConfigTableMap::COL_PREFIX);
             $criteria->removeSelectColumn(ConfigTableMap::COL_MARGE);
+            $criteria->removeSelectColumn(ConfigTableMap::COL_EXCHANGE_RATE);
             $criteria->removeSelectColumn(ConfigTableMap::COL_MAPPING);
             $criteria->removeSelectColumn(ConfigTableMap::COL_CSV_HEADERS);
             $criteria->removeSelectColumn(ConfigTableMap::COL_MAPPING_PROPERTIES);
@@ -474,6 +491,7 @@ class ConfigTableMap extends TableMap
             $criteria->removeSelectColumn($alias . '.name');
             $criteria->removeSelectColumn($alias . '.prefix');
             $criteria->removeSelectColumn($alias . '.marge');
+            $criteria->removeSelectColumn($alias . '.exchange_rate');
             $criteria->removeSelectColumn($alias . '.mapping');
             $criteria->removeSelectColumn($alias . '.csv_headers');
             $criteria->removeSelectColumn($alias . '.mapping_properties');

@@ -3,6 +3,8 @@
 namespace App\Csv;
 
 use App\Shopware\ShopwareApiClient;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class PropertyCollector
 {
@@ -18,10 +20,13 @@ class PropertyCollector
         'format' => '01937795c5fa71c19613f5108229d773',
     ];
 
+    private FilesystemAdapter $cache;
+
     public function __construct(
         protected ShopwareApiClient $shopwareClient,
         private array $propertiesArray = []
     ) {
+        $this->cache = new FilesystemAdapter();
 
         foreach (self::PROPERTIES_IDS as $propertyName => $groupId) {
             $this->propertiesArray[$propertyName] = [
@@ -38,13 +43,11 @@ class PropertyCollector
             if ($this->isValidProperty($propertyName) && $propertyValue) {
                 $propertyGroupId = $this->propertiesArray[$propertyName]['propertyGroupId'];
 
-                // Проверяем, существует ли опция
-                $optionId = $this->shopwareClient->findPropertyOptionId($propertyGroupId, $propertyValue);
-
-                if ($optionId === null) {
-                    // Если опция не найдена, создаём её
-                    $optionId = $this->shopwareClient->createPropertyOption($propertyGroupId, $propertyValue);
-                }
+                $cacheKey = $this->generateCacheKey($propertyGroupId, $propertyValue);
+                $optionId = $this->cache->get($cacheKey, function (ItemInterface $item) use ($propertyGroupId, $propertyValue) {
+                    $item->expiresAfter(31536000);
+                    return $this->shopwareClient->findPropertyOptionId($propertyGroupId, $propertyValue) ?? $this->shopwareClient->createPropertyOption($propertyGroupId, $propertyValue);
+                });
 
                 // Добавляем в массив propertiesArray с найденным/созданным optionId
                 $this->propertiesArray[$propertyName]['options'][] = [
@@ -63,5 +66,10 @@ class PropertyCollector
     private function isValidProperty(string $propertyName): bool
     {
         return isset(self::PROPERTIES_IDS[$propertyName]);
+    }
+
+    private function generateCacheKey(string $propertyGroupId, string $propertyValue): string
+    {
+        return sprintf('property_%s_%s', $propertyGroupId, $propertyValue);
     }
 }

@@ -18,6 +18,14 @@
                         <p>Konfig Dateien</p>
                     </a>
                 </li>
+                {% if lockFileStatus == true %}
+                    <li class="nav-item">
+                        <a href="/rm-lock-file" class="nav-link">
+                            <i class="nav-icon fas fa-trash"></i>
+                            <p>rm Lockfile</p>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </nav>
     </div>

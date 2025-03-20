@@ -23,9 +23,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery orderByFilename($order = Criteria::ASC) Order by the filename column
  * @method     ChildFilesQuery orderByPath($order = Criteria::ASC) Order by the path column
  * @method     ChildFilesQuery orderByStatus($order = Criteria::ASC) Order by the status column
+ * @method     ChildFilesQuery orderByImportType($order = Criteria::ASC) Order by the import_type column
  * @method     ChildFilesQuery orderByProductStatus($order = Criteria::ASC) Order by the product_status column
  * @method     ChildFilesQuery orderByPrefix($order = Criteria::ASC) Order by the prefix column
  * @method     ChildFilesQuery orderByMarge($order = Criteria::ASC) Order by the marge column
+ * @method     ChildFilesQuery orderByExchangeRate($order = Criteria::ASC) Order by the exchange_rate column
  * @method     ChildFilesQuery orderByPreorder($order = Criteria::ASC) Order by the preorder column
  * @method     ChildFilesQuery orderByPreorderDeadline($order = Criteria::ASC) Order by the preorder_deadline column
  * @method     ChildFilesQuery orderByPreorderDelivery($order = Criteria::ASC) Order by the preorder_delivery column
@@ -38,9 +40,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFilesQuery groupByFilename() Group by the filename column
  * @method     ChildFilesQuery groupByPath() Group by the path column
  * @method     ChildFilesQuery groupByStatus() Group by the status column
+ * @method     ChildFilesQuery groupByImportType() Group by the import_type column
  * @method     ChildFilesQuery groupByProductStatus() Group by the product_status column
  * @method     ChildFilesQuery groupByPrefix() Group by the prefix column
  * @method     ChildFilesQuery groupByMarge() Group by the marge column
+ * @method     ChildFilesQuery groupByExchangeRate() Group by the exchange_rate column
  * @method     ChildFilesQuery groupByPreorder() Group by the preorder column
  * @method     ChildFilesQuery groupByPreorderDeadline() Group by the preorder_deadline column
  * @method     ChildFilesQuery groupByPreorderDelivery() Group by the preorder_delivery column
@@ -86,9 +90,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles|null findOneByFilename(string $filename) Return the first ChildFiles filtered by the filename column
  * @method     ChildFiles|null findOneByPath(string $path) Return the first ChildFiles filtered by the path column
  * @method     ChildFiles|null findOneByStatus(string $status) Return the first ChildFiles filtered by the status column
+ * @method     ChildFiles|null findOneByImportType(string $import_type) Return the first ChildFiles filtered by the import_type column
  * @method     ChildFiles|null findOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column
  * @method     ChildFiles|null findOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column
  * @method     ChildFiles|null findOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column
+ * @method     ChildFiles|null findOneByExchangeRate(double $exchange_rate) Return the first ChildFiles filtered by the exchange_rate column
  * @method     ChildFiles|null findOneByPreorder(int $preorder) Return the first ChildFiles filtered by the preorder column
  * @method     ChildFiles|null findOneByPreorderDeadline(string $preorder_deadline) Return the first ChildFiles filtered by the preorder_deadline column
  * @method     ChildFiles|null findOneByPreorderDelivery(string $preorder_delivery) Return the first ChildFiles filtered by the preorder_delivery column
@@ -104,9 +110,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildFiles requireOneByFilename(string $filename) Return the first ChildFiles filtered by the filename column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPath(string $path) Return the first ChildFiles filtered by the path column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByStatus(string $status) Return the first ChildFiles filtered by the status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByImportType(string $import_type) Return the first ChildFiles filtered by the import_type column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByProductStatus(string $product_status) Return the first ChildFiles filtered by the product_status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPrefix(string $prefix) Return the first ChildFiles filtered by the prefix column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByMarge(double $marge) Return the first ChildFiles filtered by the marge column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildFiles requireOneByExchangeRate(double $exchange_rate) Return the first ChildFiles filtered by the exchange_rate column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPreorder(int $preorder) Return the first ChildFiles filtered by the preorder column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPreorderDeadline(string $preorder_deadline) Return the first ChildFiles filtered by the preorder_deadline column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildFiles requireOneByPreorderDelivery(string $preorder_delivery) Return the first ChildFiles filtered by the preorder_delivery column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -126,12 +134,16 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildFiles> findByPath(string|array<string> $path) Return ChildFiles objects filtered by the path column
  * @method     ChildFiles[]|Collection findByStatus(string|array<string> $status) Return ChildFiles objects filtered by the status column
  * @psalm-method Collection&\Traversable<ChildFiles> findByStatus(string|array<string> $status) Return ChildFiles objects filtered by the status column
+ * @method     ChildFiles[]|Collection findByImportType(string|array<string> $import_type) Return ChildFiles objects filtered by the import_type column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByImportType(string|array<string> $import_type) Return ChildFiles objects filtered by the import_type column
  * @method     ChildFiles[]|Collection findByProductStatus(string|array<string> $product_status) Return ChildFiles objects filtered by the product_status column
  * @psalm-method Collection&\Traversable<ChildFiles> findByProductStatus(string|array<string> $product_status) Return ChildFiles objects filtered by the product_status column
  * @method     ChildFiles[]|Collection findByPrefix(string|array<string> $prefix) Return ChildFiles objects filtered by the prefix column
  * @psalm-method Collection&\Traversable<ChildFiles> findByPrefix(string|array<string> $prefix) Return ChildFiles objects filtered by the prefix column
  * @method     ChildFiles[]|Collection findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
  * @psalm-method Collection&\Traversable<ChildFiles> findByMarge(double|array<double> $marge) Return ChildFiles objects filtered by the marge column
+ * @method     ChildFiles[]|Collection findByExchangeRate(double|array<double> $exchange_rate) Return ChildFiles objects filtered by the exchange_rate column
+ * @psalm-method Collection&\Traversable<ChildFiles> findByExchangeRate(double|array<double> $exchange_rate) Return ChildFiles objects filtered by the exchange_rate column
  * @method     ChildFiles[]|Collection findByPreorder(int|array<int> $preorder) Return ChildFiles objects filtered by the preorder column
  * @psalm-method Collection&\Traversable<ChildFiles> findByPreorder(int|array<int> $preorder) Return ChildFiles objects filtered by the preorder column
  * @method     ChildFiles[]|Collection findByPreorderDeadline(string|array<string> $preorder_deadline) Return ChildFiles objects filtered by the preorder_deadline column
@@ -245,7 +257,7 @@ abstract class FilesQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, filename, path, status, product_status, prefix, marge, preorder, preorder_deadline, preorder_delivery, preorder_state, config_id, created_at, updated_at FROM files WHERE id = :p0';
+        $sql = 'SELECT id, filename, path, status, import_type, product_status, prefix, marge, exchange_rate, preorder, preorder_deadline, preorder_delivery, preorder_state, config_id, created_at, updated_at FROM files WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -467,6 +479,34 @@ abstract class FilesQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the import_type column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImportType('fooValue');   // WHERE import_type = 'fooValue'
+     * $query->filterByImportType('%fooValue%', Criteria::LIKE); // WHERE import_type LIKE '%fooValue%'
+     * $query->filterByImportType(['foo', 'bar']); // WHERE import_type IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $importType The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByImportType($importType = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($importType)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_IMPORT_TYPE, $importType, $comparison);
+
+        return $this;
+    }
+
+    /**
      * Filter the query on the product_status column
      *
      * Example usage:
@@ -561,6 +601,49 @@ abstract class FilesQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(FilesTableMap::COL_MARGE, $marge, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the exchange_rate column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByExchangeRate(1234); // WHERE exchange_rate = 1234
+     * $query->filterByExchangeRate(array(12, 34)); // WHERE exchange_rate IN (12, 34)
+     * $query->filterByExchangeRate(array('min' => 12)); // WHERE exchange_rate > 12
+     * </code>
+     *
+     * @param mixed $exchangeRate The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByExchangeRate($exchangeRate = null, ?string $comparison = null)
+    {
+        if (is_array($exchangeRate)) {
+            $useMinMax = false;
+            if (isset($exchangeRate['min'])) {
+                $this->addUsingAlias(FilesTableMap::COL_EXCHANGE_RATE, $exchangeRate['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($exchangeRate['max'])) {
+                $this->addUsingAlias(FilesTableMap::COL_EXCHANGE_RATE, $exchangeRate['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(FilesTableMap::COL_EXCHANGE_RATE, $exchangeRate, $comparison);
 
         return $this;
     }

@@ -63,7 +63,7 @@ class FilesTableMap extends TableMap
     /**
      * The total number of columns
      */
-    public const NUM_COLUMNS = 14;
+    public const NUM_COLUMNS = 16;
 
     /**
      * The number of lazy-loaded columns
@@ -73,7 +73,7 @@ class FilesTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    public const NUM_HYDRATE_COLUMNS = 14;
+    public const NUM_HYDRATE_COLUMNS = 16;
 
     /**
      * the column name for the id field
@@ -96,6 +96,11 @@ class FilesTableMap extends TableMap
     public const COL_STATUS = 'files.status';
 
     /**
+     * the column name for the import_type field
+     */
+    public const COL_IMPORT_TYPE = 'files.import_type';
+
+    /**
      * the column name for the product_status field
      */
     public const COL_PRODUCT_STATUS = 'files.product_status';
@@ -109,6 +114,11 @@ class FilesTableMap extends TableMap
      * the column name for the marge field
      */
     public const COL_MARGE = 'files.marge';
+
+    /**
+     * the column name for the exchange_rate field
+     */
+    public const COL_EXCHANGE_RATE = 'files.exchange_rate';
 
     /**
      * the column name for the preorder field
@@ -159,11 +169,11 @@ class FilesTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldNames = [
-        self::TYPE_PHPNAME       => ['Id', 'Filename', 'Path', 'Status', 'ProductStatus', 'Prefix', 'Marge', 'Preorder', 'PreorderDeadline', 'PreorderDelivery', 'PreorderState', 'ConfigId', 'CreatedAt', 'UpdatedAt', ],
-        self::TYPE_CAMELNAME     => ['id', 'filename', 'path', 'status', 'productStatus', 'prefix', 'marge', 'preorder', 'preorderDeadline', 'preorderDelivery', 'preorderState', 'configId', 'createdAt', 'updatedAt', ],
-        self::TYPE_COLNAME       => [FilesTableMap::COL_ID, FilesTableMap::COL_FILENAME, FilesTableMap::COL_PATH, FilesTableMap::COL_STATUS, FilesTableMap::COL_PRODUCT_STATUS, FilesTableMap::COL_PREFIX, FilesTableMap::COL_MARGE, FilesTableMap::COL_PREORDER, FilesTableMap::COL_PREORDER_DEADLINE, FilesTableMap::COL_PREORDER_DELIVERY, FilesTableMap::COL_PREORDER_STATE, FilesTableMap::COL_CONFIG_ID, FilesTableMap::COL_CREATED_AT, FilesTableMap::COL_UPDATED_AT, ],
-        self::TYPE_FIELDNAME     => ['id', 'filename', 'path', 'status', 'product_status', 'prefix', 'marge', 'preorder', 'preorder_deadline', 'preorder_delivery', 'preorder_state', 'config_id', 'created_at', 'updated_at', ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ]
+        self::TYPE_PHPNAME       => ['Id', 'Filename', 'Path', 'Status', 'ImportType', 'ProductStatus', 'Prefix', 'Marge', 'ExchangeRate', 'Preorder', 'PreorderDeadline', 'PreorderDelivery', 'PreorderState', 'ConfigId', 'CreatedAt', 'UpdatedAt', ],
+        self::TYPE_CAMELNAME     => ['id', 'filename', 'path', 'status', 'importType', 'productStatus', 'prefix', 'marge', 'exchangeRate', 'preorder', 'preorderDeadline', 'preorderDelivery', 'preorderState', 'configId', 'createdAt', 'updatedAt', ],
+        self::TYPE_COLNAME       => [FilesTableMap::COL_ID, FilesTableMap::COL_FILENAME, FilesTableMap::COL_PATH, FilesTableMap::COL_STATUS, FilesTableMap::COL_IMPORT_TYPE, FilesTableMap::COL_PRODUCT_STATUS, FilesTableMap::COL_PREFIX, FilesTableMap::COL_MARGE, FilesTableMap::COL_EXCHANGE_RATE, FilesTableMap::COL_PREORDER, FilesTableMap::COL_PREORDER_DEADLINE, FilesTableMap::COL_PREORDER_DELIVERY, FilesTableMap::COL_PREORDER_STATE, FilesTableMap::COL_CONFIG_ID, FilesTableMap::COL_CREATED_AT, FilesTableMap::COL_UPDATED_AT, ],
+        self::TYPE_FIELDNAME     => ['id', 'filename', 'path', 'status', 'import_type', 'product_status', 'prefix', 'marge', 'exchange_rate', 'preorder', 'preorder_deadline', 'preorder_delivery', 'preorder_state', 'config_id', 'created_at', 'updated_at', ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, ]
     ];
 
     /**
@@ -175,11 +185,11 @@ class FilesTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldKeys = [
-        self::TYPE_PHPNAME       => ['Id' => 0, 'Filename' => 1, 'Path' => 2, 'Status' => 3, 'ProductStatus' => 4, 'Prefix' => 5, 'Marge' => 6, 'Preorder' => 7, 'PreorderDeadline' => 8, 'PreorderDelivery' => 9, 'PreorderState' => 10, 'ConfigId' => 11, 'CreatedAt' => 12, 'UpdatedAt' => 13, ],
-        self::TYPE_CAMELNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'productStatus' => 4, 'prefix' => 5, 'marge' => 6, 'preorder' => 7, 'preorderDeadline' => 8, 'preorderDelivery' => 9, 'preorderState' => 10, 'configId' => 11, 'createdAt' => 12, 'updatedAt' => 13, ],
-        self::TYPE_COLNAME       => [FilesTableMap::COL_ID => 0, FilesTableMap::COL_FILENAME => 1, FilesTableMap::COL_PATH => 2, FilesTableMap::COL_STATUS => 3, FilesTableMap::COL_PRODUCT_STATUS => 4, FilesTableMap::COL_PREFIX => 5, FilesTableMap::COL_MARGE => 6, FilesTableMap::COL_PREORDER => 7, FilesTableMap::COL_PREORDER_DEADLINE => 8, FilesTableMap::COL_PREORDER_DELIVERY => 9, FilesTableMap::COL_PREORDER_STATE => 10, FilesTableMap::COL_CONFIG_ID => 11, FilesTableMap::COL_CREATED_AT => 12, FilesTableMap::COL_UPDATED_AT => 13, ],
-        self::TYPE_FIELDNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'product_status' => 4, 'prefix' => 5, 'marge' => 6, 'preorder' => 7, 'preorder_deadline' => 8, 'preorder_delivery' => 9, 'preorder_state' => 10, 'config_id' => 11, 'created_at' => 12, 'updated_at' => 13, ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ]
+        self::TYPE_PHPNAME       => ['Id' => 0, 'Filename' => 1, 'Path' => 2, 'Status' => 3, 'ImportType' => 4, 'ProductStatus' => 5, 'Prefix' => 6, 'Marge' => 7, 'ExchangeRate' => 8, 'Preorder' => 9, 'PreorderDeadline' => 10, 'PreorderDelivery' => 11, 'PreorderState' => 12, 'ConfigId' => 13, 'CreatedAt' => 14, 'UpdatedAt' => 15, ],
+        self::TYPE_CAMELNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'importType' => 4, 'productStatus' => 5, 'prefix' => 6, 'marge' => 7, 'exchangeRate' => 8, 'preorder' => 9, 'preorderDeadline' => 10, 'preorderDelivery' => 11, 'preorderState' => 12, 'configId' => 13, 'createdAt' => 14, 'updatedAt' => 15, ],
+        self::TYPE_COLNAME       => [FilesTableMap::COL_ID => 0, FilesTableMap::COL_FILENAME => 1, FilesTableMap::COL_PATH => 2, FilesTableMap::COL_STATUS => 3, FilesTableMap::COL_IMPORT_TYPE => 4, FilesTableMap::COL_PRODUCT_STATUS => 5, FilesTableMap::COL_PREFIX => 6, FilesTableMap::COL_MARGE => 7, FilesTableMap::COL_EXCHANGE_RATE => 8, FilesTableMap::COL_PREORDER => 9, FilesTableMap::COL_PREORDER_DEADLINE => 10, FilesTableMap::COL_PREORDER_DELIVERY => 11, FilesTableMap::COL_PREORDER_STATE => 12, FilesTableMap::COL_CONFIG_ID => 13, FilesTableMap::COL_CREATED_AT => 14, FilesTableMap::COL_UPDATED_AT => 15, ],
+        self::TYPE_FIELDNAME     => ['id' => 0, 'filename' => 1, 'path' => 2, 'status' => 3, 'import_type' => 4, 'product_status' => 5, 'prefix' => 6, 'marge' => 7, 'exchange_rate' => 8, 'preorder' => 9, 'preorder_deadline' => 10, 'preorder_delivery' => 11, 'preorder_state' => 12, 'config_id' => 13, 'created_at' => 14, 'updated_at' => 15, ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, ]
     ];
 
     /**
@@ -212,6 +222,14 @@ class FilesTableMap extends TableMap
         'files.status' => 'STATUS',
         'FilesTableMap::COL_STATUS' => 'STATUS',
         'COL_STATUS' => 'STATUS',
+        'ImportType' => 'IMPORT_TYPE',
+        'Files.ImportType' => 'IMPORT_TYPE',
+        'importType' => 'IMPORT_TYPE',
+        'files.importType' => 'IMPORT_TYPE',
+        'FilesTableMap::COL_IMPORT_TYPE' => 'IMPORT_TYPE',
+        'COL_IMPORT_TYPE' => 'IMPORT_TYPE',
+        'import_type' => 'IMPORT_TYPE',
+        'files.import_type' => 'IMPORT_TYPE',
         'ProductStatus' => 'PRODUCT_STATUS',
         'Files.ProductStatus' => 'PRODUCT_STATUS',
         'productStatus' => 'PRODUCT_STATUS',
@@ -232,6 +250,14 @@ class FilesTableMap extends TableMap
         'files.marge' => 'MARGE',
         'FilesTableMap::COL_MARGE' => 'MARGE',
         'COL_MARGE' => 'MARGE',
+        'ExchangeRate' => 'EXCHANGE_RATE',
+        'Files.ExchangeRate' => 'EXCHANGE_RATE',
+        'exchangeRate' => 'EXCHANGE_RATE',
+        'files.exchangeRate' => 'EXCHANGE_RATE',
+        'FilesTableMap::COL_EXCHANGE_RATE' => 'EXCHANGE_RATE',
+        'COL_EXCHANGE_RATE' => 'EXCHANGE_RATE',
+        'exchange_rate' => 'EXCHANGE_RATE',
+        'files.exchange_rate' => 'EXCHANGE_RATE',
         'Preorder' => 'PREORDER',
         'Files.Preorder' => 'PREORDER',
         'preorder' => 'PREORDER',
@@ -309,9 +335,11 @@ class FilesTableMap extends TableMap
         $this->addColumn('filename', 'Filename', 'VARCHAR', true, 255, null);
         $this->addColumn('path', 'Path', 'VARCHAR', true, 255, null);
         $this->addColumn('status', 'Status', 'VARCHAR', true, 50, null);
+        $this->addColumn('import_type', 'ImportType', 'VARCHAR', true, 50, 'create_update');
         $this->addColumn('product_status', 'ProductStatus', 'VARCHAR', false, 50, null);
         $this->addColumn('prefix', 'Prefix', 'VARCHAR', false, 255, null);
         $this->addColumn('marge', 'Marge', 'FLOAT', false, null, null);
+        $this->addColumn('exchange_rate', 'ExchangeRate', 'FLOAT', false, null, 1);
         $this->addColumn('preorder', 'Preorder', 'INTEGER', false, null, null);
         $this->addColumn('preorder_deadline', 'PreorderDeadline', 'DATETIME', false, null, null);
         $this->addColumn('preorder_delivery', 'PreorderDelivery', 'DATETIME', false, null, null);
@@ -500,9 +528,11 @@ class FilesTableMap extends TableMap
             $criteria->addSelectColumn(FilesTableMap::COL_FILENAME);
             $criteria->addSelectColumn(FilesTableMap::COL_PATH);
             $criteria->addSelectColumn(FilesTableMap::COL_STATUS);
+            $criteria->addSelectColumn(FilesTableMap::COL_IMPORT_TYPE);
             $criteria->addSelectColumn(FilesTableMap::COL_PRODUCT_STATUS);
             $criteria->addSelectColumn(FilesTableMap::COL_PREFIX);
             $criteria->addSelectColumn(FilesTableMap::COL_MARGE);
+            $criteria->addSelectColumn(FilesTableMap::COL_EXCHANGE_RATE);
             $criteria->addSelectColumn(FilesTableMap::COL_PREORDER);
             $criteria->addSelectColumn(FilesTableMap::COL_PREORDER_DEADLINE);
             $criteria->addSelectColumn(FilesTableMap::COL_PREORDER_DELIVERY);
@@ -515,9 +545,11 @@ class FilesTableMap extends TableMap
             $criteria->addSelectColumn($alias . '.filename');
             $criteria->addSelectColumn($alias . '.path');
             $criteria->addSelectColumn($alias . '.status');
+            $criteria->addSelectColumn($alias . '.import_type');
             $criteria->addSelectColumn($alias . '.product_status');
             $criteria->addSelectColumn($alias . '.prefix');
             $criteria->addSelectColumn($alias . '.marge');
+            $criteria->addSelectColumn($alias . '.exchange_rate');
             $criteria->addSelectColumn($alias . '.preorder');
             $criteria->addSelectColumn($alias . '.preorder_deadline');
             $criteria->addSelectColumn($alias . '.preorder_delivery');
@@ -547,9 +579,11 @@ class FilesTableMap extends TableMap
             $criteria->removeSelectColumn(FilesTableMap::COL_FILENAME);
             $criteria->removeSelectColumn(FilesTableMap::COL_PATH);
             $criteria->removeSelectColumn(FilesTableMap::COL_STATUS);
+            $criteria->removeSelectColumn(FilesTableMap::COL_IMPORT_TYPE);
             $criteria->removeSelectColumn(FilesTableMap::COL_PRODUCT_STATUS);
             $criteria->removeSelectColumn(FilesTableMap::COL_PREFIX);
             $criteria->removeSelectColumn(FilesTableMap::COL_MARGE);
+            $criteria->removeSelectColumn(FilesTableMap::COL_EXCHANGE_RATE);
             $criteria->removeSelectColumn(FilesTableMap::COL_PREORDER);
             $criteria->removeSelectColumn(FilesTableMap::COL_PREORDER_DEADLINE);
             $criteria->removeSelectColumn(FilesTableMap::COL_PREORDER_DELIVERY);
@@ -562,9 +596,11 @@ class FilesTableMap extends TableMap
             $criteria->removeSelectColumn($alias . '.filename');
             $criteria->removeSelectColumn($alias . '.path');
             $criteria->removeSelectColumn($alias . '.status');
+            $criteria->removeSelectColumn($alias . '.import_type');
             $criteria->removeSelectColumn($alias . '.product_status');
             $criteria->removeSelectColumn($alias . '.prefix');
             $criteria->removeSelectColumn($alias . '.marge');
+            $criteria->removeSelectColumn($alias . '.exchange_rate');
             $criteria->removeSelectColumn($alias . '.preorder');
             $criteria->removeSelectColumn($alias . '.preorder_deadline');
             $criteria->removeSelectColumn($alias . '.preorder_delivery');

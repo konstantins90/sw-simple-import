@@ -3,6 +3,7 @@
 namespace App\Shopware;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 use App\Csv\FileProcessorInterface;
 
@@ -12,11 +13,16 @@ class ShopwareApiClient
     private Client $client;
     private string $accessToken;
     private array $manufacturerList = [];
+    private float $timeout;
+    private string $clientId;
+    private string $clientSecret;
 
     public function __construct(string $apiUrl, string $clientId, string $clientSecret)
     {
         $this->apiUrl = $apiUrl;
         $this->client = new Client(['base_uri' => $this->apiUrl]);
+        $this->clientId = $clientId;
+        $this->clientSecret = $clientSecret;
         $this->authenticate($clientId, $clientSecret);
     }
 
@@ -33,8 +39,16 @@ class ShopwareApiClient
 
             $data = json_decode($response->getBody()->getContents(), true);
             $this->accessToken = $data['access_token'];
+            $this->timeout = microtime(true);
         } catch (RequestException $e) {
             throw new \Exception('Failed to authenticate with Shopware API: ' . $e->getMessage());
+        }
+    }
+
+    public function checkTimeout(): void
+    {
+        if (microtime(true) - $this->timeout > 400) {
+            $this->authenticate($this->clientId, $this->clientSecret);
         }
     }
 
@@ -185,30 +199,27 @@ class ShopwareApiClient
 
     public function uploadMedia(string $mediaId, string $mediaUrl)
     {
+        $fileData = file_get_contents($mediaUrl);
+        $fileExtension = pathinfo($mediaUrl, PATHINFO_EXTENSION);
         try {
-            // API-URL zum Hochladen von Media-Dateien
-            $response = $this->client->post('/api/_action/media/' . $mediaId . '/upload?_response=basic', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->accessToken,
-                    'Accept' => 'application/vnd.api+json, application/json',
-                    'Content-Type' => 'application/json'
-                ],
-                'body' => json_encode([
-                    'url' => $mediaUrl,
-                ], JSON_UNESCAPED_UNICODE)
-            ]);
+            $headers = [
+                'Accept' => 'application/json, application/vnd.api+json, application/json',
+                'Content-Type' => 'application/octet-stream',
+                'Authorization' => 'Bearer ' . $this->accessToken,
+            ];
+            $body = $fileData;
+
+            $request = new Request('POST', '/api/_action/media/' . $mediaId . '/upload?extension=' . $fileExtension . '&fileName=' . pathinfo($mediaUrl, PATHINFO_FILENAME), $headers, $body);
+            $response = $this->client->sendAsync($request)->wait();
 
             if ($response->getStatusCode() == 200 || $response->getStatusCode() == 204) {
-                $responseData = json_decode($response->getBody()->getContents(), true);
                 return true;
             } else {
                 d('Fehler beim Erstellen der Media-Entity: ' . $response->getStatusCode());
                 return false;
             }
         } catch (RequestException $e) {
-            d('Error uploading media: ' . $e->getMessage(), json_encode([
-                'url' => $mediaUrl,
-            ], JSON_UNESCAPED_UNICODE));
+            d('Error uploading media: ' . $e->getMessage(), $mediaUrl);
             return false;
         }
     }
@@ -432,6 +443,41 @@ class ShopwareApiClient
         } catch (RequestException $e) {
             d('Error checking property option: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    public function findMediaByName(string $name): ?string
+    {
+        $params = [
+            'filter' => [
+                [
+                    'type' => "contains",
+                    'field' => "fileName",
+                    'value' => $name,
+                ]
+            ]
+        ];
+
+        try {
+            $response = $this->client->post('/api/search/media', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode($params, JSON_UNESCAPED_UNICODE)
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            if (!empty($responseData['data'])) {
+                return $responseData['data'][0]['id']; // Вернуть id найденной опции
+            }
+
+            return null; // Если опция не найдена
+        } catch (RequestException $e) {
+            d('Error find media: ' . $e->getMessage(), $params);
+            return null;
         }
     }
 }

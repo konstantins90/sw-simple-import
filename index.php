@@ -17,8 +17,8 @@ use Propel\Runtime\ActiveQuery\Criteria;
 
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig = new Environment($loader);
-error_reporting(0);
-// error_reporting(E_ALL);
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 $router = new \AltoRouter();
 
 $dbConnection = [
@@ -36,17 +36,24 @@ try {
     $dbConnection['message'] = "Ошибка соединения c базой данных: " . $e->getMessage();
 }
 
-$router->map('GET', '/', function () use ($twig, $dbConnection) {
+$lockFileStatus = false;
+$lockFile = __DIR__ . '/import.lock';
+if (file_exists($lockFile)) {
+    $lockFileStatus = true;
+}
+
+$router->map('GET', '/', function () use ($twig, $dbConnection, $lockFileStatus) {
     echo $twig->render('index.html.twig', [
         'title' => 'Админ Панель',
         'dbConnection' => $dbConnection,
+        'lockFileStatus' => $lockFileStatus,
     ]);
 });
 
 $router->map('GET', '/files', function () use ($twig) {
     $files = FilesQuery::create()
         ->orderByCreatedAt(Criteria::DESC)
-        ->limit(5)
+        // ->limit(5)
         ->find();
 
     $fileData = [];
@@ -114,7 +121,7 @@ $router->map('GET', '/files/[i:id]', function ($id) {
     exit;
 });
 
-$router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
+$router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig, $dbConnection) {
     $file = FilesQuery::create()->findPk($id);
 
     if (!$file) {
@@ -125,7 +132,8 @@ $router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig) {
     
     echo $twig->render('file_edit.html.twig', [
         'file' => $file,
-        'title' => 'Edit Datei'
+        'title' => 'Edit Datei',
+        'dbConnection' => $dbConnection,
     ]);
 });
 
@@ -162,6 +170,12 @@ $router->map('POST', '/files/edit/[i:id]', function ($id){
     }
     if (isset($_POST['status'])) {
         $file->setStatus($_POST['status']);
+    }
+    if (isset($_POST['import_type'])) {
+        $file->setImportType($_POST['import_type']);
+    }
+    if (isset($_POST['exchange_rate'])) {
+        $file->setExchangeRate($_POST['exchange_rate']);
     }
     if (isset($_POST['preorder-status'])) {
         $file->setPreorder($_POST['preorder-status']);
@@ -477,6 +491,7 @@ $router->map('POST', '/config-files/create', function () {
 $router->map('GET', '/config-files/fields', function () {
     // Felder aus der Klasse abrufen
     $fields = FileProcessorDefault::getDefaultFields();
+    array_push($fields, ...FileProcessorDefault::getDefaultPropertyFields());
 
     // JSON-Antwort zurückgeben
     header('Content-Type: application/json');
@@ -514,6 +529,18 @@ $router->map('POST', '/upload', function () {
 
     header('Content-Type: application/json');
     echo json_encode($result);
+});
+
+$router->map('GET', '/rm-lock-file', function () {
+    $lockFile = __DIR__ . '/import.lock';
+
+    if (file_exists($lockFile)) {
+        unlink($lockFile);
+    }
+
+    // Zurück zur Dateiübersicht
+    header('Location: /');
+    exit;
 });
 
 

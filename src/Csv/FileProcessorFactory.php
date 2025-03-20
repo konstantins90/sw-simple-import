@@ -7,6 +7,7 @@ use App\Config\ConfigLoader;
 use App\Csv\PropertyCollector;
 use App\Utils\PriceCalculator;
 use GuzzleHttp\Client;
+use App\Csv\ImageDownloader;
 use Propel\Files;
 
 class FileProcessorFactory
@@ -24,7 +25,8 @@ class FileProcessorFactory
 
         $propertyCollector = new PropertyCollector($shopwareClient);
         $priceCalculator = new PriceCalculator($httpClient);
+        $imageDownloader = new ImageDownloader();
 
-        return new ConfigFileProcessor($shopwareClient, $propertyCollector, $priceCalculator);
+        return new ConfigFileProcessor($shopwareClient, $propertyCollector, $priceCalculator, $imageDownloader);
     }
 }

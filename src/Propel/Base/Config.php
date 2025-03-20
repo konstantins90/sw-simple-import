@@ -98,6 +98,14 @@ abstract class Config implements ActiveRecordInterface
     protected $marge;
 
     /**
+     * The value for the exchange_rate field.
+     *
+     * Note: this column has a database default value of: 1.0
+     * @var        double|null
+     */
+    protected $exchange_rate;
+
+    /**
      * The value for the mapping field.
      *
      * @var        string|null
@@ -163,6 +171,7 @@ abstract class Config implements ActiveRecordInterface
     public function applyDefaultValues(): void
     {
         $this->marge = 1.0;
+        $this->exchange_rate = 1.0;
     }
 
     /**
@@ -434,6 +443,16 @@ abstract class Config implements ActiveRecordInterface
     }
 
     /**
+     * Get the [exchange_rate] column value.
+     *
+     * @return double|null
+     */
+    public function getExchangeRate()
+    {
+        return $this->exchange_rate;
+    }
+
+    /**
      * Get the [mapping] column value.
      *
      * @return string|null
@@ -588,6 +607,26 @@ abstract class Config implements ActiveRecordInterface
     }
 
     /**
+     * Set the value of [exchange_rate] column.
+     *
+     * @param double|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setExchangeRate($v)
+    {
+        if ($v !== null) {
+            $v = (double) $v;
+        }
+
+        if ($this->exchange_rate !== $v) {
+            $this->exchange_rate = $v;
+            $this->modifiedColumns[ConfigTableMap::COL_EXCHANGE_RATE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Set the value of [mapping] column.
      *
      * @param string|null $v New value
@@ -701,6 +740,10 @@ abstract class Config implements ActiveRecordInterface
                 return false;
             }
 
+            if ($this->exchange_rate !== 1.0) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     }
@@ -739,22 +782,25 @@ abstract class Config implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ConfigTableMap::translateFieldName('Marge', TableMap::TYPE_PHPNAME, $indexType)];
             $this->marge = (null !== $col) ? (double) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ConfigTableMap::translateFieldName('Mapping', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ConfigTableMap::translateFieldName('ExchangeRate', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->exchange_rate = (null !== $col) ? (double) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ConfigTableMap::translateFieldName('Mapping', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mapping = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ConfigTableMap::translateFieldName('CsvHeaders', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ConfigTableMap::translateFieldName('CsvHeaders', TableMap::TYPE_PHPNAME, $indexType)];
             $this->csv_headers = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ConfigTableMap::translateFieldName('MappingProperties', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ConfigTableMap::translateFieldName('MappingProperties', TableMap::TYPE_PHPNAME, $indexType)];
             $this->mapping_properties = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ConfigTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : ConfigTableMap::translateFieldName('CreatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->created_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 8 + $startcol : ConfigTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 9 + $startcol : ConfigTableMap::translateFieldName('UpdatedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
@@ -767,7 +813,7 @@ abstract class Config implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 9; // 9 = ConfigTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 10; // 10 = ConfigTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\Config'), 0, $e);
@@ -1000,6 +1046,9 @@ abstract class Config implements ActiveRecordInterface
         if ($this->isColumnModified(ConfigTableMap::COL_MARGE)) {
             $modifiedColumns[':p' . $index++]  = 'marge';
         }
+        if ($this->isColumnModified(ConfigTableMap::COL_EXCHANGE_RATE)) {
+            $modifiedColumns[':p' . $index++]  = 'exchange_rate';
+        }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING)) {
             $modifiedColumns[':p' . $index++]  = 'mapping';
         }
@@ -1040,6 +1089,10 @@ abstract class Config implements ActiveRecordInterface
                         break;
                     case 'marge':
                         $stmt->bindValue($identifier, $this->marge, PDO::PARAM_STR);
+
+                        break;
+                    case 'exchange_rate':
+                        $stmt->bindValue($identifier, $this->exchange_rate, PDO::PARAM_STR);
 
                         break;
                     case 'mapping':
@@ -1137,18 +1190,21 @@ abstract class Config implements ActiveRecordInterface
                 return $this->getMarge();
 
             case 4:
-                return $this->getMapping();
+                return $this->getExchangeRate();
 
             case 5:
-                return $this->getCsvHeaders();
+                return $this->getMapping();
 
             case 6:
-                return $this->getMappingProperties();
+                return $this->getCsvHeaders();
 
             case 7:
-                return $this->getCreatedAt();
+                return $this->getMappingProperties();
 
             case 8:
+                return $this->getCreatedAt();
+
+            case 9:
                 return $this->getUpdatedAt();
 
             default:
@@ -1183,18 +1239,19 @@ abstract class Config implements ActiveRecordInterface
             $keys[1] => $this->getName(),
             $keys[2] => $this->getPrefix(),
             $keys[3] => $this->getMarge(),
-            $keys[4] => $this->getMapping(),
-            $keys[5] => $this->getCsvHeaders(),
-            $keys[6] => $this->getMappingProperties(),
-            $keys[7] => $this->getCreatedAt(),
-            $keys[8] => $this->getUpdatedAt(),
+            $keys[4] => $this->getExchangeRate(),
+            $keys[5] => $this->getMapping(),
+            $keys[6] => $this->getCsvHeaders(),
+            $keys[7] => $this->getMappingProperties(),
+            $keys[8] => $this->getCreatedAt(),
+            $keys[9] => $this->getUpdatedAt(),
         ];
-        if ($result[$keys[7]] instanceof \DateTimeInterface) {
-            $result[$keys[7]] = $result[$keys[7]]->format('Y-m-d H:i:s.u');
-        }
-
         if ($result[$keys[8]] instanceof \DateTimeInterface) {
             $result[$keys[8]] = $result[$keys[8]]->format('Y-m-d H:i:s.u');
+        }
+
+        if ($result[$keys[9]] instanceof \DateTimeInterface) {
+            $result[$keys[9]] = $result[$keys[9]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1267,18 +1324,21 @@ abstract class Config implements ActiveRecordInterface
                 $this->setMarge($value);
                 break;
             case 4:
-                $this->setMapping($value);
+                $this->setExchangeRate($value);
                 break;
             case 5:
-                $this->setCsvHeaders($value);
+                $this->setMapping($value);
                 break;
             case 6:
-                $this->setMappingProperties($value);
+                $this->setCsvHeaders($value);
                 break;
             case 7:
-                $this->setCreatedAt($value);
+                $this->setMappingProperties($value);
                 break;
             case 8:
+                $this->setCreatedAt($value);
+                break;
+            case 9:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1320,19 +1380,22 @@ abstract class Config implements ActiveRecordInterface
             $this->setMarge($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setMapping($arr[$keys[4]]);
+            $this->setExchangeRate($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setCsvHeaders($arr[$keys[5]]);
+            $this->setMapping($arr[$keys[5]]);
         }
         if (array_key_exists($keys[6], $arr)) {
-            $this->setMappingProperties($arr[$keys[6]]);
+            $this->setCsvHeaders($arr[$keys[6]]);
         }
         if (array_key_exists($keys[7], $arr)) {
-            $this->setCreatedAt($arr[$keys[7]]);
+            $this->setMappingProperties($arr[$keys[7]]);
         }
         if (array_key_exists($keys[8], $arr)) {
-            $this->setUpdatedAt($arr[$keys[8]]);
+            $this->setCreatedAt($arr[$keys[8]]);
+        }
+        if (array_key_exists($keys[9], $arr)) {
+            $this->setUpdatedAt($arr[$keys[9]]);
         }
 
         return $this;
@@ -1388,6 +1451,9 @@ abstract class Config implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MARGE)) {
             $criteria->add(ConfigTableMap::COL_MARGE, $this->marge);
+        }
+        if ($this->isColumnModified(ConfigTableMap::COL_EXCHANGE_RATE)) {
+            $criteria->add(ConfigTableMap::COL_EXCHANGE_RATE, $this->exchange_rate);
         }
         if ($this->isColumnModified(ConfigTableMap::COL_MAPPING)) {
             $criteria->add(ConfigTableMap::COL_MAPPING, $this->mapping);
@@ -1495,6 +1561,7 @@ abstract class Config implements ActiveRecordInterface
         $copyObj->setName($this->getName());
         $copyObj->setPrefix($this->getPrefix());
         $copyObj->setMarge($this->getMarge());
+        $copyObj->setExchangeRate($this->getExchangeRate());
         $copyObj->setMapping($this->getMapping());
         $copyObj->setCsvHeaders($this->getCsvHeaders());
         $copyObj->setMappingProperties($this->getMappingProperties());
@@ -1811,6 +1878,7 @@ abstract class Config implements ActiveRecordInterface
         $this->name = null;
         $this->prefix = null;
         $this->marge = null;
+        $this->exchange_rate = null;
         $this->mapping = null;
         $this->csv_headers = null;
         $this->mapping_properties = null;

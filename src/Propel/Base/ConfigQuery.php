@@ -23,6 +23,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfigQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method     ChildConfigQuery orderByPrefix($order = Criteria::ASC) Order by the prefix column
  * @method     ChildConfigQuery orderByMarge($order = Criteria::ASC) Order by the marge column
+ * @method     ChildConfigQuery orderByExchangeRate($order = Criteria::ASC) Order by the exchange_rate column
  * @method     ChildConfigQuery orderByMapping($order = Criteria::ASC) Order by the mapping column
  * @method     ChildConfigQuery orderByCsvHeaders($order = Criteria::ASC) Order by the csv_headers column
  * @method     ChildConfigQuery orderByMappingProperties($order = Criteria::ASC) Order by the mapping_properties column
@@ -33,6 +34,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfigQuery groupByName() Group by the name column
  * @method     ChildConfigQuery groupByPrefix() Group by the prefix column
  * @method     ChildConfigQuery groupByMarge() Group by the marge column
+ * @method     ChildConfigQuery groupByExchangeRate() Group by the exchange_rate column
  * @method     ChildConfigQuery groupByMapping() Group by the mapping column
  * @method     ChildConfigQuery groupByCsvHeaders() Group by the csv_headers column
  * @method     ChildConfigQuery groupByMappingProperties() Group by the mapping_properties column
@@ -66,6 +68,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfig|null findOneByName(string $name) Return the first ChildConfig filtered by the name column
  * @method     ChildConfig|null findOneByPrefix(string $prefix) Return the first ChildConfig filtered by the prefix column
  * @method     ChildConfig|null findOneByMarge(double $marge) Return the first ChildConfig filtered by the marge column
+ * @method     ChildConfig|null findOneByExchangeRate(double $exchange_rate) Return the first ChildConfig filtered by the exchange_rate column
  * @method     ChildConfig|null findOneByMapping(string $mapping) Return the first ChildConfig filtered by the mapping column
  * @method     ChildConfig|null findOneByCsvHeaders(string $csv_headers) Return the first ChildConfig filtered by the csv_headers column
  * @method     ChildConfig|null findOneByMappingProperties(string $mapping_properties) Return the first ChildConfig filtered by the mapping_properties column
@@ -79,6 +82,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildConfig requireOneByName(string $name) Return the first ChildConfig filtered by the name column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByPrefix(string $prefix) Return the first ChildConfig filtered by the prefix column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMarge(double $marge) Return the first ChildConfig filtered by the marge column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildConfig requireOneByExchangeRate(double $exchange_rate) Return the first ChildConfig filtered by the exchange_rate column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMapping(string $mapping) Return the first ChildConfig filtered by the mapping column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByCsvHeaders(string $csv_headers) Return the first ChildConfig filtered by the csv_headers column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildConfig requireOneByMappingProperties(string $mapping_properties) Return the first ChildConfig filtered by the mapping_properties column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -96,6 +100,8 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildConfig> findByPrefix(string|array<string> $prefix) Return ChildConfig objects filtered by the prefix column
  * @method     ChildConfig[]|Collection findByMarge(double|array<double> $marge) Return ChildConfig objects filtered by the marge column
  * @psalm-method Collection&\Traversable<ChildConfig> findByMarge(double|array<double> $marge) Return ChildConfig objects filtered by the marge column
+ * @method     ChildConfig[]|Collection findByExchangeRate(double|array<double> $exchange_rate) Return ChildConfig objects filtered by the exchange_rate column
+ * @psalm-method Collection&\Traversable<ChildConfig> findByExchangeRate(double|array<double> $exchange_rate) Return ChildConfig objects filtered by the exchange_rate column
  * @method     ChildConfig[]|Collection findByMapping(string|array<string> $mapping) Return ChildConfig objects filtered by the mapping column
  * @psalm-method Collection&\Traversable<ChildConfig> findByMapping(string|array<string> $mapping) Return ChildConfig objects filtered by the mapping column
  * @method     ChildConfig[]|Collection findByCsvHeaders(string|array<string> $csv_headers) Return ChildConfig objects filtered by the csv_headers column
@@ -205,7 +211,7 @@ abstract class ConfigQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, name, prefix, marge, mapping, csv_headers, mapping_properties, created_at, updated_at FROM config WHERE id = :p0';
+        $sql = 'SELECT id, name, prefix, marge, exchange_rate, mapping, csv_headers, mapping_properties, created_at, updated_at FROM config WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -437,6 +443,49 @@ abstract class ConfigQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(ConfigTableMap::COL_MARGE, $marge, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the exchange_rate column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByExchangeRate(1234); // WHERE exchange_rate = 1234
+     * $query->filterByExchangeRate(array(12, 34)); // WHERE exchange_rate IN (12, 34)
+     * $query->filterByExchangeRate(array('min' => 12)); // WHERE exchange_rate > 12
+     * </code>
+     *
+     * @param mixed $exchangeRate The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByExchangeRate($exchangeRate = null, ?string $comparison = null)
+    {
+        if (is_array($exchangeRate)) {
+            $useMinMax = false;
+            if (isset($exchangeRate['min'])) {
+                $this->addUsingAlias(ConfigTableMap::COL_EXCHANGE_RATE, $exchangeRate['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($exchangeRate['max'])) {
+                $this->addUsingAlias(ConfigTableMap::COL_EXCHANGE_RATE, $exchangeRate['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(ConfigTableMap::COL_EXCHANGE_RATE, $exchangeRate, $comparison);
 
         return $this;
     }

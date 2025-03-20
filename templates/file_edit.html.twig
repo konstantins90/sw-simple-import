@@ -41,6 +41,19 @@
           readonly />
       </div>
 
+      <div x-data="importTypeSelect()" class="form-group">
+        <label for="import_type">Import Type</label>
+        <select name="import_type" id="import_type" class="form-select" x-model="selectedImportType">
+          <template x-for="import_type in importTypeArray" :key="import_type.key">
+            <option
+              :value="import_type.key"
+              x-text="import_type.label"
+              x-bind:selected="selectedImportType == import_type.key"
+            ></option>
+          </template>
+        </select>
+      </div>
+
       <div class="form-group">
         <label for="marge">Marge</label>
         <input
@@ -49,7 +62,22 @@
           name="marge"
           class="form-control"
           value="{{ file.getMarge() }}"
+          aria-describedby="margeHelp"
           required />
+        <div id="margeHelp" class="form-text">Aufschlag in Prozent. z.B.: 10</div>
+      </div>
+
+      <div class="form-group">
+        <label for="exchange_rate">Wechselkurs</label>
+        <input
+          type="number"
+          id="exchange_rate"
+          name="exchange_rate"
+          class="form-control"
+          value="{{ file.getExchangeRate() }}"
+          aria-describedby="exchange_rateHelp"
+          required />
+        <div id="exchange_rateHelp" class="form-text">Euro-Kurs. Zum Beispiel: Wenn 1 Euro 100 Rubel kostet, dann gib 100 an.</div>
       </div>
 
       <div class="form-group">
@@ -60,7 +88,9 @@
           name="prefix"
           class="form-control"
           value="{{ file.getPrefix() }}"
+          aria-describedby="prefixHelp"
           placeholder="preorder-" />
+        <div id="prefixHelp" class="form-text">Prefix für die Artikelnummer. z.B. kann es für Vorbestellungen genutzt werden. Ohne Minuszeichen (-) eingeben.</div>
       </div>
 
       <div x-data="configSelect()" class="form-group">
@@ -166,12 +196,23 @@
   function statusSelect() {
     return {
       statusArray: [
-        { key: 'idle', label: 'Kein Status' },
-        { key: 'pending', label: 'Ausstehend' },
-        { key: 'imported', label: 'Importiert' },
-        { key: 'error', label: 'Fehler' }
+        { key: 'idle', label: 'Neu - muss bearbeitet werden' },
+        { key: 'pending', label: 'In Vorbereitung – wird demnächst importiert.' },
+        { key: 'imported', label: 'Importiert – Erfolgreich bearbeitet und importiert.' },
+        { key: 'error', label: 'Fehlgeschlagen – Fehler beim Import aufgetreten.' }
       ],
       selectedStatus: {{ file.getStatus() | json_encode | raw }}
+    };
+  }
+
+  function importTypeSelect() {
+    return {
+      importTypeArray: [
+        { key: 'create_update', label: 'Importieren / Aktualisieren' },
+        { key: 'disable', label: 'Deaktivieren' },
+        { key: 'remove', label: 'Löschen' },
+      ],
+      selectedImportType: {{ file.getImportType() | json_encode | raw }}
     };
   }
 

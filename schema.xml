@@ -6,9 +6,11 @@
         <column name="filename" type="VARCHAR" size="255" required="true"/>
         <column name="path" type="VARCHAR" size="255" required="true"/>
         <column name="status" type="VARCHAR" size="50" required="true"/>
+        <column name="import_type" type="VARCHAR" size="50" default="create_update" required="true"/>
         <column name="product_status" type="VARCHAR" size="50" required="false"/>
         <column name="prefix" type="VARCHAR" size="255" required="false"/>
         <column name="marge" type="float" required="false"/>
+        <column name="exchange_rate" type="float" default="1" required="false"/>
         <column name="preorder" type="INTEGER" required="false"/>
         <column name="preorder_deadline" type="DATETIME" required="false"/>
         <column name="preorder_delivery" type="DATETIME" required="false"/>
@@ -43,6 +45,7 @@
         <column name="name" type="VARCHAR" size="255" required="true"/>
         <column name="prefix" type="VARCHAR" size="255" required="false"/>
         <column name="marge" type="float" default="1" required="true"/>
+        <column name="exchange_rate" type="float" default="1" required="false"/>
         <column name="mapping" type="LONGVARCHAR" required="false"/>
         <column name="csv_headers" type="LONGVARCHAR" required="false"/>
         <column name="mapping_properties" type="LONGVARCHAR" required="false"/>

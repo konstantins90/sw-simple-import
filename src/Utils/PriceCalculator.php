@@ -14,6 +14,8 @@ class PriceCalculator
 
     private $margin = 1.25;
 
+    private $exchangeRate = 1;
+
     private Client $httpClient;
     private ?array $currencyRates = null;
 
@@ -30,11 +32,13 @@ class PriceCalculator
      */
     public function convertRubToEurWithMargin(float $amount): float
     {
-        $conversionRate = $this->getConversionRate(self::CURRENCY_FROM, self::CURRENCY_TO);
+        // $conversionRate = $this->getConversionRate(self::CURRENCY_FROM, self::CURRENCY_TO);
 
-        if ($conversionRate === null) {
-            throw new \Exception('Conversion rate could not be fetched.');
-        }
+        // if ($conversionRate === null) {
+        //     throw new \Exception('Conversion rate could not be fetched.');
+        // }
+
+        $conversionRate = $this->getConversionRate();
 
         // Berechne den Preis in Euro und füge 20% Marge hinzu
         $amountInEur = $amount * $conversionRate;
@@ -48,7 +52,7 @@ class PriceCalculator
      * @param string $to Код валюты целевой валюты
      * @return float|null Курс конверсии или null в случае ошибки
      */
-    private function getConversionRate(string $from, string $to): ?float
+    private function getConversionRateFromInternet(string $from, string $to): ?float
     {
         // Если курсы уже загружены, используем их
         if ($this->currencyRates === null) {
@@ -82,6 +86,11 @@ class PriceCalculator
         }
     }
 
+    private function getConversionRate(): float
+    {
+        return 1 / $this->getExchangeRate();
+    }
+
     /**
      * Fügt 20% Marge zum Betrag hinzu
      *
@@ -90,7 +99,7 @@ class PriceCalculator
      */
     private function applyMargin(float $amount): float
     {
-        $amountWithMargin = $amount * $this->getMargin();
+        $amountWithMargin = $amount + ($amount * $this->getMargin() / 100);
         return round($amountWithMargin, 2);
     }
 
@@ -115,10 +124,20 @@ class PriceCalculator
 
     public function setMargin(float $margin): void
     {
-        if ($margin <= 0) {
-            $margin = 1;
+        $this->margin = $margin;
+    }
+
+    public function getExchangeRate(): float
+    {
+        return $this->exchangeRate;
+    }
+
+    public function setExchangeRate(float $exchangeRate): void
+    {
+        if ($exchangeRate <= 0) {
+            $exchangeRate = 1;
         }
 
-        $this->margin = $margin;
+        $this->exchangeRate = $exchangeRate;
     }
 }

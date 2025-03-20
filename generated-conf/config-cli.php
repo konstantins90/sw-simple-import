@@ -4,7 +4,7 @@ $serviceContainer->checkVersion(2);
 $serviceContainer->setAdapterClass('default', 'mysql');
 $manager = new \Propel\Runtime\Connection\ConnectionManagerSingle('default');
 $manager->setConfiguration(array (
-  'dsn' => 'mysql:host=127.0.0.1;port=3306;dbname=db',
+  'dsn' => 'mysql:host=127.0.0.1;port=3307;dbname=db',
   'user' => 'root',
   'password' => 'root',
   'settings' =>

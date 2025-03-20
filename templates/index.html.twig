@@ -27,7 +27,6 @@
         <tr>
           <th scope="col">ID</th>
           <th scope="col">Dateiname</th>
-          <th scope="col">Path</th>
           <th scope="col">Status</th>
           <th scope="col">Konfig Name</th>
           <th scope="col">Erstellt Am</th>
@@ -38,8 +37,10 @@
         <template x-for="(file, index) in files" :key="file.id">
           <tr>
             <td x-text="file.id"></td>
-            <td x-text="file.name"></td>
-            <td x-text="file.path"></td>
+            <td>
+              <div x-text="file.name"></div>
+              <div x-text="file.path"></div>
+            </td>
             <td x-text="file.status"></td>
             <td>
               <select
@@ -60,26 +61,26 @@
             <td x-text="file.created_at"></td>
             <td>
               <button @click="deleteFile(file.id)" class="btn btn-danger">
-                Löschen
+                <i class="nav-icon fas fa-trash"></i>
               </button>
 
               <button @click="editFile(file.id)" class="btn btn-info">
-                Ändern
+                <i class="nav-icon fas fa-pen-to-square"></i>
               </button>
 
-              <button
+              {# <button
                 x-show="file.status === 'idle'"
                 @click="updateStatus(file.id, 'pending', index)"
                 class="btn btn-success">
                 Bestätigen
-              </button>
+              </button> #}
 
-              <button
+              {# <button
                 x-show="file.status === 'pending'"
                 @click="updateStatus(file.id, 'idle', index)"
                 class="btn btn-warning">
                 Entladen
-              </button>
+              </button> #}
             </td>
           </tr>
         </template>

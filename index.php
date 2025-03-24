@@ -13,7 +13,12 @@ use Twig\Loader\FilesystemLoader;
 use Propel\FilesQuery;
 use Propel\ConfigQuery;
 use Propel\Config;
+use Propel\ImportHistory;
+use Propel\ImportHistoryQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
+use Propel\Map\ImportHistoryTableMap;
+
+define('ROOT_PATH', __DIR__);
 
 $loader = new FilesystemLoader(__DIR__ . '/templates');
 $twig = new Environment($loader);
@@ -121,6 +126,27 @@ $router->map('GET', '/files/[i:id]', function ($id) {
     exit;
 });
 
+$router->map('GET', '/download/[i:id]', function ($id) {
+    $file = FilesQuery::create()->findPk($id);
+
+    if ($file) {
+        $filePath = __DIR__ . '/csv/' . $file->getPath(); // Datei-Pfad basierend auf der `path`-Spalte
+
+        if (file_exists($filePath)) {
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            header('Content-Length: ' . filesize($filePath));
+
+            readfile($filePath);
+        } else {
+            echo json_encode(['status' => 'errorR' . $filePath, 'message' => 'Datei nicht gefunden.']);
+        };
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Datei nicht gefunden.']);
+    }
+    exit;
+});
+
 $router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig, $dbConnection) {
     $file = FilesQuery::create()->findPk($id);
 
@@ -129,11 +155,46 @@ $router->map('GET', '/files/edit/[i:id]', function ($id) use ($twig, $dbConnecti
         echo "File not found";
         exit;
     }
+
+    $criteria = new Criteria();
+    $criteria->addDescendingOrderByColumn(ImportHistoryTableMap::COL_ID);
+    
+    $imports = $file->getImportHistories($criteria);
     
     echo $twig->render('file_edit.html.twig', [
         'file' => $file,
         'title' => 'Edit Datei',
         'dbConnection' => $dbConnection,
+        'imports' => $imports
+    ]);
+});
+
+$router->map('GET', '/log/[i:id]', function ($id) use ($twig, $dbConnection) {
+    $import = ImportHistoryQuery::create()->findPk($id);
+
+    if (!$import) {
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+        echo "File not found";
+        exit;
+    }
+
+    $logFile = ROOT_PATH . "/logs/" . $import->getLogFile();
+    $logData = null;
+
+    if (!file_exists($logFile)) {
+        header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found");
+        echo "File not found";
+        exit;
+    }
+
+    $logData = file_get_contents($logFile);
+    $logData = htmlspecialchars($logData);
+    
+    echo $twig->render('log.html.twig', [
+        'import' => $import,
+        'title' => 'Log Datei',
+        'dbConnection' => $dbConnection,
+        'logData' => $logData
     ]);
 });
 

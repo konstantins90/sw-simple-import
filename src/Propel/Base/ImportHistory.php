@@ -80,16 +80,30 @@ abstract class ImportHistory implements ActiveRecordInterface
     protected $file_id;
 
     /**
+     * The value for the log_file field.
+     *
+     * @var        string|null
+     */
+    protected $log_file;
+
+    /**
+     * The value for the log field.
+     *
+     * @var        string|null
+     */
+    protected $log;
+
+    /**
      * The value for the imported_at field.
      *
-     * @var        DateTime
+     * @var        DateTime|null
      */
     protected $imported_at;
 
     /**
      * The value for the status field.
      *
-     * @var        string
+     * @var        string|null
      */
     protected $status;
 
@@ -97,7 +111,7 @@ abstract class ImportHistory implements ActiveRecordInterface
      * The value for the count_imported_products field.
      *
      * Note: this column has a database default value of: 0
-     * @var        int
+     * @var        int|null
      */
     protected $count_imported_products;
 
@@ -105,7 +119,7 @@ abstract class ImportHistory implements ActiveRecordInterface
      * The value for the count_errors field.
      *
      * Note: this column has a database default value of: 0
-     * @var        int
+     * @var        int|null
      */
     protected $count_errors;
 
@@ -383,17 +397,39 @@ abstract class ImportHistory implements ActiveRecordInterface
     }
 
     /**
+     * Get the [log_file] column value.
+     *
+     * @return string|null
+     */
+    public function getLogFile()
+    {
+        return $this->log_file;
+    }
+
+    /**
+     * Get the [log] column value.
+     *
+     * @param bool $asArray Returns the JSON data as array instead of object
+
+     * @return object|array|null
+     */
+    public function getLog($asArray = true)
+    {
+        return json_decode($this->log, $asArray);
+    }
+
+    /**
      * Get the [optionally formatted] temporal [imported_at] column value.
      *
      *
      * @param string|null $format The date/time format string (either date()-style or strftime()-style).
      *   If format is NULL, then the raw DateTime object will be returned.
      *
-     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), and 0 if column value is 0000-00-00 00:00:00.
+     * @return string|DateTime|null Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00.
      *
      * @throws \Propel\Runtime\Exception\PropelException - if unable to parse/validate the date/time value.
      *
-     * @psalm-return ($format is null ? DateTime : string)
+     * @psalm-return ($format is null ? DateTime|null : string|null)
      */
     public function getImportedAt($format = null)
     {
@@ -407,7 +443,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Get the [status] column value.
      *
-     * @return string
+     * @return string|null
      */
     public function getStatus()
     {
@@ -417,7 +453,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Get the [count_imported_products] column value.
      *
-     * @return int
+     * @return int|null
      */
     public function getCountImportedProducts()
     {
@@ -427,7 +463,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Get the [count_errors] column value.
      *
-     * @return int
+     * @return int|null
      */
     public function getCountErrors()
     {
@@ -479,9 +515,50 @@ abstract class ImportHistory implements ActiveRecordInterface
     }
 
     /**
+     * Set the value of [log_file] column.
+     *
+     * @param string|null $v New value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setLogFile($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->log_file !== $v) {
+            $this->log_file = $v;
+            $this->modifiedColumns[ImportHistoryTableMap::COL_LOG_FILE] = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of [log] column.
+     *
+     * @param string|array|object|null $v new value
+     * @return $this The current object (for fluent API support)
+     */
+    public function setLog($v)
+    {
+        if (is_string($v)) {
+            // JSON as string needs to be decoded/encoded to get a reliable comparison (spaces, ...)
+            $v = json_decode($v);
+        }
+        $encodedValue = json_encode($v);
+        if ($encodedValue !== $this->log) {
+            $this->log = $encodedValue;
+            $this->modifiedColumns[ImportHistoryTableMap::COL_LOG] = true;
+        }
+
+        return $this;
+    }
+
+    /**
      * Sets the value of [imported_at] column to a normalized version of the date/time value specified.
      *
-     * @param string|integer|\DateTimeInterface $v string, integer (timestamp), or \DateTimeInterface value.
+     * @param string|integer|\DateTimeInterface|null $v string, integer (timestamp), or \DateTimeInterface value.
      *               Empty strings are treated as NULL.
      * @return $this The current object (for fluent API support)
      */
@@ -501,7 +578,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Set the value of [status] column.
      *
-     * @param string $v New value
+     * @param string|null $v New value
      * @return $this The current object (for fluent API support)
      */
     public function setStatus($v)
@@ -521,7 +598,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Set the value of [count_imported_products] column.
      *
-     * @param int $v New value
+     * @param int|null $v New value
      * @return $this The current object (for fluent API support)
      */
     public function setCountImportedProducts($v)
@@ -541,7 +618,7 @@ abstract class ImportHistory implements ActiveRecordInterface
     /**
      * Set the value of [count_errors] column.
      *
-     * @param int $v New value
+     * @param int|null $v New value
      * @return $this The current object (for fluent API support)
      */
     public function setCountErrors($v)
@@ -608,19 +685,25 @@ abstract class ImportHistory implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : ImportHistoryTableMap::translateFieldName('FileId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->file_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ImportHistoryTableMap::translateFieldName('ImportedAt', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : ImportHistoryTableMap::translateFieldName('LogFile', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->log_file = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ImportHistoryTableMap::translateFieldName('Log', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->log = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ImportHistoryTableMap::translateFieldName('ImportedAt', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->imported_at = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : ImportHistoryTableMap::translateFieldName('Status', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ImportHistoryTableMap::translateFieldName('Status', TableMap::TYPE_PHPNAME, $indexType)];
             $this->status = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : ImportHistoryTableMap::translateFieldName('CountImportedProducts', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : ImportHistoryTableMap::translateFieldName('CountImportedProducts', TableMap::TYPE_PHPNAME, $indexType)];
             $this->count_imported_products = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : ImportHistoryTableMap::translateFieldName('CountErrors', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 7 + $startcol : ImportHistoryTableMap::translateFieldName('CountErrors', TableMap::TYPE_PHPNAME, $indexType)];
             $this->count_errors = (null !== $col) ? (int) $col : null;
 
             $this->resetModified();
@@ -630,7 +713,7 @@ abstract class ImportHistory implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = ImportHistoryTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 8; // 8 = ImportHistoryTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\Propel\\ImportHistory'), 0, $e);
@@ -854,6 +937,12 @@ abstract class ImportHistory implements ActiveRecordInterface
         if ($this->isColumnModified(ImportHistoryTableMap::COL_FILE_ID)) {
             $modifiedColumns[':p' . $index++]  = 'file_id';
         }
+        if ($this->isColumnModified(ImportHistoryTableMap::COL_LOG_FILE)) {
+            $modifiedColumns[':p' . $index++]  = 'log_file';
+        }
+        if ($this->isColumnModified(ImportHistoryTableMap::COL_LOG)) {
+            $modifiedColumns[':p' . $index++]  = 'log';
+        }
         if ($this->isColumnModified(ImportHistoryTableMap::COL_IMPORTED_AT)) {
             $modifiedColumns[':p' . $index++]  = 'imported_at';
         }
@@ -883,6 +972,14 @@ abstract class ImportHistory implements ActiveRecordInterface
                         break;
                     case 'file_id':
                         $stmt->bindValue($identifier, $this->file_id, PDO::PARAM_INT);
+
+                        break;
+                    case 'log_file':
+                        $stmt->bindValue($identifier, $this->log_file, PDO::PARAM_STR);
+
+                        break;
+                    case 'log':
+                        $stmt->bindValue($identifier, $this->log, PDO::PARAM_STR);
 
                         break;
                     case 'imported_at':
@@ -970,15 +1067,21 @@ abstract class ImportHistory implements ActiveRecordInterface
                 return $this->getFileId();
 
             case 2:
-                return $this->getImportedAt();
+                return $this->getLogFile();
 
             case 3:
-                return $this->getStatus();
+                return $this->getLog();
 
             case 4:
-                return $this->getCountImportedProducts();
+                return $this->getImportedAt();
 
             case 5:
+                return $this->getStatus();
+
+            case 6:
+                return $this->getCountImportedProducts();
+
+            case 7:
                 return $this->getCountErrors();
 
             default:
@@ -1011,13 +1114,15 @@ abstract class ImportHistory implements ActiveRecordInterface
         $result = [
             $keys[0] => $this->getId(),
             $keys[1] => $this->getFileId(),
-            $keys[2] => $this->getImportedAt(),
-            $keys[3] => $this->getStatus(),
-            $keys[4] => $this->getCountImportedProducts(),
-            $keys[5] => $this->getCountErrors(),
+            $keys[2] => $this->getLogFile(),
+            $keys[3] => $this->getLog(),
+            $keys[4] => $this->getImportedAt(),
+            $keys[5] => $this->getStatus(),
+            $keys[6] => $this->getCountImportedProducts(),
+            $keys[7] => $this->getCountErrors(),
         ];
-        if ($result[$keys[2]] instanceof \DateTimeInterface) {
-            $result[$keys[2]] = $result[$keys[2]]->format('Y-m-d H:i:s.u');
+        if ($result[$keys[4]] instanceof \DateTimeInterface) {
+            $result[$keys[4]] = $result[$keys[4]]->format('Y-m-d H:i:s.u');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1084,15 +1189,21 @@ abstract class ImportHistory implements ActiveRecordInterface
                 $this->setFileId($value);
                 break;
             case 2:
-                $this->setImportedAt($value);
+                $this->setLogFile($value);
                 break;
             case 3:
-                $this->setStatus($value);
+                $this->setLog($value);
                 break;
             case 4:
-                $this->setCountImportedProducts($value);
+                $this->setImportedAt($value);
                 break;
             case 5:
+                $this->setStatus($value);
+                break;
+            case 6:
+                $this->setCountImportedProducts($value);
+                break;
+            case 7:
                 $this->setCountErrors($value);
                 break;
         } // switch()
@@ -1128,16 +1239,22 @@ abstract class ImportHistory implements ActiveRecordInterface
             $this->setFileId($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setImportedAt($arr[$keys[2]]);
+            $this->setLogFile($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setStatus($arr[$keys[3]]);
+            $this->setLog($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setCountImportedProducts($arr[$keys[4]]);
+            $this->setImportedAt($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setCountErrors($arr[$keys[5]]);
+            $this->setStatus($arr[$keys[5]]);
+        }
+        if (array_key_exists($keys[6], $arr)) {
+            $this->setCountImportedProducts($arr[$keys[6]]);
+        }
+        if (array_key_exists($keys[7], $arr)) {
+            $this->setCountErrors($arr[$keys[7]]);
         }
 
         return $this;
@@ -1187,6 +1304,12 @@ abstract class ImportHistory implements ActiveRecordInterface
         }
         if ($this->isColumnModified(ImportHistoryTableMap::COL_FILE_ID)) {
             $criteria->add(ImportHistoryTableMap::COL_FILE_ID, $this->file_id);
+        }
+        if ($this->isColumnModified(ImportHistoryTableMap::COL_LOG_FILE)) {
+            $criteria->add(ImportHistoryTableMap::COL_LOG_FILE, $this->log_file);
+        }
+        if ($this->isColumnModified(ImportHistoryTableMap::COL_LOG)) {
+            $criteria->add(ImportHistoryTableMap::COL_LOG, $this->log);
         }
         if ($this->isColumnModified(ImportHistoryTableMap::COL_IMPORTED_AT)) {
             $criteria->add(ImportHistoryTableMap::COL_IMPORTED_AT, $this->imported_at);
@@ -1289,6 +1412,8 @@ abstract class ImportHistory implements ActiveRecordInterface
     public function copyInto(object $copyObj, bool $deepCopy = false, bool $makeNew = true): void
     {
         $copyObj->setFileId($this->getFileId());
+        $copyObj->setLogFile($this->getLogFile());
+        $copyObj->setLog($this->getLog());
         $copyObj->setImportedAt($this->getImportedAt());
         $copyObj->setStatus($this->getStatus());
         $copyObj->setCountImportedProducts($this->getCountImportedProducts());
@@ -1386,6 +1511,8 @@ abstract class ImportHistory implements ActiveRecordInterface
         }
         $this->id = null;
         $this->file_id = null;
+        $this->log_file = null;
+        $this->log = null;
         $this->imported_at = null;
         $this->status = null;
         $this->count_imported_products = null;

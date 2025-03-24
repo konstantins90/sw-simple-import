@@ -83,7 +83,9 @@ class ShopwareApiClient
 
     public function updateProduct(string $productId, array $productData): bool
     {
-        unset($productData['media']);
+        if (isset($productData['media'])) {
+            unset($productData['media']);
+        }
         try {
             $this->client->patch('/api/product/' . $productId, [
                 'headers' => [
@@ -92,6 +94,23 @@ class ShopwareApiClient
                     'Content-Type' => 'application/json',
                 ],
                 'body' => json_encode($productData, JSON_UNESCAPED_UNICODE ),
+            ]);
+            return true;
+        } catch (RequestException $e) {
+            d('Error updating product: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteProduct(string $productId): bool
+    {
+        try {
+            $this->client->delete('/api/product/' . $productId, [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
             ]);
             return true;
         } catch (RequestException $e) {

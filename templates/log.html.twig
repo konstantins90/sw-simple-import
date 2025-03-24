@@ -1,0 +1,29 @@
+{% extends 'components/layout.html.twig' %} {% block content %}
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Show LOG</h1>
+      </div>
+    </div>
+    {% if session.error %}
+    <div class="alert alert-danger mt-5">
+      {{ session.error }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<section
+  id="edit"
+  class="content mt-5">
+  <div class="container-fluid">
+    {% if (logData) %}
+      <pre>{{ logData }}</pre>
+    {% endif %}
+  </div>
+</section>
+
+<script>
+</script>
+{% endblock %}

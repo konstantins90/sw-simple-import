@@ -21,6 +21,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildImportHistoryQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildImportHistoryQuery orderByFileId($order = Criteria::ASC) Order by the file_id column
+ * @method     ChildImportHistoryQuery orderByLogFile($order = Criteria::ASC) Order by the log_file column
+ * @method     ChildImportHistoryQuery orderByLog($order = Criteria::ASC) Order by the log column
  * @method     ChildImportHistoryQuery orderByImportedAt($order = Criteria::ASC) Order by the imported_at column
  * @method     ChildImportHistoryQuery orderByStatus($order = Criteria::ASC) Order by the status column
  * @method     ChildImportHistoryQuery orderByCountImportedProducts($order = Criteria::ASC) Order by the count_imported_products column
@@ -28,6 +30,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildImportHistoryQuery groupById() Group by the id column
  * @method     ChildImportHistoryQuery groupByFileId() Group by the file_id column
+ * @method     ChildImportHistoryQuery groupByLogFile() Group by the log_file column
+ * @method     ChildImportHistoryQuery groupByLog() Group by the log column
  * @method     ChildImportHistoryQuery groupByImportedAt() Group by the imported_at column
  * @method     ChildImportHistoryQuery groupByStatus() Group by the status column
  * @method     ChildImportHistoryQuery groupByCountImportedProducts() Group by the count_imported_products column
@@ -58,6 +62,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildImportHistory|null findOneById(int $id) Return the first ChildImportHistory filtered by the id column
  * @method     ChildImportHistory|null findOneByFileId(int $file_id) Return the first ChildImportHistory filtered by the file_id column
+ * @method     ChildImportHistory|null findOneByLogFile(string $log_file) Return the first ChildImportHistory filtered by the log_file column
+ * @method     ChildImportHistory|null findOneByLog(string $log) Return the first ChildImportHistory filtered by the log column
  * @method     ChildImportHistory|null findOneByImportedAt(string $imported_at) Return the first ChildImportHistory filtered by the imported_at column
  * @method     ChildImportHistory|null findOneByStatus(string $status) Return the first ChildImportHistory filtered by the status column
  * @method     ChildImportHistory|null findOneByCountImportedProducts(int $count_imported_products) Return the first ChildImportHistory filtered by the count_imported_products column
@@ -68,6 +74,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildImportHistory requireOneById(int $id) Return the first ChildImportHistory filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildImportHistory requireOneByFileId(int $file_id) Return the first ChildImportHistory filtered by the file_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildImportHistory requireOneByLogFile(string $log_file) Return the first ChildImportHistory filtered by the log_file column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildImportHistory requireOneByLog(string $log) Return the first ChildImportHistory filtered by the log column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildImportHistory requireOneByImportedAt(string $imported_at) Return the first ChildImportHistory filtered by the imported_at column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildImportHistory requireOneByStatus(string $status) Return the first ChildImportHistory filtered by the status column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildImportHistory requireOneByCountImportedProducts(int $count_imported_products) Return the first ChildImportHistory filtered by the count_imported_products column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -80,6 +88,10 @@ use Propel\Runtime\Exception\PropelException;
  * @psalm-method Collection&\Traversable<ChildImportHistory> findById(int|array<int> $id) Return ChildImportHistory objects filtered by the id column
  * @method     ChildImportHistory[]|Collection findByFileId(int|array<int> $file_id) Return ChildImportHistory objects filtered by the file_id column
  * @psalm-method Collection&\Traversable<ChildImportHistory> findByFileId(int|array<int> $file_id) Return ChildImportHistory objects filtered by the file_id column
+ * @method     ChildImportHistory[]|Collection findByLogFile(string|array<string> $log_file) Return ChildImportHistory objects filtered by the log_file column
+ * @psalm-method Collection&\Traversable<ChildImportHistory> findByLogFile(string|array<string> $log_file) Return ChildImportHistory objects filtered by the log_file column
+ * @method     ChildImportHistory[]|Collection findByLog(string|array<string> $log) Return ChildImportHistory objects filtered by the log column
+ * @psalm-method Collection&\Traversable<ChildImportHistory> findByLog(string|array<string> $log) Return ChildImportHistory objects filtered by the log column
  * @method     ChildImportHistory[]|Collection findByImportedAt(string|array<string> $imported_at) Return ChildImportHistory objects filtered by the imported_at column
  * @psalm-method Collection&\Traversable<ChildImportHistory> findByImportedAt(string|array<string> $imported_at) Return ChildImportHistory objects filtered by the imported_at column
  * @method     ChildImportHistory[]|Collection findByStatus(string|array<string> $status) Return ChildImportHistory objects filtered by the status column
@@ -187,7 +199,7 @@ abstract class ImportHistoryQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, file_id, imported_at, status, count_imported_products, count_errors FROM import_history WHERE id = :p0';
+        $sql = 'SELECT id, file_id, log_file, log, imported_at, status, count_imported_products, count_errors FROM import_history WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -365,6 +377,62 @@ abstract class ImportHistoryQuery extends ModelCriteria
         }
 
         $this->addUsingAlias(ImportHistoryTableMap::COL_FILE_ID, $fileId, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the log_file column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByLogFile('fooValue');   // WHERE log_file = 'fooValue'
+     * $query->filterByLogFile('%fooValue%', Criteria::LIKE); // WHERE log_file LIKE '%fooValue%'
+     * $query->filterByLogFile(['foo', 'bar']); // WHERE log_file IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $logFile The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByLogFile($logFile = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($logFile)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(ImportHistoryTableMap::COL_LOG_FILE, $logFile, $comparison);
+
+        return $this;
+    }
+
+    /**
+     * Filter the query on the log column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByLog('fooValue');   // WHERE log = 'fooValue'
+     * $query->filterByLog('%fooValue%', Criteria::LIKE); // WHERE log LIKE '%fooValue%'
+     * $query->filterByLog(['foo', 'bar']); // WHERE log IN ('foo', 'bar')
+     * </code>
+     *
+     * @param string|string[] $log The value to use as filter.
+     * @param string|null $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this The current query, for fluid interface
+     */
+    public function filterByLog($log = null, ?string $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($log)) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        $this->addUsingAlias(ImportHistoryTableMap::COL_LOG, $log, $comparison);
 
         return $this;
     }

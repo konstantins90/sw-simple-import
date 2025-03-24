@@ -1,3 +1,8 @@
 vendor/*
 db_data/*
+book_images/*
 csv/*
+log/*
+logs/*
+generated-conf/config-cli.php
+generated-conf/config.php

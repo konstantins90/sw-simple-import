@@ -176,6 +176,20 @@
     </form>
   </div>
 </section>
+<section class="content mt-5">
+  <div class="container-fluid pb-5">
+    <div class="headline">
+      <h3>Imports</h3>
+    </div>
+    <div class="data">
+      {% for item in imports %}
+        <div class="item">
+          <a href="/log/{{ item.getId()}}">{{ item.getLogFile() }}</a>
+        </div>
+      {% endfor%}
+    </div>
+  </div>
+</section>
 <script>
   function configSelect() {
     return {

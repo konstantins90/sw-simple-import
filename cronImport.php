@@ -18,6 +18,8 @@ const STATUS_PENDING = 'pending';
 const STATUS_COMPLETED = 'imported';
 const STATUS_RUN = 'run';
 
+define('ROOT_PATH', __DIR__);
+
 $lockFile = __DIR__ . '/import.lock';
 
 if (file_exists($lockFile)) {
@@ -51,6 +53,7 @@ foreach ($files as $file) {
     }
 
     $fileProcessor->setConfigFile($file);
+    $fileProcessor->setLogger();
     $fileProcessor->setRecords($productArray);
     $fields = $fileProcessor->getRecords();
     $fileProcessor->mapProductProperties();

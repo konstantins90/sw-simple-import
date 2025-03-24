@@ -39,7 +39,9 @@
             <td x-text="file.id"></td>
             <td>
               <div x-text="file.name"></div>
-              <div x-text="file.path"></div>
+              <div>
+                <a @click="downloadFile(file.id)" href="#" x-text="file.path"></a>
+              </div>
             </td>
             <td x-text="file.status"></td>
             <td>
@@ -203,6 +205,9 @@
       },
       editFile(id) {
         window.location.href = `/files/edit/${id}`;
+      },
+      downloadFile(id) {
+        window.location.href = `/download/${id}`;
       },
       submitFile() {
         if (!this.selectedFile || !this.selectedConfig) {

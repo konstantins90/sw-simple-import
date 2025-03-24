@@ -7,6 +7,9 @@ use App\Csv\PropertyCollector;
 use App\Csv\ImageDownloader;
 use App\Utils\PriceCalculator;
 use Propel\Files;
+use Propel\ImportHistory;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorInterface
 {
@@ -17,13 +20,29 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     protected array $propertiesFields = [];
     protected array $currentRecord = [];
 
+    protected $logger = null;
+    protected $importHistory = null;
+
     public function __construct(
         protected ShopwareApiClient $shopwareClient,
         protected PropertyCollector $propertyCollector,
         protected PriceCalculator $priceCalculator,
         protected ImageDownloader $imageDownloader
     ){
-        
+        $this->importHistory = new ImportHistory();
+    }
+
+    public function setLogger()
+    {
+        $filePath = $this->getConfigFile()->getPath();
+        $fileInfo = pathinfo($filePath);
+        $filename = $fileInfo['filename'];
+        $filename .= "-" . microtime(true) . ".log";
+        $this->logger = new Logger('mein_logger');
+        $this->logger->pushHandler(new StreamHandler(ROOT_PATH . "/logs/" . $filename, Logger::DEBUG));
+
+        $this->importHistory->setLogFile($filename);
+        $this->importHistory->save();
     }
 
     public function setRecords(array $records): void
@@ -53,6 +72,10 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
     public function downloadImages(): void
     {
+        $message = "Download Bilder";
+        echo $message;
+        $this->logger->info($message);
+
         foreach($this->records as &$productData) {
             $productData['media'] = $this->imageDownloader->downloadImage($productData);
         }
@@ -60,16 +83,14 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
     public function mapProductProperties(): void
     {
+        $message = "Generiere Produkt Properties";
+        echo $message;
+        $this->logger->info($message);
+
         $mappedProperties = [];
-        $startTime = microtime(true);
-        echo "Generiere Produkt Properties";
 
         $this->downloadImages();
         $propertiesArray = $this->getPropertiesArray();
-
-        $endTime = microtime(true);
-        $executionTime = $startTime - $endTime;
-        echo ": {$executionTime} s\n";
 
         foreach($this->records as &$productData)
         {
@@ -98,6 +119,34 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
     public function import(): void
     {
+        if ($this->getConfigFile()->getImportType() === 'disable') {
+            $message = "Produkte werden deaktiviert";
+            echo $message;
+            $this->logger->info($message);
+            foreach($this->getRecords() as $productData)
+            {
+                $this->shopwareClient->checkTimeout();
+                $this->disableProduct($productData);
+            }
+
+            return;
+        }
+
+        if ($this->getConfigFile()->getImportType() === 'remove') {
+            $message = "Produkte werden gelöscht";
+            echo $message;
+            $this->logger->info($message);
+            foreach($this->getRecords() as $productData)
+            {
+                $this->shopwareClient->checkTimeout();
+            }
+            return;
+        }
+
+        $message = "Produkte werden importiert / aktualisiert";
+        echo $message;
+        $this->logger->info($message);
+
         $count = 0;
         $this->shopwareClient->getManufacturerList(true);
         foreach($this->getRecords() as $productData)
@@ -108,9 +157,55 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         }
     }
 
+    public function deleteProduct(array $productData): bool
+    {
+        $productNumber = $productData['productNumber'];
+        $productId = $this->shopwareClient->productExists($productNumber);
+
+        if ($productId) {
+            $this->logs[$productNumber][] = 'Produkt existiert, es wird gelöscht';
+            // Produkt existiert, aktualisiere es
+            $this->shopwareClient->deleteProduct($productId);
+        } else {
+            $this->logs[$productNumber][] = 'Produkt existiert nicht, ignoriert';
+        }
+
+        if (!$productId) {
+            d("Produkt nicht gefunden: $productId");
+            return false;
+        }
+
+        return true;
+    }
+
+    public function disableProduct(array $productData): bool
+    {
+        $productNumber = $productData['productNumber'];
+        $productId = $this->shopwareClient->productExists($productNumber);
+
+        if ($productId) {
+            $this->logs[$productNumber][] = 'Produkt existiert, deaktiviere es';
+            // Produkt existiert, aktualisiere es
+            $this->shopwareClient->updateProduct($productId, ['active' => false]);
+        } else {
+            $this->logs[$productNumber][] = 'Produkt existiert nicht, ignoriert';
+        }
+
+        if (!$productId) {
+            d("Produkt nicht gefunden: $productId");
+            return false;
+        }
+
+        return true;
+    }
+
     public function importProduct(array $productData): bool
     {
         $productNumber = $productData['productNumber'];
+
+        $message = "Produkt ID: $productNumber wird importiert";
+        echo $message;
+        $this->logger->info($message);
         
         // Überprüfen, ob das Produkt bereits existiert
         $productId = $this->shopwareClient->productExists($productNumber);
@@ -244,6 +339,8 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function setConfigFile(Files $configFile): void
     {
         $this->configFile = $configFile;
+        $this->importHistory->setFileId($this->configFile->getId());
+        $this->importHistory->save();
     }
 
     public function getConfigFile()

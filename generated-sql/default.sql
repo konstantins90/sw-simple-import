@@ -45,10 +45,12 @@ CREATE TABLE `import_history`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `file_id` INTEGER NOT NULL,
-    `imported_at` DATETIME NOT NULL,
-    `status` VARCHAR(50) NOT NULL,
-    `count_imported_products` INTEGER DEFAULT 0 NOT NULL,
-    `count_errors` INTEGER DEFAULT 0 NOT NULL,
+    `log_file` VARCHAR(255),
+    `log` JSON,
+    `imported_at` DATETIME,
+    `status` VARCHAR(50),
+    `count_imported_products` INTEGER DEFAULT 0,
+    `count_errors` INTEGER DEFAULT 0,
     PRIMARY KEY (`id`),
     INDEX `import_history_fi_568a7d` (`file_id`),
     CONSTRAINT `import_history_fk_568a7d`

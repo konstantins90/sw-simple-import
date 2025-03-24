@@ -63,7 +63,7 @@ class ImportHistoryTableMap extends TableMap
     /**
      * The total number of columns
      */
-    public const NUM_COLUMNS = 6;
+    public const NUM_COLUMNS = 8;
 
     /**
      * The number of lazy-loaded columns
@@ -73,7 +73,7 @@ class ImportHistoryTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    public const NUM_HYDRATE_COLUMNS = 6;
+    public const NUM_HYDRATE_COLUMNS = 8;
 
     /**
      * the column name for the id field
@@ -84,6 +84,16 @@ class ImportHistoryTableMap extends TableMap
      * the column name for the file_id field
      */
     public const COL_FILE_ID = 'import_history.file_id';
+
+    /**
+     * the column name for the log_file field
+     */
+    public const COL_LOG_FILE = 'import_history.log_file';
+
+    /**
+     * the column name for the log field
+     */
+    public const COL_LOG = 'import_history.log';
 
     /**
      * the column name for the imported_at field
@@ -119,11 +129,11 @@ class ImportHistoryTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldNames = [
-        self::TYPE_PHPNAME       => ['Id', 'FileId', 'ImportedAt', 'Status', 'CountImportedProducts', 'CountErrors', ],
-        self::TYPE_CAMELNAME     => ['id', 'fileId', 'importedAt', 'status', 'countImportedProducts', 'countErrors', ],
-        self::TYPE_COLNAME       => [ImportHistoryTableMap::COL_ID, ImportHistoryTableMap::COL_FILE_ID, ImportHistoryTableMap::COL_IMPORTED_AT, ImportHistoryTableMap::COL_STATUS, ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS, ImportHistoryTableMap::COL_COUNT_ERRORS, ],
-        self::TYPE_FIELDNAME     => ['id', 'file_id', 'imported_at', 'status', 'count_imported_products', 'count_errors', ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, ]
+        self::TYPE_PHPNAME       => ['Id', 'FileId', 'LogFile', 'Log', 'ImportedAt', 'Status', 'CountImportedProducts', 'CountErrors', ],
+        self::TYPE_CAMELNAME     => ['id', 'fileId', 'logFile', 'log', 'importedAt', 'status', 'countImportedProducts', 'countErrors', ],
+        self::TYPE_COLNAME       => [ImportHistoryTableMap::COL_ID, ImportHistoryTableMap::COL_FILE_ID, ImportHistoryTableMap::COL_LOG_FILE, ImportHistoryTableMap::COL_LOG, ImportHistoryTableMap::COL_IMPORTED_AT, ImportHistoryTableMap::COL_STATUS, ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS, ImportHistoryTableMap::COL_COUNT_ERRORS, ],
+        self::TYPE_FIELDNAME     => ['id', 'file_id', 'log_file', 'log', 'imported_at', 'status', 'count_imported_products', 'count_errors', ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, ]
     ];
 
     /**
@@ -135,11 +145,11 @@ class ImportHistoryTableMap extends TableMap
      * @var array<string, mixed>
      */
     protected static $fieldKeys = [
-        self::TYPE_PHPNAME       => ['Id' => 0, 'FileId' => 1, 'ImportedAt' => 2, 'Status' => 3, 'CountImportedProducts' => 4, 'CountErrors' => 5, ],
-        self::TYPE_CAMELNAME     => ['id' => 0, 'fileId' => 1, 'importedAt' => 2, 'status' => 3, 'countImportedProducts' => 4, 'countErrors' => 5, ],
-        self::TYPE_COLNAME       => [ImportHistoryTableMap::COL_ID => 0, ImportHistoryTableMap::COL_FILE_ID => 1, ImportHistoryTableMap::COL_IMPORTED_AT => 2, ImportHistoryTableMap::COL_STATUS => 3, ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS => 4, ImportHistoryTableMap::COL_COUNT_ERRORS => 5, ],
-        self::TYPE_FIELDNAME     => ['id' => 0, 'file_id' => 1, 'imported_at' => 2, 'status' => 3, 'count_imported_products' => 4, 'count_errors' => 5, ],
-        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, ]
+        self::TYPE_PHPNAME       => ['Id' => 0, 'FileId' => 1, 'LogFile' => 2, 'Log' => 3, 'ImportedAt' => 4, 'Status' => 5, 'CountImportedProducts' => 6, 'CountErrors' => 7, ],
+        self::TYPE_CAMELNAME     => ['id' => 0, 'fileId' => 1, 'logFile' => 2, 'log' => 3, 'importedAt' => 4, 'status' => 5, 'countImportedProducts' => 6, 'countErrors' => 7, ],
+        self::TYPE_COLNAME       => [ImportHistoryTableMap::COL_ID => 0, ImportHistoryTableMap::COL_FILE_ID => 1, ImportHistoryTableMap::COL_LOG_FILE => 2, ImportHistoryTableMap::COL_LOG => 3, ImportHistoryTableMap::COL_IMPORTED_AT => 4, ImportHistoryTableMap::COL_STATUS => 5, ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS => 6, ImportHistoryTableMap::COL_COUNT_ERRORS => 7, ],
+        self::TYPE_FIELDNAME     => ['id' => 0, 'file_id' => 1, 'log_file' => 2, 'log' => 3, 'imported_at' => 4, 'status' => 5, 'count_imported_products' => 6, 'count_errors' => 7, ],
+        self::TYPE_NUM           => [0, 1, 2, 3, 4, 5, 6, 7, ]
     ];
 
     /**
@@ -163,6 +173,21 @@ class ImportHistoryTableMap extends TableMap
         'COL_FILE_ID' => 'FILE_ID',
         'file_id' => 'FILE_ID',
         'import_history.file_id' => 'FILE_ID',
+        'LogFile' => 'LOG_FILE',
+        'ImportHistory.LogFile' => 'LOG_FILE',
+        'logFile' => 'LOG_FILE',
+        'importHistory.logFile' => 'LOG_FILE',
+        'ImportHistoryTableMap::COL_LOG_FILE' => 'LOG_FILE',
+        'COL_LOG_FILE' => 'LOG_FILE',
+        'log_file' => 'LOG_FILE',
+        'import_history.log_file' => 'LOG_FILE',
+        'Log' => 'LOG',
+        'ImportHistory.Log' => 'LOG',
+        'log' => 'LOG',
+        'importHistory.log' => 'LOG',
+        'ImportHistoryTableMap::COL_LOG' => 'LOG',
+        'COL_LOG' => 'LOG',
+        'import_history.log' => 'LOG',
         'ImportedAt' => 'IMPORTED_AT',
         'ImportHistory.ImportedAt' => 'IMPORTED_AT',
         'importedAt' => 'IMPORTED_AT',
@@ -215,10 +240,12 @@ class ImportHistoryTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('file_id', 'FileId', 'INTEGER', 'files', 'id', true, null, null);
-        $this->addColumn('imported_at', 'ImportedAt', 'DATETIME', true, null, null);
-        $this->addColumn('status', 'Status', 'VARCHAR', true, 50, null);
-        $this->addColumn('count_imported_products', 'CountImportedProducts', 'INTEGER', true, null, 0);
-        $this->addColumn('count_errors', 'CountErrors', 'INTEGER', true, null, 0);
+        $this->addColumn('log_file', 'LogFile', 'VARCHAR', false, 255, null);
+        $this->addColumn('log', 'Log', 'JSON', false, null, null);
+        $this->addColumn('imported_at', 'ImportedAt', 'DATETIME', false, null, null);
+        $this->addColumn('status', 'Status', 'VARCHAR', false, 50, null);
+        $this->addColumn('count_imported_products', 'CountImportedProducts', 'INTEGER', false, null, 0);
+        $this->addColumn('count_errors', 'CountErrors', 'INTEGER', false, null, 0);
     }
 
     /**
@@ -381,6 +408,8 @@ class ImportHistoryTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(ImportHistoryTableMap::COL_ID);
             $criteria->addSelectColumn(ImportHistoryTableMap::COL_FILE_ID);
+            $criteria->addSelectColumn(ImportHistoryTableMap::COL_LOG_FILE);
+            $criteria->addSelectColumn(ImportHistoryTableMap::COL_LOG);
             $criteria->addSelectColumn(ImportHistoryTableMap::COL_IMPORTED_AT);
             $criteria->addSelectColumn(ImportHistoryTableMap::COL_STATUS);
             $criteria->addSelectColumn(ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS);
@@ -388,6 +417,8 @@ class ImportHistoryTableMap extends TableMap
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.file_id');
+            $criteria->addSelectColumn($alias . '.log_file');
+            $criteria->addSelectColumn($alias . '.log');
             $criteria->addSelectColumn($alias . '.imported_at');
             $criteria->addSelectColumn($alias . '.status');
             $criteria->addSelectColumn($alias . '.count_imported_products');
@@ -412,6 +443,8 @@ class ImportHistoryTableMap extends TableMap
         if (null === $alias) {
             $criteria->removeSelectColumn(ImportHistoryTableMap::COL_ID);
             $criteria->removeSelectColumn(ImportHistoryTableMap::COL_FILE_ID);
+            $criteria->removeSelectColumn(ImportHistoryTableMap::COL_LOG_FILE);
+            $criteria->removeSelectColumn(ImportHistoryTableMap::COL_LOG);
             $criteria->removeSelectColumn(ImportHistoryTableMap::COL_IMPORTED_AT);
             $criteria->removeSelectColumn(ImportHistoryTableMap::COL_STATUS);
             $criteria->removeSelectColumn(ImportHistoryTableMap::COL_COUNT_IMPORTED_PRODUCTS);
@@ -419,6 +452,8 @@ class ImportHistoryTableMap extends TableMap
         } else {
             $criteria->removeSelectColumn($alias . '.id');
             $criteria->removeSelectColumn($alias . '.file_id');
+            $criteria->removeSelectColumn($alias . '.log_file');
+            $criteria->removeSelectColumn($alias . '.log');
             $criteria->removeSelectColumn($alias . '.imported_at');
             $criteria->removeSelectColumn($alias . '.status');
             $criteria->removeSelectColumn($alias . '.count_imported_products');

@@ -28,10 +28,12 @@
     <table name="import_history">
         <column name="id" type="INTEGER" primaryKey="true" autoIncrement="true"/>
         <column name="file_id" type="INTEGER" required="true"/>
-        <column name="imported_at" type="DATETIME" required="true"/>
-        <column name="status" type="VARCHAR" size="50" required="true"/> <!-- Status des Imports -->
-        <column name="count_imported_products" type="INTEGER" required="true" default="0"/> <!-- Anzahl der erfolgreich importierten Produkte -->
-        <column name="count_errors" type="INTEGER" required="true" default="0"/> <!-- Anzahl der Fehler während des Imports -->
+        <column name="log_file" type="VARCHAR" size="255" />
+        <column name="log" type="JSON"/>
+        <column name="imported_at" type="DATETIME"/>
+        <column name="status" type="VARCHAR" size="50"/>
+        <column name="count_imported_products" type="INTEGER" default="0"/>
+        <column name="count_errors" type="INTEGER" default="0"/>
 
         <!-- Fremdschlüssel auf die Tabelle files -->
         <foreign-key foreignTable="files" onDelete="cascade">

@@ -60,7 +60,7 @@ class ImageDownloader
             }
         }
 
-        $result = $this->findByMurawei($isbn);
+        $result = $this->findByMnogoknig($isbn);
         
         if (!empty($result)) {
             return $result;
@@ -158,6 +158,37 @@ class ImageDownloader
         }
     }
 
+    private function findByMnogoknig(string $isbn): ?string
+    {
+        $url = "https://mnogoknig.de/de/search?query=" . $isbn;
+        try {
+            $document = new Document($url, true);
+            $error = [];
+            $items = $document->find('#product-content > div');
+
+            if (!$items || !count($items) || count($error) > 0) {
+                return null;
+            }
+
+            $image = $items[0]->find('.flex.relative img');
+
+            if (!$image || !count($image)) {
+                error_log(message: "Bild wurde nicht gefunden");
+                return null;
+            }
+
+            if ($image[0]->getAttribute('src')) {
+                $img = $image[0]->getAttribute('src');
+                return $this->saveImage($img, $isbn);
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            return null;
+        }  catch (\Exception $e) {
+            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            return null;
+        }
+    }
     private function findByJanzen(string $isbn): ?string
     {
         $url = "https://www.knigi-janzen.de/result_search.php?g_isbn=" . $isbn;

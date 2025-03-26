@@ -288,7 +288,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         $this->currentRecord = $record;
         $this->priceCalculator->setMargin((float) $this->getPriceMarge());
         $this->priceCalculator->setExchangeRate((float) $this->getExchangeRate());
-        $netPrice = $this->priceCalculator->convertRubToEurWithMargin((float) $this->getProperty('price'));
+        $netPrice = $this->priceCalculator->convertRubToEurWithMargin($this->getProperty('price'));
         $grossPrice = $this->priceCalculator->convertNetToGross($netPrice, 0.07);
 
         $productData = [

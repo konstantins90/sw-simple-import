@@ -30,8 +30,9 @@ class PriceCalculator
      * @param float $amount Betrag in Rubel
      * @return float Betrag in Euro mit Marge
      */
-    public function convertRubToEurWithMargin(float $amount): float
+    public function convertRubToEurWithMargin($amount): float
     {
+        $amount = $this->parsePrice($amount);
         // $conversionRate = $this->getConversionRate(self::CURRENCY_FROM, self::CURRENCY_TO);
 
         // if ($conversionRate === null) {
@@ -42,7 +43,13 @@ class PriceCalculator
 
         // Berechne den Preis in Euro und füge 20% Marge hinzu
         $amountInEur = $amount * $conversionRate;
-        return $this->applyMargin($amountInEur);
+        $end = $this->applyMargin($amountInEur);
+        return $end;
+    }
+
+    public function parsePrice($price): float {
+        $price = str_replace(',', '.', $price);
+        return floatval($price);
     }
 
     /**

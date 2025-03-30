@@ -8,4 +8,5 @@ generated-conf/config-cli.php
 generated-conf/config.php
 propel.yml
 index.html
+import.lock
 .env

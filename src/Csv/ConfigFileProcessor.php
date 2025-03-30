@@ -45,6 +45,11 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         $this->importHistory->save();
     }
 
+    public function addLogMessage(string $message): void
+    {
+        $this->logger->info($message);
+    }
+
     public function setRecords(array $records): void
     {
         foreach($records as $record) {

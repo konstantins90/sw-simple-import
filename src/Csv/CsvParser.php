@@ -22,4 +22,9 @@ class CsvParser
     {
         return $this->csv->getRecords();
     }
+
+    public function getHeaders(): array
+    {
+        return $this->csv->getHeader();
+    }
 }

@@ -20,6 +20,36 @@ class FileUploader
         }
     }
 
+    public function replaceFile($fileRecord, $file)
+    {
+        if (!$this->isValidFile($file)) {
+            return false;
+        }
+
+        $originalName = basename($file['name']);
+        $uniqueName = $this->generateUniqueName($originalName);
+        $subDir = $this->generateSubDir($uniqueName);
+
+        $targetDir = $this->uploadDir . $subDir;
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        $targetFile = $targetDir . '/' . $uniqueName;
+
+        if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+            $fileRecord->setFilename($originalName);
+            $fileRecord->setPath($subDir . '/' . $uniqueName);
+            $fileRecord->setStatus('idle');
+            $fileRecord->setUpdatedAt(new \DateTime());
+            $fileRecord->save();
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function upload($file, $configId)
     {
         if (!$this->isValidFile($file)) {

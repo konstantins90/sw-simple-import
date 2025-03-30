@@ -17,6 +17,7 @@ use App\Csv\FileProcessorFactory;
 const STATUS_PENDING = 'pending';
 const STATUS_COMPLETED = 'imported';
 const STATUS_RUN = 'run';
+const STATUS_ERROR = 'error';
 
 define('ROOT_PATH', __DIR__);
 
@@ -40,30 +41,55 @@ $csvDir = __DIR__ . '/csv';
 foreach ($files as $file) {
     $csvFilePath = $csvDir . '/' . $file->getPath();
     echo "Bearbeite Datei: $csvFilePath\n";
-    $file->setStatus(STATUS_RUN);
-    $file->save();
 
-    // Initialisiere den Parser und Prozessor für jede Datei
-    $csvParser = new CsvParser($csvFilePath);
-    $fileProcessor = FileProcessorFactory::createProcessor($csvFilePath);
+    try {
+        $file->setStatus(STATUS_RUN);
+        $file->save();
 
-    $productArray = [];
-    foreach($csvParser->getRecords() as $record) {
-        $productArray[] = $record;
+        // Initialisiere den Parser und Prozessor für jede Datei
+        $fileProcessor = FileProcessorFactory::createProcessor($csvFilePath);
+        $fileProcessor->setConfigFile($file);
+        $fileProcessor->setLogger();
+        
+        $csvParser = new CsvParser($csvFilePath);
+
+        $headers = $csvParser->getHeaders();
+        $duplicates = array_filter(array_count_values($headers), fn($count) => $count > 1);
+
+        if (!empty($duplicates)) {
+            $message = "Doppelte Spaltennamen gefunden: " . implode(', ', array_keys($duplicates));
+            $fileProcessor->addLogMessage($message);
+            throw new RuntimeException($message);
+        }
+
+        $productArray = [];
+        foreach($csvParser->getRecords() as $record) {
+            $productArray[] = $record;
+        }
+
+        $fileProcessor->setRecords($productArray);
+        $fields = $fileProcessor->getRecords();
+        $fileProcessor->mapProductProperties();
+        $fileProcessor->import();
+        $fileProcessor->showLog();
+
+        $file->setStatus(STATUS_COMPLETED);
+        $file->save();
+        
+        echo "Datei $csvFilePath erfolgreich verarbeitet.\n";
+    } catch (RuntimeException $e) {
+        $message = "Fehler bei Datei $csvFilePath: " . $e->getMessage() . "\n";
+        echo $message;
+        $file->setStatus(STATUS_ERROR);
+        $fileProcessor->addLogMessage($message);
+    } catch (Exception $e) {
+        $message = "Unerwarteter Fehler bei Datei $csvFilePath: " . $e->getMessage() . "\n";
+        echo $message;
+        $file->setStatus(STATUS_ERROR);
+        $fileProcessor->addLogMessage($message);
+    } finally {
+        $file->save();
     }
-
-    $fileProcessor->setConfigFile($file);
-    $fileProcessor->setLogger();
-    $fileProcessor->setRecords($productArray);
-    $fields = $fileProcessor->getRecords();
-    $fileProcessor->mapProductProperties();
-    $fileProcessor->import();
-    $fileProcessor->showLog();
-
-    $file->setStatus(STATUS_COMPLETED);
-    $file->save();
-    
-    echo "Datei $csvFilePath erfolgreich verarbeitet.\n";
 }
 
 unlink($lockFile);

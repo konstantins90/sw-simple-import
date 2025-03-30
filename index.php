@@ -220,6 +220,11 @@ $router->map('POST', '/files/edit/[i:id]', function ($id){
         throw new Exception("Запись с ID $id не найдена!");
     }
 
+    if (isset($_FILES['file']) && $_POST['config']) {
+        $controller = new UploadController();
+        $controller->replaceFile($file);
+    }
+
     if (isset($_POST['marge'])) {
         $file->setMarge($_POST['marge']);
     }

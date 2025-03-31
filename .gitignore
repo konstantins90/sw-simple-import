@@ -10,3 +10,4 @@ propel.yml
 index.html
 import.lock
 .env
+php.ini

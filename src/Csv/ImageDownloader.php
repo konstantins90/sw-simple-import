@@ -19,12 +19,17 @@ class ImageDownloader
     public function downloadImage(array $productData): ?string
     {
         $isbn = $productData['ean'];
+        $isbnSmall = str_replace("-", "", $isbn);
 
         if(isset($productData['media'])) {
             $url = $productData['media'];
 
             if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
                 if ($fileName = $this->imageExists($isbn)) {
+                    return $fileName;
+                }
+
+                if ($fileName = $this->imageExists($isbnSmall)) {
                     return $fileName;
                 }
 
@@ -58,9 +63,17 @@ class ImageDownloader
                     return $result;
                 }
             }
+
+            if (str_contains($url, "mann-ivanov-ferber")) {
+                $result = $this->findByMif($url, $isbn);
+
+                if (!empty($result)) {
+                    return $result;
+                }
+            }
         }
 
-        $result = $this->findByMnogoknig($isbn);
+        $result = $this->findByMnogoknig($isbnSmall);
         
         if (!empty($result)) {
             return $result;
@@ -242,6 +255,50 @@ class ImageDownloader
                 $img = $this->getBaseUrl($url, $image[0]->getAttribute('href'));
                 return $this->saveImage($img, $isbn);
             }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            return null;
+        }  catch (\Exception $e) {
+            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function findByMif(string $url, string $isbn): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        try {
+            $document = new Document($url, true);
+            
+            $h1 = $document->first('h1');
+            if (!$h1) {
+                return null;
+            }
+
+            // Поднимаемся на 2 уровня вверх
+            $parent = $h1->parent();
+            if (!$parent) return null;
+            
+            $grandParent = $parent->parent();
+            if (!$grandParent) return null;
+
+            // Ищем <img>, где src содержит "1.50x-thumb"
+            $images = $grandParent->find('img');
+            
+            foreach ($images as $img) {
+                $src = $img->getAttribute('src');
+                if (strpos($src, "1.50x-thumb") !== false) {
+                    $img = $this->getBaseUrl($url, $src);
+                    d($img);
+                    die('STOP');
+                    return $this->saveImage($img, $isbn);
+                }
+            }
+
+            return null;
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             error_log("Fehler beim HEAD-Request: " . $e->getMessage());
             return null;

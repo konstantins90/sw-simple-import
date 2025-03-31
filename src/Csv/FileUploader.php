@@ -10,7 +10,7 @@ class FileUploader
     public function __construct(
         private $uploadDir,
         private Logger $logger,
-        private $maxFileSize = 5 * 1024 * 1024,
+        private $maxFileSize = 25 * 1024 * 1024,
         private $allowedTypes = ['application/vnd.ms-excel', 'text/csv', 'text/plain']
     ) {
         $this->uploadDir = rtrim($uploadDir, '/') . '/';
@@ -53,7 +53,7 @@ class FileUploader
     public function upload($file, $configId)
     {
         if (!$this->isValidFile($file)) {
-            return ['status' => 'error', 'message' => 'Неверный файл'];
+            return ['status' => 'error', 'message' => 'Неверный файл 2'];
         }
 
         $originalName = basename($file['name']);

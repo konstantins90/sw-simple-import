@@ -83,6 +83,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
         foreach($this->records as &$productData) {
             $productData['media'] = $this->imageDownloader->downloadImage($productData);
+            die('STOP 1');
         }
     }
 

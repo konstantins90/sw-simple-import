@@ -90,7 +90,7 @@ class ImageDownloader
             $response = $this->client->request('GET', $url, ['http_errors' => false, 'stream' => true]);
             $contentType = $response->getHeaderLine('Content-Type');
 
-            if (str_starts_with($contentType, 'image/')) {
+            if (str_starts_with($contentType, 'image/' || true)) {
                 $extension = explode('/', $contentType)[1];
                 if ($extension == 'jpeg') {
                     $extension = 'jpg';

@@ -87,7 +87,14 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             $message = "Suche das Bild für $productNumber ($count / $productCount)";
             echo $message;
             $this->logger->info($message);
-            $productData['media'] = $this->imageDownloader->downloadImage($productData);
+            $media = $this->imageDownloader->downloadImage($productData);
+
+            $productData['media'] = $media;
+
+            $message = "Das Bild: $media";
+            echo $message;
+            $this->logger->info($message);
+
             $count++;
         }
     }

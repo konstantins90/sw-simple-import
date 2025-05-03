@@ -77,12 +77,18 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
     public function downloadImages(): void
     {
-        $message = "Download Bilder";
+        $productCount = count($this->records);
+        $message = "Download Bilder ($productCount)";
         echo $message;
         $this->logger->info($message);
-
+        $count = 1;
         foreach($this->records as &$productData) {
+            $productNumber = $productData['productNumber'];
+            $message = "Suche das Bild für $productNumber ($count / $productCount)";
+            echo $message;
+            $this->logger->info($message);
             $productData['media'] = $this->imageDownloader->downloadImage($productData);
+            $count++;
         }
     }
 

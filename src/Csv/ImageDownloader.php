@@ -175,7 +175,23 @@ class ImageDownloader
     {
         $url = "https://mnogoknig.de/de/search?query=" . $isbn;
         try {
-            $document = new Document($url, true);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
+            $html = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // 2. Prüfen, ob Zugriff erfolgreich war
+            if ($httpCode !== 200 || !$html) {
+                error_log("Fehler beim Laden von $url: HTTP $httpCode");
+                return null;
+            }
+
+            $document = new Document($html);
             $error = [];
             $items = $document->find('#product-content > div');
 

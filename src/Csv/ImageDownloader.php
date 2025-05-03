@@ -41,7 +41,7 @@ class ImageDownloader
 
                     // $headers = get_headers($url, 1);
 
-                    if (str_starts_with($contentType, 'image/')) {
+                    if (str_starts_with($contentType, 'image/') || true) {
                         $extension = explode('/', $contentType)[1];
                         if ($extension == 'jpeg') {
                             $extension = 'jpg';
@@ -108,6 +108,7 @@ class ImageDownloader
             return null;
         }
 
+        error_log("ER-03 Kein Bild");
         return null;
     }
 

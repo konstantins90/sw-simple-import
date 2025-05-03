@@ -41,7 +41,7 @@ class ImageDownloader
 
                     // $headers = get_headers($url, 1);
 
-                    if (str_starts_with($contentType, 'image/') || true) {
+                    if (str_starts_with($contentType, 'image/')) {
                         $extension = explode('/', $contentType)[1];
                         if ($extension == 'jpeg') {
                             $extension = 'jpg';
@@ -87,17 +87,27 @@ class ImageDownloader
     private function saveImage(string $url, string $name): ?string
     {
         try {
-            $response = $this->client->request('GET', $url, ['http_errors' => false, 'stream' => true]);
-            $contentType = $response->getHeaderLine('Content-Type');
+            // $response = $this->client->request('GET', $url, ['http_errors' => false, 'stream' => true]);
+            // $contentType = $response->getHeaderLine('Content-Type');
 
-            if (str_starts_with($contentType, 'image/' || true)) {
+            $contentType = $this->getContentType($url);
+
+            if (str_starts_with($contentType, 'image/')) {
                 $extension = explode('/', $contentType)[1];
                 if ($extension == 'jpeg') {
                     $extension = 'jpg';
                 }
 
                 $savePath = rtrim($this->imgDir, '/') . '/' . $name . '.' . $extension;
-                $this->client->get($url, ['sink' => $savePath]);
+                $this->client->get($url, [
+                    'sink' => $savePath,
+                    'headers' => [
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' .
+                                        '(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                        'Referer' => 'https://google.com',
+                        'Accept' => 'image/webp,image/apng,image/*,*/*;q=0.8',
+                    ],
+                ]);
                 return $savePath;
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -322,5 +332,30 @@ class ImageDownloader
             error_log("Fehler beim HEAD-Request: " . $e->getMessage());
             return null;
         }
+    }
+
+    private function getContentType(string $url): ?string {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true); // HEAD-Request
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    
+        // Browser-ähnlicher Header
+        curl_setopt($ch, CURLOPT_USERAGENT, 
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' . 
+            '(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+        curl_setopt($ch, CURLOPT_REFERER, 'https://google.com');
+    
+        curl_exec($ch);
+        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+    
+        if ($httpCode === 200) {
+            return $contentType;
+        }
+    
+        return null;
     }
 }

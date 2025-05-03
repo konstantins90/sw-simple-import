@@ -196,13 +196,14 @@ class ImageDownloader
             $items = $document->find('#product-content > div');
 
             if (!$items || !count($items) || count($error) > 0) {
+                error_log("ER-01. Bild nicht gefunden");
                 return null;
             }
 
             $image = $items[0]->find('.flex.relative img');
 
             if (!$image || !count($image)) {
-                error_log(message: "Bild wurde nicht gefunden");
+                error_log(message: "ER-02. Bild wurde nicht gefunden");
                 return null;
             }
 

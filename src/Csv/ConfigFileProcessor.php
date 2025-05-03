@@ -83,7 +83,6 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
         foreach($this->records as &$productData) {
             $productData['media'] = $this->imageDownloader->downloadImage($productData);
-            die('STOP 1');
         }
     }
 
@@ -153,11 +152,24 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
         echo $message;
         $this->logger->info($message);
 
-        $count = 0;
+        $count = 1;
         $this->shopwareClient->getManufacturerList(true);
+
+        $productCount = count($this->getRecords());
+
+        $message = "Produkte Anzahl: $productCount";
+        echo $message;
+        $this->logger->info($message);
+
         foreach($this->getRecords() as $productData)
         {
             $this->shopwareClient->checkTimeout();
+
+            $productNumber = $productData['productNumber'];
+            $message = "Produkt ID: $productNumber ($count / $productCount) wird importiert";
+            echo $message;
+            $this->logger->info($message);
+
             $this->importProduct($productData);
             $count++;
         }
@@ -208,10 +220,6 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
     public function importProduct(array $productData): bool
     {
         $productNumber = $productData['productNumber'];
-
-        $message = "Produkt ID: $productNumber wird importiert";
-        echo $message;
-        $this->logger->info($message);
         
         // Überprüfen, ob das Produkt bereits existiert
         $productId = $this->shopwareClient->productExists($productNumber);

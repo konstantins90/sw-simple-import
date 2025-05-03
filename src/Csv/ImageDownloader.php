@@ -292,8 +292,6 @@ class ImageDownloader
                 $src = $img->getAttribute('src');
                 if (strpos($src, "1.50x-thumb") !== false) {
                     $img = $this->getBaseUrl($url, $src);
-                    d($img);
-                    die('STOP');
                     return $this->saveImage($img, $isbn);
                 }
             }

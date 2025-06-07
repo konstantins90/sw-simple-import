@@ -49,6 +49,10 @@ class PropertyCollector
                     return $this->shopwareClient->findPropertyOptionId($propertyGroupId, $propertyValue) ?? $this->shopwareClient->createPropertyOption($propertyGroupId, $propertyValue);
                 });
 
+                if (!$propertyValue || !$optionId) {
+                    continue;
+                }
+
                 // Добавляем в массив propertiesArray с найденным/созданным optionId
                 $this->propertiesArray[$propertyName]['options'][] = [
                     'id' => $optionId,

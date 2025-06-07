@@ -196,11 +196,26 @@
           const reader = new FileReader();
           reader.onload = (e) => {
             const csvContent = e.target.result;
-            const rows = csvContent.split("\n");
-            this.csvHeaders = rows[0].split(";");
-            document.getElementById("csvHeaders").value = JSON.stringify(
-              this.csvHeaders
+
+            // Normalize line breaks to \n
+            const normalizedContent = csvContent.replace(/\r\n|\r/g, "\n");
+            const rows = normalizedContent.split("\n").filter(row => row.trim() !== "");
+
+            // CSV-Header extrahieren
+            this.csvHeaders = rows[0].split(";").map(h => h.trim());
+            console.log(this.csvHeaders);
+
+            // Duplikate prüfen
+            const duplicates = this.csvHeaders.filter((item, index) => 
+              this.csvHeaders.indexOf(item) !== index
             );
+            if (duplicates.length > 0) {
+              console.warn("Duplikate im CSV-Header gefunden:", duplicates);
+              alert("Achtung: Duplikate im CSV-Header gefunden: " + duplicates.join(", "));
+            }
+
+            document.getElementById("csvHeaders").value = JSON.stringify(this.csvHeaders);
+
             this.fields = this.mandatoryHeaders.map((header, index) => ({
               name: header,
               type: index < this.csvHeaders.length ? "csv" : "default",

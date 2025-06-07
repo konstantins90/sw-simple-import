@@ -44,6 +44,8 @@ class PriceCalculator
         // Berechne den Preis in Euro und füge 20% Marge hinzu
         $amountInEur = $amount * $conversionRate;
         $end = $this->applyMargin($amountInEur);
+
+        $end = $this->roundDownToNearestTenCents($end);
         return $end;
     }
 
@@ -146,5 +148,9 @@ class PriceCalculator
         }
 
         $this->exchangeRate = $exchangeRate;
+    }
+
+    private function roundDownToNearestTenCents(float $price): float {
+        return floor($price * 10) / 10;
     }
 }

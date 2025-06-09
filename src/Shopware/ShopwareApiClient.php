@@ -119,6 +119,32 @@ class ShopwareApiClient
         }
     }
 
+    public function deleteProductArray(array $productArray): bool
+    {
+        try {
+            $this->client->delete('/api/_action/sync/', [
+                'headers' => [
+                    'Accept' => 'application/vnd.api+json, application/json',
+                    'Authorization' => 'Bearer ' . $this->accessToken,
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode( [
+                    'delete-product' => [
+                        [
+                            'entity'  => 'product',
+                            'action' => 'delete',
+                            'payload' => $productArray,
+                        ]
+                    ]
+                ], JSON_UNESCAPED_UNICODE ),
+            ]);
+            return true;
+        } catch (RequestException $e) {
+            d('Error updating product: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function productExists(string $productNumber): string|bool
     {
         try {

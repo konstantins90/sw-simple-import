@@ -154,10 +154,26 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             $message = "Produkte werden gelöscht";
             echo $message;
             $this->logger->info($message);
+            $toRemove = [];
             foreach($this->getRecords() as $productData)
             {
                 $this->shopwareClient->checkTimeout();
-                $this->deleteProduct($productData);
+
+                $productNumber = $productData['productNumber'];
+                $productId = $this->shopwareClient->productExists($productNumber);
+                if ($productId) {
+                    $toRemove[] = [
+                        'id' => $productId
+                    ]
+                }
+
+                // $this->deleteProduct($productData);
+            }
+            $message = "Anzahl: " . count($toRemove);
+            echo $message;
+            $this->logger->info($message);
+            if (count($toRemove) > 0) {
+                $this->shopwareClient->deleteProductArray($toRemove);
             }
             return;
         }

@@ -69,7 +69,7 @@ foreach ($files as $file) {
 
         $fileProcessor->setRecords($productArray);
         $fields = $fileProcessor->getRecords();
-        if ($fileProcessor->getConfigFile()->getImportType() == 'created_updated') {
+        if ($fileProcessor->getConfigFile()->getImportType() == 'create_update') {
             $fileProcessor->mapProductProperties();
         }
         $fileProcessor->import();

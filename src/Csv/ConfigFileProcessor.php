@@ -164,7 +164,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
                 if ($productId) {
                     $toRemove[] = [
                         'id' => $productId
-                    ]
+                    ];
                 }
 
                 // $this->deleteProduct($productData);

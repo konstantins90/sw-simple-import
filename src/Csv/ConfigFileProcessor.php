@@ -157,6 +157,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
             foreach($this->getRecords() as $productData)
             {
                 $this->shopwareClient->checkTimeout();
+                $this->deleteProduct($productData);
             }
             return;
         }

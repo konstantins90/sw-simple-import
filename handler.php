@@ -27,7 +27,9 @@ foreach ($csvFiles as $csvFile) {
     }
 
     $fileProcessor->setRecords($productArray);
-    $fileProcessor->mapProductProperties();
+    if ($fileProcessor->getConfigFile()->getImportType() == 'created_updated') {
+        $fileProcessor->mapProductProperties();
+    }
     $fileProcessor->import();
 
     $fileProcessor->showLog();

@@ -352,26 +352,35 @@ class ImageDownloader
             $document = new Document($url, true);
             
             $h1 = $document->first('h1');
+            $this->logger->info("H1: " . $h1);
             if (!$h1) {
                 return null;
             }
 
             // Поднимаемся на 2 уровня вверх
             $parent = $h1->parent();
+            $this->logger->info("Parent: " . $parent);
             if (!$parent) return null;
             
             $grandParent = $parent->parent();
+            $this->logger->info("GrandParent: " . $grandParent);
             if (!$grandParent) return null;
 
             // Ищем <img>, где src содержит "1.50x-thumb"
             $images = $grandParent->find('img');
-            
+            $this->logger->info("Images: " . count($images));
             foreach ($images as $img) {
                 $src = $img->getAttribute('src');
                 if (strpos($src, "1.50x-thumb") !== false) {
                     $img = $this->getBaseUrl($url, $src);
                     return $this->saveImage($img, $isbn);
                 }
+            }
+
+            foreach ($images as $img) {
+                $src = $img->getAttribute('src');
+                $img = $this->getBaseUrl($url, $src);
+                return $this->saveImage($img, $isbn);
             }
 
             return null;

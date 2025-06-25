@@ -9,6 +9,7 @@ class ImageDownloader
 {
     private $client;
     private $imgDir;
+    private $logger;
     public function __construct() {
         $this->imgDir = dirname(__DIR__, 2) . '/book_images';
         $this->client = new Client([
@@ -23,6 +24,7 @@ class ImageDownloader
 
         if(isset($productData['media'])) {
             $url = $productData['media'];
+            $this->logger->info("Media existiert: $url als $isbn");
 
             if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
                 if ($fileName = $this->imageExists($isbn)) {
@@ -57,6 +59,7 @@ class ImageDownloader
             }
 
             if (isset($productData['manufacturer']) && $productData['manufacturer'] == 'РОБИНС') {
+                $this->logger->info("Robins: $url als $isbn");
                 $result = $this->findByRobins($url, $isbn);
 
                 if (!empty($result)) {
@@ -65,6 +68,7 @@ class ImageDownloader
             }
 
             if (str_contains($url, "mann-ivanov-ferber")) {
+                $this->logger->info("MIF: $url als $isbn");
                 $result = $this->findByMif($url, $isbn);
 
                 if (!empty($result)) {
@@ -73,6 +77,7 @@ class ImageDownloader
             }
         }
 
+        $this->logger->info("Mnogoknig: $isbnSmall");
         $result = $this->findByMnogoknig($isbnSmall);
         
         if (!empty($result)) {
@@ -87,6 +92,9 @@ class ImageDownloader
     private function saveImage(string $url, string $name): ?string
     {
         try {
+            if ($this->logger) {
+                $this->logger->info("Versuche Bild zu speichern: $url als $name");
+            }
             // $response = $this->client->request('GET', $url, ['http_errors' => false, 'stream' => true]);
             // $contentType = $response->getHeaderLine('Content-Type');
 
@@ -108,13 +116,20 @@ class ImageDownloader
                         'Accept' => 'image/webp,image/apng,image/*,*/*;q=0.8',
                     ],
                 ]);
+                if ($this->logger) {
+                    $this->logger->info("Bild gespeichert: $savePath");
+                }
                 return $savePath;
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
 
@@ -357,5 +372,10 @@ class ImageDownloader
         }
     
         return null;
+    }
+
+    public function setLogger($logger): void
+    {
+        $this->logger = $logger;
     }
 }

@@ -43,6 +43,7 @@ class ConfigFileProcessor extends FileProcessorDefault implements FileProcessorI
 
         $this->importHistory->setLogFile($filename);
         $this->importHistory->save();
+        $this->imageDownloader->setLogger($this->logger);
     }
 
     public function addLogMessage(string $message): void

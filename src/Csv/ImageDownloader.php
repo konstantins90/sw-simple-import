@@ -22,7 +22,7 @@ class ImageDownloader
         $isbn = $productData['ean'];
         $isbnSmall = str_replace("-", "", $isbn);
 
-        if(isset($productData['media'])) {
+        if(isset($productData['media']) && $productData['media'] != '') {
             $url = $productData['media'];
             $this->logger->info("Media existiert: $url als $isbn");
 
@@ -52,9 +52,13 @@ class ImageDownloader
                         return $this->saveImage($url, $isbn);
                     }
                 } catch (\GuzzleHttp\Exception\ClientException $e) {
-                    error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+                    if ($this->logger) {
+                        $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+                    }
                 }  catch (\Exception $e) {
-                    error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+                    if ($this->logger) {
+                        $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+                    }
                 }
             }
 
@@ -70,6 +74,7 @@ class ImageDownloader
             if (str_contains($url, "mann-ivanov-ferber")) {
                 $this->logger->info("MIF: $url als $isbn");
                 $result = $this->findByMif($url, $isbn);
+                $this->logger->info("MIF Result: $result");
 
                 if (!empty($result)) {
                     return $result;
@@ -133,7 +138,9 @@ class ImageDownloader
             return null;
         }
 
-        error_log("ER-03 Kein Bild");
+        if ($this->logger) {
+            $this->logger->error("ER-03 Kein Bild");
+        }
         return null;
     }
 
@@ -180,7 +187,9 @@ class ImageDownloader
             $image = $items[0]->first('.item.product')?->find('.product-image-photo');
 
             if (!$image || !count($image)) {
-                error_log(message: "Bild wurde nicht gefunden");
+                if ($this->logger) {
+                    $this->logger->error("Bild wurde nicht gefunden");
+                }
                 return null;
             }
 
@@ -189,10 +198,14 @@ class ImageDownloader
                 return $this->saveImage($img, $isbn);
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
     }
@@ -213,7 +226,9 @@ class ImageDownloader
 
             // 2. Prüfen, ob Zugriff erfolgreich war
             if ($httpCode !== 200 || !$html) {
-                error_log("Fehler beim Laden von $url: HTTP $httpCode");
+                if ($this->logger) {
+                    $this->logger->error("Fehler beim Laden von $url: HTTP $httpCode");
+                }
                 return null;
             }
 
@@ -222,14 +237,18 @@ class ImageDownloader
             $items = $document->find('#product-content > div');
 
             if (!$items || !count($items) || count($error) > 0) {
-                error_log("ER-01. Bild nicht gefunden");
+                if ($this->logger) {
+                    $this->logger->error("ER-01. Bild nicht gefunden");
+                }
                 return null;
             }
 
             $image = $items[0]->find('.flex.relative img');
 
             if (!$image || !count($image)) {
-                error_log(message: "ER-02. Bild wurde nicht gefunden");
+                if ($this->logger) {
+                    $this->logger->error("ER-02. Bild wurde nicht gefunden");
+                }
                 return null;
             }
 
@@ -238,10 +257,14 @@ class ImageDownloader
                 return $this->saveImage($img, $isbn);
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
     }
@@ -255,7 +278,9 @@ class ImageDownloader
             d($image);
 
             if (!$image || !count($image)) {
-                error_log(message: "Bild wurde nicht gefunden");
+                if ($this->logger) {
+                    $this->logger->error("Bild wurde nicht gefunden");
+                }
                 return null;
             }
 
@@ -265,10 +290,14 @@ class ImageDownloader
                 return $this->saveImage($img, $isbn);
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
     }
@@ -290,7 +319,9 @@ class ImageDownloader
             $image = $slides[0]->first('li')?->find('a');
 
             if (!$image || !count($image)) {
-                error_log(message: "Bild wurde nicht gefunden");
+                if ($this->logger) {
+                    $this->logger->error("Bild wurde nicht gefunden");
+                }
                 return null;
             }
 
@@ -299,10 +330,14 @@ class ImageDownloader
                 return $this->saveImage($img, $isbn);
             }
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
     }
@@ -341,10 +376,14 @@ class ImageDownloader
 
             return null;
         } catch (\GuzzleHttp\Exception\ClientException $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }  catch (\Exception $e) {
-            error_log("Fehler beim HEAD-Request: " . $e->getMessage());
+            if ($this->logger) {
+                $this->logger->error("Fehler beim HEAD-Request: " . $e->getMessage());
+            }
             return null;
         }
     }
